@@ -1,26 +1,44 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ivoire: #F5F0E8;
+  --color-ivoire-fonce: #EDE8DE;
+  --color-sable: #D8D0C3;
+  --color-terracotta: #C17A40;
+  --color-foret: #2D5016;
+  --color-presque-noir: #1C1917;
+  --color-gris-chaud: #6B6560;
+
+  --font-display: var(--font-playfair);
+  --font-serif: var(--font-lora);
+  --font-sans: var(--font-inter);
+  --font-garamond: var(--font-eb-garamond);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background-color: #F5F0E8;
+  color: #1C1917;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #F5F0E8;
+  color: #1C1917;
+  font-family: var(--font-inter), Georgia, serif;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+/* Typographie française */
+.fragment-text {
+  font-family: var(--font-eb-garamond), Georgia, serif;
+  font-size: 19px;
+  line-height: 1.8;
+  color: #1C1917;
+}
+
+/* Espace insécable avant ponctuation double — géré par le contenu */
+.fr-typography {
+  font-feature-settings: "liga" 1, "kern" 1;
 }
