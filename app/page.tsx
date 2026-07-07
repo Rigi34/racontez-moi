@@ -174,6 +174,31 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── COMMENT ÇA MARCHE ───────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-ivoire-fonce">
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="font-garamond italic text-xl text-gris-chaud mb-14 leading-relaxed">
+            Une première séance offerte, sans engagement&nbsp;—&nbsp;vous verrez tout de suite
+            si cette voix vous convient.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-px bg-sable">
+            <div className="bg-ivoire-fonce px-10 py-10 text-left">
+              <p className="font-display text-2xl text-presque-noir mb-3">Vous racontez.</p>
+              <p className="font-sans text-base text-gris-chaud leading-relaxed">
+                Vingt minutes, une à deux fois par semaine, à votre rythme, pendant un an.
+              </p>
+            </div>
+            <div className="bg-ivoire-fonce px-10 py-10 text-left">
+              <p className="font-display text-2xl text-presque-noir mb-3">Le livre arrive.</p>
+              <p className="font-sans text-base text-gris-chaud leading-relaxed">
+                Composé séance après séance, imprimé, relié. Le vôtre.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── OBJETS DE MÉMOIRE ────────────────────────────────────────── */}
       <section className="py-16 px-6 bg-ivoire-fonce">
         <div className="max-w-5xl mx-auto">

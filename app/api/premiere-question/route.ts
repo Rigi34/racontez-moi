@@ -26,9 +26,10 @@ Ne pose qu'une seule question. Pas de commentaire, pas d'analyse, juste la quest
 Vouvoie l'interlocuteur. Ton délicat, chaleureux, patient.`;
 
 const SYSTEM_FRAGMENT = `Tu es un écrivain qui compose des fragments de mémoire.
-À partir de ce que la personne a partagé, compose un court fragment littéraire à la première personne.
+À partir de ce que la personne a partagé, compose un fragment littéraire à la première personne.
 Règles absolues :
-- 120 à 200 mots maximum
+- Longueur adaptative : 150 à 400 mots selon la richesse du matériau partagé. Ne compresse pas artificiellement une séance riche — laisse le fragment respirer.
+- Si la personne a clairement évoqué deux souvenirs distincts (deux lieux, deux époques, deux scènes sans lien), compose deux fragments séparés, chacun complet, séparés par une ligne vide et un tiret cadratin (—).
 - Première personne (je)
 - Temps du récit : imparfait ou passé simple
 - Prose narrative, jamais de liste
@@ -37,7 +38,7 @@ Règles absolues :
 - Commence par un détail concret, pas une généralité
 - Dernier mot : ouvre vers quelque chose, ne clôture pas
 - Aucune formule d'introduction ("Voici votre fragment", etc.) — commence directement
-Résultat : uniquement le texte du fragment.`;
+Résultat : uniquement le texte du ou des fragments.`;
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
 
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 400,
+      max_tokens: 700,
       system: SYSTEM_FRAGMENT,
       messages: [
         {
