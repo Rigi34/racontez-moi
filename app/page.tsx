@@ -176,25 +176,51 @@ export default function Home() {
 
       {/* ─── COMMENT ÇA MARCHE ───────────────────────────────────────── */}
       <section className="py-20 px-6 bg-ivoire-fonce">
-        <div className="max-w-2xl mx-auto text-center">
-          <p className="font-garamond italic text-xl text-gris-chaud mb-14 leading-relaxed">
-            Une première séance offerte, sans engagement&nbsp;—&nbsp;vous verrez tout de suite
-            si cette voix vous convient.
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-px bg-sable">
-            <div className="bg-ivoire-fonce px-10 py-10 text-left">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-px bg-sable">
+            <div className="bg-ivoire-fonce px-8 py-10">
+              <p className="font-display text-2xl text-presque-noir mb-3">Vous commencez.</p>
+              <p className="font-sans text-base text-gris-chaud leading-relaxed">
+                Une première séance offerte, sans engagement&nbsp;— vous verrez tout de suite
+                si cette voix vous convient.
+              </p>
+            </div>
+            <div className="bg-ivoire-fonce px-8 py-10">
               <p className="font-display text-2xl text-presque-noir mb-3">Vous racontez.</p>
               <p className="font-sans text-base text-gris-chaud leading-relaxed">
                 Vingt minutes, une à deux fois par semaine, à votre rythme, pendant un an.
               </p>
             </div>
-            <div className="bg-ivoire-fonce px-10 py-10 text-left">
+            <div className="bg-ivoire-fonce px-8 py-10">
               <p className="font-display text-2xl text-presque-noir mb-3">Le livre arrive.</p>
               <p className="font-sans text-base text-gris-chaud leading-relaxed">
                 Composé séance après séance, imprimé, relié. Le vôtre.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── RIEN N'EST IMPROVISÉ ────────────────────────────────────── */}
+      <section className="py-20 px-6">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="font-display text-3xl text-presque-noir mb-10">
+            Rien n&apos;est improvisé
+          </h2>
+          <div className="space-y-6 font-serif text-lg leading-[1.85] text-presque-noir">
+            <p>
+              Les questions qui vous seront posées, le rythme des séances, la façon dont vos mots
+              deviennent un texte&nbsp;: rien n&apos;a été laissé au hasard. Quatorze ouvrages de
+              référence ont nourri cette méthode&nbsp;— de la neuropsychologie de la mémoire à
+              l&apos;art d&apos;écrire une vie&nbsp;— pour comprendre pourquoi un souvenir remonte
+              mieux par une sensation que par une date, et ce qui transforme un souvenir raconté en
+              un texte qu&apos;on a vraiment envie de relire.
+            </p>
+            <p>
+              Ce sérieux ne se voit pas pendant la conversation. C&apos;est précisément le
+              but&nbsp;: vous n&apos;aurez jamais l&apos;impression de suivre un protocole,
+              seulement celle d&apos;être bien écouté.
+            </p>
           </div>
         </div>
       </section>
@@ -245,6 +271,9 @@ export default function Home() {
           <div className="flex gap-8 font-sans text-sm text-gris-chaud">
             <a href="/offrir" className="hover:text-presque-noir transition-colors">
               Offrir en cadeau
+            </a>
+            <a href="/manifeste" className="hover:text-presque-noir transition-colors">
+              Notre histoire
             </a>
             <a href="#" className="hover:text-presque-noir transition-colors">
               Confidentialité
