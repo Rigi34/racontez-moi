@@ -1,54 +1,105 @@
+import Image from "next/image";
 import PremièreQuestion from "./components/PremièreQuestion";
+
+const objetsMemoire = [
+  {
+    src: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=600&h=750&q=80",
+    alt: "Plume et encre sur papier ancien",
+    caption: "L'acte d'écrire",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1516131206008-dd041a9764fd?auto=format&fit=crop&w=600&h=750&q=80",
+    alt: "Vieux livres reliés empilés",
+    caption: "Les livres qui gardent",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=600&h=750&q=80",
+    alt: "Lettres manuscrites anciennes",
+    caption: "Les mots transmis",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=600&h=750&q=80",
+    alt: "Livres anciens et lunettes de lecture",
+    caption: "La mémoire en pages",
+  },
+];
 
 export default function Home() {
   return (
     <main className="min-h-screen">
       {/* ─── HERO ─────────────────────────────────────────────────────── */}
-      <section className="flex flex-col items-center justify-center min-h-screen px-6 pt-24 pb-20 text-center">
-        {/* Épigraphe Cyrulnik */}
-        <div className="mb-8 max-w-[540px]">
-          <p className="font-garamond italic text-[22px] leading-[1.6] text-presque-noir">
-            «&nbsp;Dès qu&apos;on en fait un récit, on donne sens à nos souffrances.&nbsp;»
-          </p>
-          <p className="mt-3 font-sans text-[13px] tracking-[0.12em] text-gris-chaud">
-            — Boris Cyrulnik, neuropsychiatre
-          </p>
+      <section className="min-h-screen flex items-center px-6 pt-16 pb-20">
+        <div className="max-w-6xl mx-auto w-full lg:grid lg:grid-cols-[1fr_420px] lg:gap-20 items-center">
+
+          {/* Colonne texte */}
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+            {/* Épigraphe Cyrulnik */}
+            <div className="mb-8 max-w-[540px]">
+              <p className="font-garamond italic text-[22px] leading-[1.6] text-presque-noir">
+                «&nbsp;Dès qu&apos;on en fait un récit, on donne sens à nos souffrances.&nbsp;»
+              </p>
+              <p className="mt-3 font-sans text-[13px] tracking-[0.12em] text-gris-chaud">
+                — Boris Cyrulnik, neuropsychiatre
+              </p>
+            </div>
+
+            {/* Filet séparateur */}
+            <div className="mb-10 w-[60px] h-px bg-sable" />
+
+            {/* H1 */}
+            <h1 className="font-display font-normal text-4xl md:text-5xl lg:text-6xl leading-[1.15] text-presque-noir max-w-3xl mb-6">
+              Votre histoire n&apos;attend pas l&apos;inspiration.
+              <br />
+              Elle attend un interlocuteur.
+            </h1>
+
+            {/* Sous-titre */}
+            <p className="font-sans text-lg md:text-xl text-gris-chaud max-w-2xl mb-10 leading-relaxed">
+              Des conversations de vingt minutes, chez vous, à la voix. Un interlocuteur
+              attentif qui écoute, questionne, se souvient — et compose au fil des séances
+              le livre de votre vie. Un vrai livre. Imprimé.
+            </p>
+
+            {/* Formule */}
+            <p className="font-garamond italic text-2xl text-presque-noir mb-8">
+              Vous parlez. Le livre s&apos;écrit.
+            </p>
+
+            {/* CTA */}
+            <a
+              href="#premiere-question"
+              className="inline-block bg-terracotta text-ivoire font-sans font-medium text-lg px-8 py-4 hover:bg-[#A8692E] transition-colors duration-200 mb-4"
+            >
+              Commencer mon histoire →
+            </a>
+
+            {/* Réassurance */}
+            <p className="font-sans text-sm text-gris-chaud">
+              Première séance offerte — sans compte, sans carte bancaire.
+            </p>
+          </div>
+
+          {/* Colonne image — livre physique above the fold */}
+          <div className="mt-14 lg:mt-0">
+            <div className="relative overflow-hidden shadow-[6px_6px_0px_#D8D0C3]">
+              <Image
+                src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=840&h=1050&q=80"
+                alt="Un livre ancien ouvert, lumière chaude sur les pages"
+                width={420}
+                height={525}
+                className="object-cover w-full"
+                priority
+              />
+              {/* Fine bordure ivoire-foncé */}
+              <div className="absolute inset-0 ring-1 ring-inset ring-sable/40" />
+            </div>
+            {/* Caption discret */}
+            <p className="mt-3 font-sans text-xs text-gris-chaud tracking-widest uppercase text-center lg:text-right">
+              À remplacer par votre livre — photo à venir
+            </p>
+          </div>
+
         </div>
-
-        {/* Filet séparateur */}
-        <div className="mb-10 w-[60px] h-px bg-sable" />
-
-        {/* H1 */}
-        <h1 className="font-display font-normal text-4xl md:text-5xl lg:text-6xl leading-[1.15] text-presque-noir max-w-3xl mb-6">
-          Votre histoire n&apos;attend pas l&apos;inspiration.
-          <br />
-          Elle attend un interlocuteur.
-        </h1>
-
-        {/* Sous-titre */}
-        <p className="font-sans text-lg md:text-xl text-gris-chaud max-w-2xl mb-10 leading-relaxed">
-          Des conversations de vingt minutes, chez vous, à la voix. Un interlocuteur
-          attentif qui écoute, questionne, se souvient — et compose au fil des séances
-          le livre de votre vie. Un vrai livre. Imprimé.
-        </p>
-
-        {/* Formule */}
-        <p className="font-garamond italic text-2xl text-presque-noir mb-8">
-          Vous parlez. Le livre s&apos;écrit.
-        </p>
-
-        {/* CTA */}
-        <a
-          href="#premiere-question"
-          className="inline-block bg-terracotta text-ivoire font-sans font-medium text-lg px-8 py-4 hover:bg-[#A8692E] transition-colors duration-200 mb-4"
-        >
-          Commencer mon histoire →
-        </a>
-
-        {/* Réassurance */}
-        <p className="font-sans text-sm text-gris-chaud">
-          Première séance offerte — sans compte, sans carte bancaire.
-        </p>
       </section>
 
       {/* ─── 3 PILIERS ────────────────────────────────────────────────── */}
@@ -123,8 +174,35 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── OBJETS DE MÉMOIRE ────────────────────────────────────────── */}
+      <section className="py-16 px-6 bg-ivoire-fonce">
+        <div className="max-w-5xl mx-auto">
+          <p className="font-sans text-center text-gris-chaud text-xs tracking-widest uppercase mb-10">
+            Ce que garde une vie
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
+            {objetsMemoire.map((objet) => (
+              <div key={objet.caption}>
+                <div className="relative aspect-[4/5] overflow-hidden bg-sable/30">
+                  <Image
+                    src={objet.src}
+                    alt={objet.alt}
+                    fill
+                    className="object-cover grayscale-[15%] hover:grayscale-0 transition-all duration-500"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                  />
+                </div>
+                <p className="mt-3 font-sans text-xs text-gris-chaud tracking-widest uppercase text-center">
+                  {objet.caption}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── MODULE LA PREMIÈRE QUESTION ─────────────────────────────── */}
-      <section id="premiere-question" className="bg-ivoire-fonce py-20 px-6">
+      <section id="premiere-question" className="bg-ivoire py-20 px-6">
         <div className="max-w-2xl mx-auto">
           <p className="font-sans text-center text-gris-chaud text-sm tracking-widest uppercase mb-12">
             Ne nous croyez pas sur parole. Répondez à une question.
