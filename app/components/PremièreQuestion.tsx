@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, Dispatch, SetStateAction } from "react";
 
 type Phase = "question" | "reponse" | "relance" | "fragment" | "capture";
 
@@ -15,43 +15,48 @@ export default function PremièreQuestion() {
   const [error, setError] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recognitionRef = useRef<any>(null);
+  const [transcribing, setTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
-  const startVoice = useCallback((setter: (v: string) => void) => {
-    if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-      setError("La dictée vocale n'est pas disponible sur ce navigateur.");
-      return;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SR = ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
-    const recognition = new SR();
-    recognition.lang = "fr-FR";
-    recognition.continuous = true;
-    recognition.interimResults = true;
+  const startVoice = useCallback(async (setter: Dispatch<SetStateAction<string>>) => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+      const recorder = new MediaRecorder(stream);
 
-    let finalText = "";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (e: any) => {
-      let interim = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) {
-          finalText += e.results[i][0].transcript + " ";
-        } else {
-          interim = e.results[i][0].transcript;
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        setTranscribing(true);
+        try {
+          const form = new FormData();
+          form.append("audio", blob, "recording.webm");
+          const res = await fetch("/api/transcribe", { method: "POST", body: form });
+          if (!res.ok) throw new Error();
+          const data = await res.json();
+          setter((prev) => (prev ? prev + " " + data.text : data.text));
+        } catch {
+          setError("Erreur lors de la transcription. Veuillez réessayer.");
+        } finally {
+          setTranscribing(false);
         }
-      }
-      setter(finalText + interim);
-    };
-    recognition.onerror = () => setIsRecording(false);
-    recognition.onend = () => setIsRecording(false);
-    recognition.start();
-    recognitionRef.current = recognition;
-    setIsRecording(true);
+      };
+
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setIsRecording(true);
+    } catch {
+      setError("Accès au microphone refusé. Vérifiez les permissions du navigateur.");
+    }
   }, []);
 
   const stopVoice = useCallback(() => {
-    recognitionRef.current?.stop();
+    mediaRecorderRef.current?.stop();
     setIsRecording(false);
   }, []);
 
@@ -135,17 +140,18 @@ export default function PremièreQuestion() {
                 onClick={() =>
                   isRecording ? stopVoice() : startVoice(setReponse)
                 }
-                className={`font-sans text-sm px-5 py-2.5 border transition-colors ${
+                disabled={transcribing}
+                className={`font-sans text-sm px-5 py-2.5 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                   isRecording
                     ? "border-terracotta text-terracotta bg-terracotta/10"
                     : "border-sable text-gris-chaud hover:border-gris-chaud"
                 }`}
               >
-                {isRecording ? "⏹ Arrêter la dictée" : "🎙 Dicter à la voix"}
+                {isRecording ? "⏹ Arrêter la dictée" : transcribing ? "Transcription…" : "🎙 Dicter à la voix"}
               </button>
               <button
                 onClick={submitReponse}
-                disabled={!reponse.trim() || loading}
+                disabled={!reponse.trim() || loading || transcribing}
                 className="bg-terracotta text-ivoire font-sans font-medium px-7 py-2.5 hover:bg-[#A8692E] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading ? "Un instant…" : "Continuer →"}
@@ -174,13 +180,14 @@ export default function PremièreQuestion() {
                 onClick={() =>
                   isRecording ? stopVoice() : startVoice(setReponseRelance)
                 }
-                className={`font-sans text-sm px-5 py-2.5 border transition-colors ${
+                disabled={transcribing}
+                className={`font-sans text-sm px-5 py-2.5 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                   isRecording
                     ? "border-terracotta text-terracotta bg-terracotta/10"
                     : "border-sable text-gris-chaud hover:border-gris-chaud"
                 }`}
               >
-                {isRecording ? "⏹ Arrêter" : "🎙 Dicter"}
+                {isRecording ? "⏹ Arrêter" : transcribing ? "Transcription…" : "🎙 Dicter"}
               </button>
               <button
                 onClick={submitRelance}
