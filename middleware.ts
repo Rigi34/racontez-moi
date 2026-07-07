@@ -2,6 +2,15 @@ import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  const isProtected =
+    pathname.startsWith("/tableau-de-bord") ||
+    pathname.startsWith("/seance")
+
+  if (!isProtected) {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -37,12 +46,7 @@ export async function middleware(request: NextRequest) {
     hasUser = false
   }
 
-  const { pathname } = request.nextUrl
-  const isProtected =
-    pathname.startsWith("/tableau-de-bord") ||
-    pathname.startsWith("/seance")
-
-  if (isProtected && !hasUser) {
+  if (!hasUser) {
     const url = request.nextUrl.clone()
     url.pathname = "/sign-in"
     url.searchParams.set("redirect_url", pathname)
@@ -53,5 +57,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/tableau-de-bord/:path*", "/seance/:path*"],
 }
