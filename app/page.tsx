@@ -83,7 +83,7 @@ export default function Home() {
           <div className="mt-14 lg:mt-0">
             <div className="relative overflow-hidden shadow-[6px_6px_0px_#D8D0C3]">
               <Image
-                src="/hero-livre.png"
+                src="/hero-livre.webp"
                 alt="Le livre de votre vie — Racontez-moi"
                 width={420}
                 height={525}
