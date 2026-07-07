@@ -83,8 +83,8 @@ export default function Home() {
           <div className="mt-14 lg:mt-0">
             <div className="relative overflow-hidden shadow-[6px_6px_0px_#D8D0C3]">
               <Image
-                src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=840&h=1050&q=80"
-                alt="Un livre ancien ouvert, lumière chaude sur les pages"
+                src="/hero-livre.png"
+                alt="Le livre de votre vie — Racontez-moi"
                 width={420}
                 height={525}
                 className="object-cover w-full"
@@ -95,7 +95,7 @@ export default function Home() {
             </div>
             {/* Caption discret */}
             <p className="mt-3 font-sans text-xs text-gris-chaud tracking-widest uppercase text-center lg:text-right">
-              À remplacer par votre livre — photo à venir
+              Votre histoire. Votre livre.
             </p>
           </div>
 
