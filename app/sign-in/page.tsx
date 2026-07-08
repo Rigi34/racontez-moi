@@ -118,7 +118,13 @@ function SignInInner() {
 
 export default function SignInPage() {
   return (
-    <Suspense>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-ivoire">
+          <p className="font-sans text-sm text-gris-chaud">Chargement…</p>
+        </div>
+      }
+    >
       <SignInInner />
     </Suspense>
   )
