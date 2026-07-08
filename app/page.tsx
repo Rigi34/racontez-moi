@@ -27,6 +27,16 @@ const objetsMemoire = [
 export default function Home() {
   return (
     <main className="min-h-screen">
+      {/* ─── HEADER ───────────────────────────────────────────────────── */}
+      <header className="px-6 pt-6 flex justify-end">
+        <a
+          href="/sign-in"
+          className="font-sans text-sm text-gris-chaud hover:text-presque-noir transition-colors"
+        >
+          Se connecter
+        </a>
+      </header>
+
       {/* ─── HERO ─────────────────────────────────────────────────────── */}
       <section className="min-h-screen flex items-center px-6 pt-16 pb-20">
         <div className="max-w-6xl mx-auto w-full lg:grid lg:grid-cols-[1fr_420px] lg:gap-20 items-center">

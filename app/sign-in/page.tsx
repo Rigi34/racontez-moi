@@ -21,18 +21,43 @@ function SignInInner() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [confirmationEnvoyee, setConfirmationEnvoyee] = useState(false)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const { error } =
-      mode === "signup"
-        ? await supabase.auth.signUp({ email, password })
-        : await supabase.auth.signInWithPassword({ email, password })
+
+    if (mode === "signup") {
+      const { data, error } = await supabase.auth.signUp({ email, password })
+      setLoading(false)
+      if (error) { setError(messageErreur(error.message)); return }
+      if (!data.session) { setConfirmationEnvoyee(true); return }
+      window.location.assign(next)
+      return
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
     setLoading(false)
     if (error) { setError(messageErreur(error.message)); return }
     window.location.assign(next)
+  }
+
+  if (confirmationEnvoyee) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-ivoire px-6">
+        <div className="w-full max-w-sm text-center space-y-4">
+          <p className="font-garamond text-lg italic text-terracotta tracking-wide">
+            Racontez-moi
+          </p>
+          <p className="font-sans text-base text-presque-noir leading-relaxed">
+            Presque prêt. Un email vient de vous être envoyé — ouvrez-le et cliquez sur le
+            lien de confirmation pour activer votre compte. Si vous ne le voyez pas dans
+            quelques minutes, pensez à vérifier vos courriers indésirables.
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
