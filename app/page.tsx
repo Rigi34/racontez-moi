@@ -285,6 +285,9 @@ export default function Home() {
             <a href="/manifeste" className="hover:text-presque-noir transition-colors">
               Notre histoire
             </a>
+            <a href="/blog" className="hover:text-presque-noir transition-colors">
+              Journal
+            </a>
             <a href="#" className="hover:text-presque-noir transition-colors">
               Confidentialité
             </a>
