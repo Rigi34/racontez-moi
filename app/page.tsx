@@ -113,23 +113,23 @@ export default function Home() {
       </section>
 
       {/* ─── 3 PILIERS ────────────────────────────────────────────────── */}
-      <section className="bg-ivoire-fonce py-16 px-6">
-        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-10">
-          <div className="text-center">
-            <div className="w-8 h-px mx-auto mb-6 bg-sable" />
+      <section className="bg-ivoire-fonce py-20 px-6">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
+          <div className="bg-ivoire p-8 shadow-[5px_5px_0px_#D8D0C3] text-center">
+            <div className="w-8 h-[3px] mx-auto mb-6 bg-terracotta" />
             <p className="font-serif text-base leading-relaxed text-presque-noir">
               <strong className="font-semibold block mb-2">Pour eux.</strong>
               Un récit de vie cohérent se transmet&nbsp;: la recherche sur
               l&apos;attachement montre qu&apos;il structure le lien des générations
               suivantes.
             </p>
-            <p className="font-sans text-xs text-gris-chaud mt-3 tracking-wider uppercase">
+            <p className="font-sans text-xs text-presque-noir mt-3 tracking-wider uppercase">
               D. Siegel
             </p>
           </div>
 
-          <div className="text-center">
-            <div className="w-8 h-px mx-auto mb-6 bg-sable" />
+          <div className="bg-ivoire p-8 shadow-[5px_5px_0px_#D8D0C3] text-center">
+            <div className="w-8 h-[3px] mx-auto mb-6 bg-terracotta" />
             <p className="font-serif text-base leading-relaxed text-presque-noir">
               <strong className="font-semibold block mb-2">Pour vous.</strong>
               Mettre sa vie en récit n&apos;est pas un caprice&nbsp;: c&apos;est une
@@ -137,15 +137,15 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="text-center">
-            <div className="w-8 h-px mx-auto mb-6 bg-sable" />
+          <div className="bg-ivoire p-8 shadow-[5px_5px_0px_#D8D0C3] text-center">
+            <div className="w-8 h-[3px] mx-auto mb-6 bg-terracotta" />
             <p className="font-serif text-base leading-relaxed text-presque-noir">
               <strong className="font-semibold block mb-2">Pour votre équilibre.</strong>
               Ce qui se raconte pèse moins. Quarante ans d&apos;études sur
               l&apos;écriture expressive le confirment, jusque dans les indicateurs
               de santé.
             </p>
-            <p className="font-sans text-xs text-gris-chaud mt-3 tracking-wider uppercase">
+            <p className="font-sans text-xs text-presque-noir mt-3 tracking-wider uppercase">
               J. Pennebaker
             </p>
           </div>
@@ -185,25 +185,28 @@ export default function Home() {
       </section>
 
       {/* ─── COMMENT ÇA MARCHE ───────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-ivoire-fonce">
+      <section className="py-20 px-6 bg-white">
         <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-px bg-sable">
-            <div className="bg-ivoire-fonce px-8 py-10">
+          <div className="grid md:grid-cols-3 gap-10">
+            <div className="relative px-2">
+              <p className="font-display text-7xl text-terracotta/20 leading-none mb-2">01</p>
               <p className="font-display text-2xl text-presque-noir mb-3">Vous commencez.</p>
-              <p className="font-sans text-base text-gris-chaud leading-relaxed">
+              <p className="font-sans text-base text-presque-noir/80 leading-relaxed">
                 Une première séance offerte, sans engagement&nbsp;— vous verrez tout de suite
                 si cette voix vous convient.
               </p>
             </div>
-            <div className="bg-ivoire-fonce px-8 py-10">
+            <div className="relative px-2">
+              <p className="font-display text-7xl text-terracotta/20 leading-none mb-2">02</p>
               <p className="font-display text-2xl text-presque-noir mb-3">Vous racontez.</p>
-              <p className="font-sans text-base text-gris-chaud leading-relaxed">
+              <p className="font-sans text-base text-presque-noir/80 leading-relaxed">
                 Vingt minutes, une à deux fois par semaine, à votre rythme, pendant un an.
               </p>
             </div>
-            <div className="bg-ivoire-fonce px-8 py-10">
+            <div className="relative px-2">
+              <p className="font-display text-7xl text-terracotta/20 leading-none mb-2">03</p>
               <p className="font-display text-2xl text-presque-noir mb-3">Le livre arrive.</p>
-              <p className="font-sans text-base text-gris-chaud leading-relaxed">
+              <p className="font-sans text-base text-presque-noir/80 leading-relaxed">
                 Composé séance après séance, imprimé, relié. Le vôtre.
               </p>
             </div>
@@ -244,7 +247,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
             {objetsMemoire.map((objet) => (
               <div key={objet.caption}>
-                <div className="relative aspect-[4/5] overflow-hidden bg-sable/30">
+                <div className="relative aspect-[4/5] overflow-hidden bg-sable/30 shadow-[4px_4px_0px_#D8D0C3]">
                   <Image
                     src={objet.src}
                     alt={objet.alt}
@@ -253,7 +256,7 @@ export default function Home() {
                     sizes="(max-width: 768px) 50vw, 25vw"
                   />
                 </div>
-                <p className="mt-3 font-sans text-xs text-gris-chaud tracking-widest uppercase text-center">
+                <p className="mt-3 font-sans text-xs text-presque-noir tracking-widest uppercase text-center">
                   {objet.caption}
                 </p>
               </div>
@@ -273,25 +276,25 @@ export default function Home() {
       </section>
 
       {/* ─── FOOTER ───────────────────────────────────────────────────── */}
-      <footer className="py-12 px-6 border-t border-sable">
+      <footer className="py-12 px-6 bg-presque-noir">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="font-garamond italic text-presque-noir text-xl">
+          <p className="font-garamond italic text-ivoire text-xl">
             Racontez-moi
           </p>
-          <div className="flex gap-8 font-sans text-sm text-gris-chaud">
-            <a href="/offrir" className="hover:text-presque-noir transition-colors">
+          <div className="flex gap-8 font-sans text-sm text-ivoire/70">
+            <a href="/offrir" className="hover:text-terracotta transition-colors">
               Offrir en cadeau
             </a>
-            <a href="/manifeste" className="hover:text-presque-noir transition-colors">
+            <a href="/manifeste" className="hover:text-terracotta transition-colors">
               Notre histoire
             </a>
-            <a href="/blog" className="hover:text-presque-noir transition-colors">
+            <a href="/blog" className="hover:text-terracotta transition-colors">
               Journal
             </a>
-            <a href="#" className="hover:text-presque-noir transition-colors">
+            <a href="#" className="hover:text-terracotta transition-colors">
               Confidentialité
             </a>
-            <a href="#" className="hover:text-presque-noir transition-colors">
+            <a href="#" className="hover:text-terracotta transition-colors">
               Contact
             </a>
           </div>

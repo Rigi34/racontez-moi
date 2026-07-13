@@ -102,14 +102,17 @@ export default function Manifeste() {
       </article>
 
       {/* ─── FOOTER MINIMAL ───────────────────────────────────────── */}
-      <footer className="py-10 px-6 border-t border-sable">
+      <footer className="py-10 px-6 bg-presque-noir">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
-            className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
+            className="font-sans text-sm text-ivoire/70 hover:text-terracotta transition-colors"
           >
             ← Retour à l&apos;accueil
           </Link>
+          <p className="font-garamond italic text-ivoire text-lg">
+            Racontez-moi
+          </p>
         </div>
       </footer>
     </main>

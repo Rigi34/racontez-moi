@@ -237,19 +237,19 @@ export default function OffrirPage() {
       </section>
 
       {/* ─── FOOTER ────────────────────────────────────────────────── */}
-      <footer className="py-12 px-6 border-t border-sable">
+      <footer className="py-12 px-6 bg-presque-noir">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <a href="/" className="font-garamond italic text-presque-noir text-xl hover:text-gris-chaud transition-colors">
+          <a href="/" className="font-garamond italic text-ivoire text-xl hover:text-terracotta transition-colors">
             Racontez-moi
           </a>
-          <div className="flex gap-8 font-sans text-sm text-gris-chaud">
-            <a href="/" className="hover:text-presque-noir transition-colors">
+          <div className="flex gap-8 font-sans text-sm text-ivoire/70">
+            <a href="/" className="hover:text-terracotta transition-colors">
               Accueil
             </a>
-            <a href="#" className="hover:text-presque-noir transition-colors">
+            <a href="#" className="hover:text-terracotta transition-colors">
               Confidentialité
             </a>
-            <a href="#" className="hover:text-presque-noir transition-colors">
+            <a href="#" className="hover:text-terracotta transition-colors">
               Contact
             </a>
           </div>

@@ -73,9 +73,9 @@ export default async function BlogPostPage({
           {toc.length > 0 && (
             <nav
               aria-label="Sommaire de l'article"
-              className="mb-16 pb-8 border-b border-sable"
+              className="mb-16 bg-ivoire-fonce p-6 shadow-[4px_4px_0px_#D8D0C3]"
             >
-              <p className="font-sans text-sm text-gris-chaud tracking-widest uppercase mb-4">
+              <p className="font-sans text-sm text-presque-noir tracking-widest uppercase mb-4">
                 Dans cet article
               </p>
               <ul className="space-y-2">
@@ -195,14 +195,17 @@ export default async function BlogPostPage({
       </article>
 
       {/* ─── FOOTER MINIMAL ───────────────────────────────────────── */}
-      <footer className="py-10 px-6 border-t border-sable">
+      <footer className="py-10 px-6 bg-presque-noir">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
-            className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
+            className="font-sans text-sm text-ivoire/70 hover:text-terracotta transition-colors"
           >
             ← Retour à l&apos;accueil
           </Link>
+          <p className="font-garamond italic text-ivoire text-lg">
+            Racontez-moi
+          </p>
         </div>
       </footer>
     </main>

@@ -40,9 +40,12 @@ export default function BlogIndex() {
             Ce que la recherche dit sur l&apos;écriture de ses mémoires.
           </p>
 
-          <div className="space-y-12">
+          <div className="space-y-8">
             {posts.map((post) => (
-              <article key={post.slug} className="pb-12 border-b border-sable last:border-0">
+              <article
+                key={post.slug}
+                className="bg-white p-8 shadow-[5px_5px_0px_#D8D0C3]"
+              >
                 <h2 className="font-display font-normal text-2xl text-presque-noir mb-3 leading-[1.3]">
                   <Link
                     href={`/blog/${post.slug}`}
@@ -51,7 +54,7 @@ export default function BlogIndex() {
                     {post.title}
                   </Link>
                 </h2>
-                <p className="font-serif text-lg leading-[1.7] text-gris-chaud mb-4">
+                <p className="font-serif text-lg leading-[1.7] text-presque-noir/80 mb-4">
                   {post.description}
                 </p>
                 <Link
@@ -67,14 +70,17 @@ export default function BlogIndex() {
       </section>
 
       {/* ─── FOOTER MINIMAL ───────────────────────────────────────── */}
-      <footer className="py-10 px-6 border-t border-sable">
+      <footer className="py-10 px-6 bg-presque-noir">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
-            className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
+            className="font-sans text-sm text-ivoire/70 hover:text-terracotta transition-colors"
           >
             ← Retour à l&apos;accueil
           </Link>
+          <p className="font-garamond italic text-ivoire text-lg">
+            Racontez-moi
+          </p>
         </div>
       </footer>
     </main>
