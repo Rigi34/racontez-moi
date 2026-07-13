@@ -31,7 +31,7 @@ export default function Home() {
       <header className="px-6 pt-6 flex justify-end">
         <a
           href="/sign-in"
-          className="font-sans text-sm text-gris-chaud hover:text-presque-noir transition-colors"
+          className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
         >
           Se connecter
         </a>

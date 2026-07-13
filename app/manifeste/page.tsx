@@ -11,7 +11,7 @@ export default function Manifeste() {
   return (
     <main className="min-h-screen bg-ivoire">
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
-      <header className="px-6 py-8 border-b border-sable">
+      <header className="px-6 py-8 bg-ivoire-fonce shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
@@ -21,7 +21,7 @@ export default function Manifeste() {
           </Link>
           <Link
             href="/#premiere-question"
-            className="font-sans text-sm text-gris-chaud hover:text-presque-noir transition-colors"
+            className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
           >
             Commencer mon histoire →
           </Link>
@@ -106,7 +106,7 @@ export default function Manifeste() {
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
-            className="font-sans text-sm text-gris-chaud hover:text-presque-noir transition-colors"
+            className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
           >
             ← Retour à l&apos;accueil
           </Link>

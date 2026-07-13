@@ -50,7 +50,7 @@ export default async function BlogPostPage({
   return (
     <main className="min-h-screen bg-ivoire">
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
-      <header className="px-6 py-8 border-b border-sable">
+      <header className="px-6 py-8 bg-ivoire-fonce shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
@@ -60,7 +60,7 @@ export default async function BlogPostPage({
           </Link>
           <Link
             href="/#premiere-question"
-            className="font-sans text-sm text-gris-chaud hover:text-presque-noir transition-colors"
+            className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
           >
             Commencer mon histoire →
           </Link>
@@ -180,7 +180,7 @@ export default async function BlogPostPage({
           <div className="mt-16 pt-10 border-t border-sable flex items-center justify-between">
             <Link
               href="/blog"
-              className="font-sans text-sm text-gris-chaud hover:text-presque-noir transition-colors"
+              className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
             >
               ← Tous les articles
             </Link>
@@ -199,7 +199,7 @@ export default async function BlogPostPage({
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
-            className="font-sans text-sm text-gris-chaud hover:text-presque-noir transition-colors"
+            className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
           >
             ← Retour à l&apos;accueil
           </Link>

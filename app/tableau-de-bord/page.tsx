@@ -10,14 +10,14 @@ export default async function TableauDeBord() {
 
   return (
     <div className="min-h-screen bg-ivoire flex flex-col">
-      <header className="px-8 py-6 border-b border-sable flex items-center justify-between">
+      <header className="px-8 py-6 bg-ivoire-fonce shadow-[0_1px_3px_rgba(28,25,23,0.08)] flex items-center justify-between">
         <Link href="/" className="font-garamond text-xl italic text-terracotta tracking-wide">
           Racontez-moi
         </Link>
         <form action="/api/auth/signout" method="post">
           <button
             type="submit"
-            className="font-sans text-sm text-gris-chaud hover:text-presque-noir transition-colors"
+            className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
           >
             Se déconnecter
           </button>
