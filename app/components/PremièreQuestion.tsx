@@ -125,7 +125,7 @@ export default function PremièreQuestion() {
       {/* Phase 1 — Question initiale */}
       {phase === "question" && (
         <div className="text-center space-y-8">
-          <h2 className="font-display font-normal text-3xl md:text-4xl text-presque-noir leading-[1.25]">
+          <h2 className="font-display font-normal text-3xl md:text-4xl text-encre leading-[1.25]">
             Quelle est la première maison dont vous vous souvenez&nbsp;?
           </h2>
           <div className="space-y-4">
@@ -133,7 +133,7 @@ export default function PremièreQuestion() {
               value={reponse}
               onChange={(e) => setReponse(e.target.value)}
               placeholder="Prenez votre temps. Écrivez ou dictez à la voix."
-              className="w-full min-h-[140px] bg-ivoire border border-sable font-serif text-lg text-presque-noir p-5 resize-none focus:outline-none focus:border-gris-chaud placeholder:text-gris-chaud placeholder:text-base leading-relaxed"
+              className="w-full min-h-[140px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
             />
             <div className="flex gap-3 justify-center flex-wrap">
               <button
@@ -143,8 +143,8 @@ export default function PremièreQuestion() {
                 disabled={transcribing}
                 className={`font-sans text-sm px-5 py-2.5 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                   isRecording
-                    ? "border-terracotta text-terracotta bg-terracotta/10"
-                    : "border-sable text-gris-chaud hover:border-gris-chaud"
+                    ? "border-petrole text-petrole bg-petrole/10"
+                    : "border-grege text-grege hover:border-grege"
                 }`}
               >
                 {isRecording ? "⏹ Arrêter la dictée" : transcribing ? "Transcription…" : "🎙 Dicter à la voix"}
@@ -152,7 +152,7 @@ export default function PremièreQuestion() {
               <button
                 onClick={submitReponse}
                 disabled={!reponse.trim() || loading || transcribing}
-                className="bg-terracotta text-ivoire font-sans font-medium px-7 py-2.5 hover:bg-[#A8692E] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-petrole text-papier font-sans font-medium px-7 py-2.5 hover:bg-[#17393A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading ? "Un instant…" : "Continuer →"}
               </button>
@@ -165,7 +165,7 @@ export default function PremièreQuestion() {
       {/* Phase 2 — Relance sensorielle */}
       {phase === "relance" && (
         <div className="text-center space-y-8">
-          <p className="font-garamond italic text-xl text-gris-chaud">
+          <p className="font-display italic text-xl text-grege">
             {relance}
           </p>
           <div className="space-y-4">
@@ -173,7 +173,7 @@ export default function PremièreQuestion() {
               value={reponseRelance}
               onChange={(e) => setReponseRelance(e.target.value)}
               placeholder="Continuez, prenez votre temps…"
-              className="w-full min-h-[120px] bg-ivoire border border-sable font-serif text-lg text-presque-noir p-5 resize-none focus:outline-none focus:border-gris-chaud placeholder:text-gris-chaud placeholder:text-base leading-relaxed"
+              className="w-full min-h-[120px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
             />
             <div className="flex gap-3 justify-center flex-wrap">
               <button
@@ -183,8 +183,8 @@ export default function PremièreQuestion() {
                 disabled={transcribing}
                 className={`font-sans text-sm px-5 py-2.5 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                   isRecording
-                    ? "border-terracotta text-terracotta bg-terracotta/10"
-                    : "border-sable text-gris-chaud hover:border-gris-chaud"
+                    ? "border-petrole text-petrole bg-petrole/10"
+                    : "border-grege text-grege hover:border-grege"
                 }`}
               >
                 {isRecording ? "⏹ Arrêter" : transcribing ? "Transcription…" : "🎙 Dicter"}
@@ -192,7 +192,7 @@ export default function PremièreQuestion() {
               <button
                 onClick={submitRelance}
                 disabled={!reponseRelance.trim() || loading}
-                className="bg-terracotta text-ivoire font-sans font-medium px-7 py-2.5 hover:bg-[#A8692E] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-petrole text-papier font-sans font-medium px-7 py-2.5 hover:bg-[#17393A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading ? "Composition en cours…" : "Voir mon fragment →"}
               </button>
@@ -205,26 +205,26 @@ export default function PremièreQuestion() {
       {/* Phase 3 — Fragment enrichi */}
       {phase === "fragment" && (
         <div className="space-y-10">
-          <p className="font-sans text-center text-sm text-gris-chaud tracking-wider uppercase">
+          <p className="font-sans text-center text-sm text-grege tracking-wider uppercase">
             Voici ce que ce souvenir pourrait devenir.
           </p>
 
           {/* Fragment en EB Garamond */}
-          <div className="bg-ivoire border-l-2 border-sable pl-8 pr-4 py-6">
-            <p className="font-garamond text-[19px] leading-[1.85] text-presque-noir whitespace-pre-line">
+          <div className="bg-papier border-l-2 border-grege pl-8 pr-4 py-6">
+            <p className="font-display text-[19px] leading-[1.85] text-encre whitespace-pre-line">
               {fragment}
             </p>
           </div>
 
           <div className="text-center space-y-6">
-            <p className="font-serif text-lg text-gris-chaud italic">
+            <p className="font-serif text-lg text-grege italic">
               Il reste toute une vie à raconter.
             </p>
 
             <div className="space-y-3">
               <a
                 href="#"
-                className="inline-block bg-terracotta text-ivoire font-sans font-medium text-base px-8 py-4 hover:bg-[#A8692E] transition-colors"
+                className="inline-block bg-petrole text-papier font-sans font-medium text-base px-8 py-4 hover:bg-[#17393A] transition-colors"
               >
                 Commencer mon histoire — première séance offerte →
               </a>
@@ -233,7 +233,7 @@ export default function PremièreQuestion() {
             {/* Capture email */}
             {!emailSent ? (
               <form onSubmit={submitEmail} className="space-y-3">
-                <p className="font-sans text-sm text-gris-chaud">
+                <p className="font-sans text-sm text-grege">
                   Ou recevoir cette page par courriel :
                 </p>
                 <div className="flex gap-2 max-w-md mx-auto">
@@ -242,23 +242,23 @@ export default function PremièreQuestion() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="votre@courriel.fr"
-                    className="flex-1 bg-ivoire border border-sable font-sans text-base text-presque-noir px-4 py-2.5 focus:outline-none focus:border-gris-chaud placeholder:text-gris-chaud"
+                    className="flex-1 bg-papier border border-grege font-sans text-base text-encre px-4 py-2.5 focus:outline-none focus:border-grege placeholder:text-grege"
                   />
                   <button
                     type="submit"
                     disabled={!email.trim() || loading}
-                    className="bg-presque-noir text-ivoire font-sans text-sm px-5 py-2.5 hover:bg-gris-chaud transition-colors disabled:opacity-40"
+                    className="bg-encre text-papier font-sans text-sm px-5 py-2.5 hover:bg-grege transition-colors disabled:opacity-40"
                   >
                     Envoyer
                   </button>
                 </div>
-                <p className="font-sans text-xs text-gris-chaud">
+                <p className="font-sans text-xs text-grege">
                   Ce fragment vous appartient. Il ne servira jamais à entraîner une IA.
                 </p>
                 {error && <p className="font-sans text-sm text-red-700">{error}</p>}
               </form>
             ) : (
-              <p className="font-garamond italic text-gris-chaud text-lg">
+              <p className="font-display italic text-grege text-lg">
                 Votre fragment est en route. À bientôt.
               </p>
             )}

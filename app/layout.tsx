@@ -1,32 +1,32 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Lora, Inter, EB_Garamond } from "next/font/google";
+import { Fraunces, Source_Serif_4, IBM_Plex_Sans, Caveat } from "next/font/google";
 import "./globals.css";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: "variable",
   style: ["normal", "italic"],
+  axes: ["opsz", "SOFT", "WONK"],
 });
 
-const lora = Lora({
-  variable: "--font-lora",
+const sourceSerif = Source_Serif_4({
+  variable: "--font-source-serif",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-plex-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
 });
 
-const ebGaramond = EB_Garamond({
-  variable: "--font-eb-garamond",
+const caveat = Caveat({
+  variable: "--font-caveat",
   subsets: ["latin"],
-  weight: ["400", "500"],
-  style: ["normal", "italic"],
+  weight: ["500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -48,9 +48,9 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${playfair.variable} ${lora.variable} ${inter.variable} ${ebGaramond.variable} h-full`}
+      className={`${fraunces.variable} ${sourceSerif.variable} ${plexSans.variable} ${caveat.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col bg-ivoire text-presque-noir">
+      <body className="min-h-full flex flex-col bg-papier text-encre">
         {children}
       </body>
     </html>

@@ -62,12 +62,12 @@ function SignInInner() {
 
   if (confirmationEnvoyee) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-ivoire px-6">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-papier px-6">
         <div className="w-full max-w-sm text-center space-y-4">
-          <p className="font-garamond text-lg italic text-terracotta tracking-wide">
+          <p className="font-display text-lg italic text-petrole tracking-wide">
             Racontez-moi
           </p>
-          <p className="font-sans text-base text-presque-noir leading-relaxed">
+          <p className="font-sans text-base text-encre leading-relaxed">
             Presque prêt. Un email vient de vous être envoyé — ouvrez-le et cliquez sur le
             lien de confirmation pour activer votre compte. Si vous ne le voyez pas dans
             quelques minutes, pensez à vérifier vos courriers indésirables.
@@ -78,16 +78,16 @@ function SignInInner() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-ivoire px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-papier px-6">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <p className="font-garamond text-lg italic text-terracotta tracking-wide">
+          <p className="font-display text-lg italic text-petrole tracking-wide">
             Racontez-moi
           </p>
-          <h1 className="font-display text-2xl text-presque-noir mt-2">
+          <h1 className="font-display text-2xl text-encre mt-2">
             {mode === "signup" ? "Créer votre espace" : "Votre espace narrateur"}
           </h1>
-          <p className="font-sans text-sm text-gris-chaud mt-2">
+          <p className="font-sans text-sm text-grege mt-2">
             {mode === "signup"
               ? "Commencez votre parcours d'écriture."
               : "Retrouvez vos séances et vos fragments."}
@@ -96,7 +96,7 @@ function SignInInner() {
 
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="font-sans text-sm text-presque-noir block mb-1.5">
+            <label className="font-sans text-sm text-encre block mb-1.5">
               Adresse email
             </label>
             <input
@@ -107,11 +107,11 @@ function SignInInner() {
               autoComplete="email"
               placeholder="votre@email.fr"
               required
-              className="w-full border border-sable bg-white text-presque-noir px-4 py-3 font-sans text-base focus:outline-none focus:border-terracotta transition-colors"
+              className="w-full border border-grege bg-white text-encre px-4 py-3 font-sans text-base focus:outline-none focus:border-petrole transition-colors"
             />
           </div>
           <div>
-            <label className="font-sans text-sm text-presque-noir block mb-1.5">
+            <label className="font-sans text-sm text-encre block mb-1.5">
               Mot de passe
             </label>
             <input
@@ -121,7 +121,7 @@ function SignInInner() {
               autoComplete={mode === "signup" ? "new-password" : "current-password"}
               placeholder={mode === "signup" ? "Choisissez un mot de passe (8 car. min.)" : "Votre mot de passe"}
               required
-              className="w-full border border-sable bg-white text-presque-noir px-4 py-3 font-sans text-base focus:outline-none focus:border-terracotta transition-colors"
+              className="w-full border border-grege bg-white text-encre px-4 py-3 font-sans text-base focus:outline-none focus:border-petrole transition-colors"
             />
           </div>
 
@@ -134,7 +134,7 @@ function SignInInner() {
           <button
             type="submit"
             disabled={loading || !email || password.length < 8}
-            className="w-full bg-terracotta text-ivoire font-sans text-base py-3.5 tracking-wide hover:opacity-90 transition-opacity disabled:opacity-40"
+            className="w-full bg-petrole text-papier font-sans text-base py-3.5 tracking-wide hover:opacity-90 transition-opacity disabled:opacity-40"
           >
             {loading
               ? "…"
@@ -145,16 +145,16 @@ function SignInInner() {
         </form>
 
         <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-sable" />
-          <span className="font-sans text-xs text-gris-chaud">ou</span>
-          <div className="h-px flex-1 bg-sable" />
+          <div className="h-px flex-1 bg-grege" />
+          <span className="font-sans text-xs text-grege">ou</span>
+          <div className="h-px flex-1 bg-grege" />
         </div>
 
         <button
           type="button"
           onClick={connexionGoogle}
           disabled={loading}
-          className="w-full border border-sable bg-white text-presque-noir font-sans text-base py-3.5 tracking-wide hover:bg-sable/20 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+          className="w-full border border-grege bg-white text-encre font-sans text-base py-3.5 tracking-wide hover:bg-grege/20 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
             <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z" />
@@ -169,7 +169,7 @@ function SignInInner() {
           <button
             onClick={() => { setMode(mode === "signup" ? "login" : "signup"); setError(null) }}
             disabled={loading}
-            className="font-sans text-sm text-gris-chaud underline underline-offset-2 hover:text-presque-noir transition-colors"
+            className="font-sans text-sm text-grege underline underline-offset-2 hover:text-encre transition-colors"
           >
             {mode === "signup" ? "J'ai déjà un espace narrateur" : "Créer un espace narrateur"}
           </button>
@@ -183,8 +183,8 @@ export default function SignInPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-ivoire">
-          <p className="font-sans text-sm text-gris-chaud">Chargement…</p>
+        <div className="min-h-screen flex items-center justify-center bg-papier">
+          <p className="font-sans text-sm text-grege">Chargement…</p>
         </div>
       }
     >

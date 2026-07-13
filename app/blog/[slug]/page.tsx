@@ -48,19 +48,19 @@ export default async function BlogPostPage({
   const toc = extractToc(main);
 
   return (
-    <main className="min-h-screen bg-ivoire">
+    <main className="min-h-screen bg-papier">
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
-      <header className="px-6 py-8 bg-ivoire-fonce shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
+      <header className="px-6 py-8 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
-            className="font-garamond italic text-xl text-presque-noir hover:text-gris-chaud transition-colors"
+            className="font-display italic text-xl text-encre hover:text-grege transition-colors"
           >
             Racontez-moi
           </Link>
           <Link
             href="/#premiere-question"
-            className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
+            className="font-sans text-sm text-encre hover:text-petrole transition-colors"
           >
             Commencer mon histoire →
           </Link>
@@ -73,9 +73,9 @@ export default async function BlogPostPage({
           {toc.length > 0 && (
             <nav
               aria-label="Sommaire de l'article"
-              className="mb-16 bg-ivoire-fonce p-6 shadow-[4px_4px_0px_#D8D0C3]"
+              className="mb-16 bg-sauge p-6 shadow-[4px_4px_0px_#DAD4C5]"
             >
-              <p className="font-sans text-sm text-presque-noir tracking-widest uppercase mb-4">
+              <p className="font-sans text-sm text-encre tracking-widest uppercase mb-4">
                 Dans cet article
               </p>
               <ul className="space-y-2">
@@ -86,7 +86,7 @@ export default async function BlogPostPage({
                   >
                     <a
                       href={`#${item.slug}`}
-                      className="font-serif text-base text-presque-noir hover:text-terracotta transition-colors"
+                      className="font-serif text-base text-encre hover:text-petrole transition-colors"
                     >
                       {item.text}
                     </a>
@@ -102,7 +102,7 @@ export default async function BlogPostPage({
               remarkPlugins={[remarkGfm]}
               components={{
                 h1: ({ children }) => (
-                  <h1 className="font-display font-normal text-4xl md:text-5xl text-presque-noir mb-10 leading-[1.2]">
+                  <h1 className="font-display font-normal text-4xl md:text-5xl text-encre mb-10 leading-[1.2]">
                     {children}
                   </h1>
                 ),
@@ -111,7 +111,7 @@ export default async function BlogPostPage({
                   return (
                     <h2
                       id={id}
-                      className="font-display font-normal text-2xl md:text-3xl text-presque-noir mt-16 mb-6 leading-[1.3] scroll-mt-10"
+                      className="font-display font-normal text-2xl md:text-3xl text-encre mt-16 mb-6 leading-[1.3] scroll-mt-10"
                     >
                       {children}
                     </h2>
@@ -122,14 +122,14 @@ export default async function BlogPostPage({
                   return (
                     <h3
                       id={id}
-                      className="font-display font-normal text-xl md:text-2xl text-presque-noir mt-10 mb-4 leading-[1.3] scroll-mt-10"
+                      className="font-display font-normal text-xl md:text-2xl text-encre mt-10 mb-4 leading-[1.3] scroll-mt-10"
                     >
                       {children}
                     </h3>
                   );
                 },
                 p: ({ children }) => (
-                  <p className="font-serif text-lg leading-[1.85] text-presque-noir mb-7">
+                  <p className="font-serif text-lg leading-[1.85] text-encre mb-7">
                     {children}
                   </p>
                 ),
@@ -140,13 +140,13 @@ export default async function BlogPostPage({
                 a: ({ href, children }) => (
                   <Link
                     href={href ?? "#"}
-                    className="text-terracotta underline decoration-terracotta/40 hover:decoration-terracotta transition-colors"
+                    className="text-petrole underline decoration-petrole/40 hover:decoration-petrole transition-colors"
                   >
                     {children}
                   </Link>
                 ),
                 ul: ({ children }) => (
-                  <ul className="font-serif text-lg leading-[1.85] text-presque-noir list-disc pl-6 mb-7 space-y-2">
+                  <ul className="font-serif text-lg leading-[1.85] text-encre list-disc pl-6 mb-7 space-y-2">
                     {children}
                   </ul>
                 ),
@@ -159,12 +159,12 @@ export default async function BlogPostPage({
 
           {/* Bloc sources — discret */}
           {sources && (
-            <div className="mt-16 pt-8 border-t border-sable">
+            <div className="mt-16 pt-8 border-t-2 border-ambre/40">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
                   p: ({ children }) => (
-                    <p className="font-sans text-sm text-gris-chaud leading-relaxed">
+                    <p className="font-sans text-sm text-grege leading-relaxed">
                       {children}
                     </p>
                   ),
@@ -177,16 +177,16 @@ export default async function BlogPostPage({
           )}
 
           {/* Retour */}
-          <div className="mt-16 pt-10 border-t border-sable flex items-center justify-between">
+          <div className="mt-16 pt-10 border-t border-grege flex items-center justify-between">
             <Link
               href="/blog"
-              className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
+              className="font-sans text-sm text-encre hover:text-petrole transition-colors"
             >
               ← Tous les articles
             </Link>
             <Link
               href="/#premiere-question"
-              className="inline-block bg-terracotta text-ivoire font-sans font-medium text-base px-7 py-3 hover:bg-[#A8692E] transition-colors duration-200"
+              className="inline-block bg-petrole text-papier font-sans font-medium text-base px-7 py-3 hover:bg-[#17393A] transition-colors duration-200"
             >
               Commencer mon histoire →
             </Link>
@@ -195,15 +195,15 @@ export default async function BlogPostPage({
       </article>
 
       {/* ─── FOOTER MINIMAL ───────────────────────────────────────── */}
-      <footer className="py-10 px-6 bg-presque-noir">
+      <footer className="py-10 px-6 bg-encre">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
-            className="font-sans text-sm text-ivoire/70 hover:text-terracotta transition-colors"
+            className="font-sans text-sm text-papier/70 hover:text-petrole transition-colors"
           >
             ← Retour à l&apos;accueil
           </Link>
-          <p className="font-garamond italic text-ivoire text-lg">
+          <p className="font-display italic text-papier text-lg">
             Racontez-moi
           </p>
         </div>

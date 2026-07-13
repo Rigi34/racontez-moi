@@ -31,7 +31,7 @@ export default function Home() {
       <header className="px-6 pt-6 flex justify-end">
         <a
           href="/sign-in"
-          className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
+          className="font-sans text-sm text-encre hover:text-petrole transition-colors"
         >
           Se connecter
         </a>
@@ -45,53 +45,53 @@ export default function Home() {
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
             {/* Épigraphe Cyrulnik */}
             <div className="mb-8 max-w-[540px]">
-              <p className="font-garamond italic text-[22px] leading-[1.6] text-presque-noir">
+              <p className="font-display italic text-[22px] leading-[1.6] text-encre">
                 «&nbsp;Dès qu&apos;on en fait un récit, on donne sens à nos souffrances.&nbsp;»
               </p>
-              <p className="mt-3 font-sans text-[13px] tracking-[0.12em] text-gris-chaud">
+              <p className="note-marginale mt-2 text-2xl">
                 — Boris Cyrulnik, neuropsychiatre
               </p>
             </div>
 
             {/* Filet séparateur */}
-            <div className="mb-10 w-[60px] h-px bg-sable" />
+            <div className="mb-10 w-[60px] h-px bg-grege" />
 
             {/* H1 */}
-            <h1 className="font-display font-normal text-4xl md:text-5xl lg:text-6xl leading-[1.15] text-presque-noir max-w-3xl mb-6">
+            <h1 className="font-display font-normal text-4xl md:text-5xl lg:text-6xl leading-[1.15] text-encre max-w-3xl mb-6">
               Votre histoire n&apos;attend pas l&apos;inspiration.
               <br />
               Elle attend un interlocuteur.
             </h1>
 
             {/* Sous-titre */}
-            <p className="font-sans text-lg md:text-xl text-gris-chaud max-w-2xl mb-10 leading-relaxed">
+            <p className="font-sans text-lg md:text-xl text-grege max-w-2xl mb-10 leading-relaxed">
               Des conversations de vingt minutes, chez vous, à la voix. Un interlocuteur
               attentif qui écoute, questionne, se souvient — et compose au fil des séances
               le livre de votre vie. Un vrai livre. Imprimé.
             </p>
 
             {/* Formule */}
-            <p className="font-garamond italic text-2xl text-presque-noir mb-8">
+            <p className="font-display italic text-2xl text-encre mb-8">
               Vous parlez. Le livre s&apos;écrit.
             </p>
 
             {/* CTA */}
             <a
               href="#premiere-question"
-              className="inline-block bg-terracotta text-ivoire font-sans font-medium text-lg px-8 py-4 hover:bg-[#A8692E] transition-colors duration-200 mb-4"
+              className="inline-block bg-petrole text-papier font-sans font-medium text-lg px-8 py-4 hover:bg-[#17393A] transition-colors duration-200 mb-4"
             >
               Commencer mon histoire →
             </a>
 
             {/* Réassurance */}
-            <p className="font-sans text-sm text-gris-chaud">
+            <p className="font-sans text-sm text-grege">
               Première séance offerte — sans compte, sans carte bancaire.
             </p>
           </div>
 
           {/* Colonne image — livre physique above the fold */}
           <div className="mt-14 lg:mt-0">
-            <div className="relative overflow-hidden shadow-[6px_6px_0px_#D8D0C3]">
+            <div className="relative overflow-hidden shadow-[6px_6px_0px_#DAD4C5]">
               <Image
                 src="/hero-livre.webp"
                 alt="Le livre de votre vie — Racontez-moi"
@@ -100,11 +100,11 @@ export default function Home() {
                 className="object-cover w-full"
                 priority
               />
-              {/* Fine bordure ivoire-foncé */}
-              <div className="absolute inset-0 ring-1 ring-inset ring-sable/40" />
+              {/* Fine bordure papier-foncé */}
+              <div className="absolute inset-0 ring-1 ring-inset ring-grege/40" />
             </div>
             {/* Caption discret */}
-            <p className="mt-3 font-sans text-xs text-gris-chaud tracking-widest uppercase text-center lg:text-right">
+            <p className="mt-3 font-sans text-xs text-grege tracking-widest uppercase text-center lg:text-right">
               Votre histoire. Votre livre.
             </p>
           </div>
@@ -113,39 +113,39 @@ export default function Home() {
       </section>
 
       {/* ─── 3 PILIERS ────────────────────────────────────────────────── */}
-      <section className="bg-ivoire-fonce py-20 px-6">
+      <section className="bg-sauge py-20 px-6">
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
-          <div className="bg-ivoire p-8 shadow-[5px_5px_0px_#D8D0C3] text-center">
-            <div className="w-8 h-[3px] mx-auto mb-6 bg-terracotta" />
-            <p className="font-serif text-base leading-relaxed text-presque-noir">
+          <div className="bg-papier p-8 shadow-[5px_5px_0px_#DAD4C5] text-center">
+            <div className="w-8 h-[3px] mx-auto mb-6 bg-petrole" />
+            <p className="font-serif text-base leading-relaxed text-encre">
               <strong className="font-semibold block mb-2">Pour eux.</strong>
               Un récit de vie cohérent se transmet&nbsp;: la recherche sur
               l&apos;attachement montre qu&apos;il structure le lien des générations
               suivantes.
             </p>
-            <p className="font-sans text-xs text-presque-noir mt-3 tracking-wider uppercase">
+            <p className="font-sans text-xs text-encre mt-3 tracking-wider uppercase">
               D. Siegel
             </p>
           </div>
 
-          <div className="bg-ivoire p-8 shadow-[5px_5px_0px_#D8D0C3] text-center">
-            <div className="w-8 h-[3px] mx-auto mb-6 bg-terracotta" />
-            <p className="font-serif text-base leading-relaxed text-presque-noir">
+          <div className="bg-papier p-8 shadow-[5px_5px_0px_#DAD4C5] text-center">
+            <div className="w-8 h-[3px] mx-auto mb-6 bg-petrole" />
+            <p className="font-serif text-base leading-relaxed text-encre">
               <strong className="font-semibold block mb-2">Pour vous.</strong>
               Mettre sa vie en récit n&apos;est pas un caprice&nbsp;: c&apos;est une
               étape du développement adulte, décrite par Erikson il y a cinquante ans.
             </p>
           </div>
 
-          <div className="bg-ivoire p-8 shadow-[5px_5px_0px_#D8D0C3] text-center">
-            <div className="w-8 h-[3px] mx-auto mb-6 bg-terracotta" />
-            <p className="font-serif text-base leading-relaxed text-presque-noir">
+          <div className="bg-papier p-8 shadow-[5px_5px_0px_#DAD4C5] text-center">
+            <div className="w-8 h-[3px] mx-auto mb-6 bg-petrole" />
+            <p className="font-serif text-base leading-relaxed text-encre">
               <strong className="font-semibold block mb-2">Pour votre équilibre.</strong>
               Ce qui se raconte pèse moins. Quarante ans d&apos;études sur
               l&apos;écriture expressive le confirment, jusque dans les indicateurs
               de santé.
             </p>
-            <p className="font-sans text-xs text-presque-noir mt-3 tracking-wider uppercase">
+            <p className="font-sans text-xs text-encre mt-3 tracking-wider uppercase">
               J. Pennebaker
             </p>
           </div>
@@ -154,7 +154,7 @@ export default function Home() {
 
       {/* ─── LEAD TEXT ────────────────────────────────────────────────── */}
       <section className="py-20 px-6">
-        <div className="max-w-2xl mx-auto space-y-6 font-serif text-lg leading-[1.85] text-presque-noir">
+        <div className="max-w-2xl mx-auto space-y-6 font-serif text-lg leading-[1.85] text-encre">
           <p>
             Vous vous êtes déjà dit qu&apos;il faudrait raconter tout ça, un jour.
             Peut-être même qu&apos;on vous a offert un de ces cahiers — «&nbsp;Racontez
@@ -185,28 +185,28 @@ export default function Home() {
       </section>
 
       {/* ─── COMMENT ÇA MARCHE ───────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-20 px-6 bg-sauge">
         <div className="max-w-4xl mx-auto">
           <div className="grid md:grid-cols-3 gap-10">
             <div className="relative px-2">
-              <p className="font-display text-7xl text-terracotta/20 leading-none mb-2">01</p>
-              <p className="font-display text-2xl text-presque-noir mb-3">Vous commencez.</p>
-              <p className="font-sans text-base text-presque-noir/80 leading-relaxed">
+              <p className="font-display text-7xl text-petrole/20 leading-none mb-2">01</p>
+              <p className="font-display text-2xl text-encre mb-3">Vous commencez.</p>
+              <p className="font-sans text-base text-encre/80 leading-relaxed">
                 Une première séance offerte, sans engagement&nbsp;— vous verrez tout de suite
                 si cette voix vous convient.
               </p>
             </div>
             <div className="relative px-2">
-              <p className="font-display text-7xl text-terracotta/20 leading-none mb-2">02</p>
-              <p className="font-display text-2xl text-presque-noir mb-3">Vous racontez.</p>
-              <p className="font-sans text-base text-presque-noir/80 leading-relaxed">
+              <p className="font-display text-7xl text-petrole/20 leading-none mb-2">02</p>
+              <p className="font-display text-2xl text-encre mb-3">Vous racontez.</p>
+              <p className="font-sans text-base text-encre/80 leading-relaxed">
                 Vingt minutes, une à deux fois par semaine, à votre rythme, pendant un an.
               </p>
             </div>
             <div className="relative px-2">
-              <p className="font-display text-7xl text-terracotta/20 leading-none mb-2">03</p>
-              <p className="font-display text-2xl text-presque-noir mb-3">Le livre arrive.</p>
-              <p className="font-sans text-base text-presque-noir/80 leading-relaxed">
+              <p className="font-display text-7xl text-petrole/20 leading-none mb-2">03</p>
+              <p className="font-display text-2xl text-encre mb-3">Le livre arrive.</p>
+              <p className="font-sans text-base text-encre/80 leading-relaxed">
                 Composé séance après séance, imprimé, relié. Le vôtre.
               </p>
             </div>
@@ -217,10 +217,10 @@ export default function Home() {
       {/* ─── RIEN N'EST IMPROVISÉ ────────────────────────────────────── */}
       <section className="py-20 px-6">
         <div className="max-w-2xl mx-auto">
-          <h2 className="font-display text-3xl text-presque-noir mb-10">
+          <h2 className="font-display text-3xl text-encre mb-10">
             Rien n&apos;est improvisé
           </h2>
-          <div className="space-y-6 font-serif text-lg leading-[1.85] text-presque-noir">
+          <div className="space-y-6 font-serif text-lg leading-[1.85] text-encre">
             <p>
               Les questions qui vous seront posées, le rythme des séances, la façon dont vos mots
               deviennent un texte&nbsp;: rien n&apos;a été laissé au hasard. Quatorze ouvrages de
@@ -239,15 +239,15 @@ export default function Home() {
       </section>
 
       {/* ─── OBJETS DE MÉMOIRE ────────────────────────────────────────── */}
-      <section className="py-16 px-6 bg-ivoire-fonce">
+      <section className="py-16 px-6 bg-sauge">
         <div className="max-w-5xl mx-auto">
-          <p className="font-sans text-center text-gris-chaud text-xs tracking-widest uppercase mb-10">
+          <p className="font-sans text-center text-grege text-xs tracking-widest uppercase mb-10">
             Ce que garde une vie
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
             {objetsMemoire.map((objet) => (
               <div key={objet.caption}>
-                <div className="relative aspect-[4/5] overflow-hidden bg-sable/30 shadow-[4px_4px_0px_#D8D0C3]">
+                <div className="relative aspect-[4/5] overflow-hidden bg-grege/30 shadow-[4px_4px_0px_#DAD4C5]">
                   <Image
                     src={objet.src}
                     alt={objet.alt}
@@ -256,7 +256,7 @@ export default function Home() {
                     sizes="(max-width: 768px) 50vw, 25vw"
                   />
                 </div>
-                <p className="mt-3 font-sans text-xs text-presque-noir tracking-widest uppercase text-center">
+                <p className="mt-3 font-sans text-xs text-encre tracking-widest uppercase text-center">
                   {objet.caption}
                 </p>
               </div>
@@ -266,9 +266,9 @@ export default function Home() {
       </section>
 
       {/* ─── MODULE LA PREMIÈRE QUESTION ─────────────────────────────── */}
-      <section id="premiere-question" className="bg-ivoire py-20 px-6">
+      <section id="premiere-question" className="bg-papier py-20 px-6">
         <div className="max-w-2xl mx-auto">
-          <p className="font-sans text-center text-gris-chaud text-sm tracking-widest uppercase mb-12">
+          <p className="font-sans text-center text-grege text-sm tracking-widest uppercase mb-12">
             Ne nous croyez pas sur parole. Répondez à une question.
           </p>
           <PremièreQuestion />
@@ -276,25 +276,25 @@ export default function Home() {
       </section>
 
       {/* ─── FOOTER ───────────────────────────────────────────────────── */}
-      <footer className="py-12 px-6 bg-presque-noir">
+      <footer className="py-12 px-6 bg-encre">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="font-garamond italic text-ivoire text-xl">
+          <p className="font-display italic text-papier text-xl">
             Racontez-moi
           </p>
-          <div className="flex gap-8 font-sans text-sm text-ivoire/70">
-            <a href="/offrir" className="hover:text-terracotta transition-colors">
+          <div className="flex gap-8 font-sans text-sm text-papier/70">
+            <a href="/offrir" className="hover:text-petrole transition-colors">
               Offrir en cadeau
             </a>
-            <a href="/manifeste" className="hover:text-terracotta transition-colors">
+            <a href="/manifeste" className="hover:text-petrole transition-colors">
               Notre histoire
             </a>
-            <a href="/blog" className="hover:text-terracotta transition-colors">
+            <a href="/blog" className="hover:text-petrole transition-colors">
               Journal
             </a>
-            <a href="#" className="hover:text-terracotta transition-colors">
+            <a href="#" className="hover:text-petrole transition-colors">
               Confidentialité
             </a>
-            <a href="#" className="hover:text-terracotta transition-colors">
+            <a href="#" className="hover:text-petrole transition-colors">
               Contact
             </a>
           </div>

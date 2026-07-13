@@ -1,44 +1,57 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-ivoire: #F5F0E8;
-  --color-ivoire-fonce: #EDE8DE;
-  --color-sable: #D8D0C3;
-  --color-terracotta: #C17A40;
-  --color-foret: #2D5016;
-  --color-presque-noir: #1C1917;
-  --color-gris-chaud: #6B6560;
+  --color-papier: #FAF8F3;
+  --color-sauge: #E8E4D9;
+  --color-encre: #242220;
+  --color-petrole: #1F4B4C;
+  --color-petrole-fonce: #17393A;
+  --color-ambre: #B8823D;
+  --color-grege: #6B6660;
 
-  --font-display: var(--font-playfair);
-  --font-serif: var(--font-lora);
-  --font-sans: var(--font-inter);
-  --font-garamond: var(--font-eb-garamond);
+  --font-display: var(--font-fraunces);
+  --font-serif: var(--font-source-serif);
+  --font-sans: var(--font-plex-sans);
+  --font-manuscrit: var(--font-caveat);
 }
 
 html {
-  background-color: #F5F0E8;
-  color: #1C1917;
+  background-color: #FAF8F3;
+  color: #242220;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background-color: #F5F0E8;
-  color: #1C1917;
-  font-family: var(--font-inter), Georgia, serif;
+  background-color: #FAF8F3;
+  color: #242220;
+  font-family: var(--font-plex-sans), Georgia, serif;
   font-size: 18px;
   line-height: 1.7;
 }
 
 /* Typographie française */
 .fragment-text {
-  font-family: var(--font-eb-garamond), Georgia, serif;
+  font-family: var(--font-source-serif), Georgia, serif;
   font-size: 19px;
   line-height: 1.8;
-  color: #1C1917;
+  color: #242220;
 }
 
 /* Espace insécable avant ponctuation double — géré par le contenu */
 .fr-typography {
   font-feature-settings: "liga" 1, "kern" 1;
+}
+
+/* Note manuscrite en marge — élément signature, à utiliser avec parcimonie */
+.note-marginale {
+  font-family: var(--font-manuscrit), cursive;
+  color: #B8823D;
+  transform: rotate(-2deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .note-marginale {
+    transition: transform 0.2s ease-out;
+  }
 }

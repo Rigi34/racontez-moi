@@ -9,19 +9,19 @@ export const metadata: Metadata = {
 
 export default function Manifeste() {
   return (
-    <main className="min-h-screen bg-ivoire">
+    <main className="min-h-screen bg-papier">
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
-      <header className="px-6 py-8 bg-ivoire-fonce shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
+      <header className="px-6 py-8 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
-            className="font-garamond italic text-xl text-presque-noir hover:text-gris-chaud transition-colors"
+            className="font-display italic text-xl text-encre hover:text-grege transition-colors"
           >
             Racontez-moi
           </Link>
           <Link
             href="/#premiere-question"
-            className="font-sans text-sm text-presque-noir hover:text-terracotta transition-colors"
+            className="font-sans text-sm text-encre hover:text-petrole transition-colors"
           >
             Commencer mon histoire →
           </Link>
@@ -33,12 +33,12 @@ export default function Manifeste() {
         <div className="max-w-2xl mx-auto">
 
           {/* Titre */}
-          <h1 className="font-display font-normal text-4xl md:text-5xl text-presque-noir mb-16 leading-[1.2]">
+          <h1 className="font-display font-normal text-4xl md:text-5xl text-encre mb-16 leading-[1.2]">
             Pourquoi Racontez-moi existe
           </h1>
 
           {/* Corps */}
-          <div className="space-y-7 font-serif text-lg leading-[1.85] text-presque-noir">
+          <div className="space-y-7 font-serif text-lg leading-[1.85] text-encre">
             <p>
               Presque tout le monde a, un jour, pensé à écrire sa vie. Très peu le font.
               Ce n&apos;est pas un manque de matière&nbsp;— une vie ordinaire déborde de
@@ -48,7 +48,7 @@ export default function Manifeste() {
             </p>
 
             {/* Phrase pivot — mise en valeur */}
-            <p className="font-garamond italic text-2xl leading-[1.6] text-presque-noir py-6 border-y border-sable">
+            <p className="font-display italic text-2xl leading-[1.6] text-encre py-6 border-y border-grege">
               Ce qui manque, ce n&apos;est jamais l&apos;histoire. C&apos;est
               l&apos;interlocuteur.
             </p>
@@ -74,8 +74,8 @@ export default function Manifeste() {
             </p>
 
             {/* Placeholder origine personnelle */}
-            <div className="my-10 pl-6 border-l-2 border-sable">
-              <p className="font-sans text-sm text-gris-chaud italic leading-relaxed">
+            <div className="my-10 pl-6 border-l-2 border-grege">
+              <p className="font-sans text-sm text-grege italic leading-relaxed">
                 [Origine personnelle — à compléter si vous souhaitez ajouter un fait
                 fondateur propre à votre parcours&nbsp;; sinon cette section reste telle
                 quelle et le manifeste fonctionne sans elle.]
@@ -90,10 +90,10 @@ export default function Manifeste() {
           </div>
 
           {/* CTA de sortie */}
-          <div className="mt-16 pt-10 border-t border-sable">
+          <div className="mt-16 pt-10 border-t border-grege">
             <Link
               href="/#premiere-question"
-              className="inline-block bg-terracotta text-ivoire font-sans font-medium text-base px-7 py-3 hover:bg-[#A8692E] transition-colors duration-200"
+              className="inline-block bg-petrole text-papier font-sans font-medium text-base px-7 py-3 hover:bg-[#17393A] transition-colors duration-200"
             >
               Commencer mon histoire →
             </Link>
@@ -102,15 +102,15 @@ export default function Manifeste() {
       </article>
 
       {/* ─── FOOTER MINIMAL ───────────────────────────────────────── */}
-      <footer className="py-10 px-6 bg-presque-noir">
+      <footer className="py-10 px-6 bg-encre">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
-            className="font-sans text-sm text-ivoire/70 hover:text-terracotta transition-colors"
+            className="font-sans text-sm text-papier/70 hover:text-petrole transition-colors"
           >
             ← Retour à l&apos;accueil
           </Link>
-          <p className="font-garamond italic text-ivoire text-lg">
+          <p className="font-display italic text-papier text-lg">
             Racontez-moi
           </p>
         </div>
