@@ -82,11 +82,18 @@ export default async function BlogPostPage({
                 {toc.map((item) => (
                   <li
                     key={item.slug}
-                    className={item.level === 3 ? "pl-5" : ""}
+                    className={item.level === 3 ? "pl-5 flex gap-2" : ""}
                   >
+                    {item.level === 3 && (
+                      <span className="text-grege" aria-hidden="true">—</span>
+                    )}
                     <a
                       href={`#${item.slug}`}
-                      className="font-serif text-base text-encre hover:text-petrole transition-colors"
+                      className={
+                        item.level === 2
+                          ? "font-serif font-semibold text-base text-encre hover:text-petrole transition-colors"
+                          : "font-serif text-base text-encre hover:text-petrole transition-colors"
+                      }
                     >
                       {item.text}
                     </a>
