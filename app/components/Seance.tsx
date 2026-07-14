@@ -145,7 +145,7 @@ export default function Seance() {
               <button
                 onClick={submitReponse}
                 disabled={!reponse.trim() || loading || transcribing}
-                className="bg-petrole text-papier font-sans font-medium px-7 py-2.5 hover:bg-[#17393A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-2.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading ? "Un instant…" : "Continuer →"}
               </button>
@@ -185,7 +185,7 @@ export default function Seance() {
               <button
                 onClick={submitRelance}
                 disabled={!reponseRelance.trim() || loading}
-                className="bg-petrole text-papier font-sans font-medium px-7 py-2.5 hover:bg-[#17393A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-2.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading ? "Composition en cours…" : "Terminer la séance →"}
               </button>
@@ -222,7 +222,7 @@ export default function Seance() {
               </button>
               <a
                 href="/tableau-de-bord"
-                className="inline-block bg-petrole text-papier font-sans font-medium text-base px-8 py-3 hover:bg-[#17393A] transition-colors"
+                className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-base px-8 py-3 hover:bg-[#3A3632] transition-colors"
               >
                 Retour à mon parcours →
               </a>

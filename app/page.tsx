@@ -3,24 +3,34 @@ import PremièreQuestion from "./components/PremièreQuestion";
 
 const objetsMemoire = [
   {
-    src: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=600&h=750&q=80",
-    alt: "Plume et encre sur papier ancien",
+    src: "https://images.unsplash.com/photo-1747246680560-b4a84a925603?fm=jpg&q=80&w=800&auto=format&fit=crop",
+    alt: "Homme écrivant dans un carnet, à la main, lumière naturelle",
     caption: "L'acte d'écrire",
+    position: "object-[50%_25%]",
   },
   {
-    src: "https://images.unsplash.com/photo-1516131206008-dd041a9764fd?auto=format&fit=crop&w=600&h=750&q=80",
-    alt: "Vieux livres reliés empilés",
-    caption: "Les livres qui gardent",
+    src: "https://images.unsplash.com/photo-1758691031036-5b7b635e30b8?fm=jpg&q=80&w=800&auto=format&fit=crop",
+    alt: "Trois personnes regardant un album photo ensemble, complices",
+    caption: "Les souvenirs partagés",
+    position: "object-center",
   },
   {
-    src: "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=600&h=750&q=80",
-    alt: "Lettres manuscrites anciennes",
-    caption: "Les mots transmis",
+    src: "https://images.unsplash.com/photo-1750853736853-7eed0c15d4a0?fm=jpg&q=80&w=800&auto=format&fit=crop",
+    alt: "Portrait d'un homme souriant en extérieur, lumière du jour",
+    caption: "Le sourire qui reste",
+    position: "object-center",
   },
   {
-    src: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=600&h=750&q=80",
-    alt: "Livres anciens et lunettes de lecture",
-    caption: "La mémoire en pages",
+    src: "https://images.unsplash.com/photo-1775159013022-10ded1ea234b?fm=jpg&q=80&w=800&auto=format&fit=crop",
+    alt: "Portrait d'une femme souriante dans un parc fleuri",
+    caption: "La vie continue",
+    position: "object-center",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1758691031844-c8c880a9b764?fm=jpg&q=80&w=800&auto=format&fit=crop",
+    alt: "Femme souriante chez elle, intérieur contemporain et coloré",
+    caption: "Chez soi, aujourd'hui",
+    position: "object-center",
   },
 ];
 
@@ -78,7 +88,7 @@ export default function Home() {
             {/* CTA */}
             <a
               href="#premiere-question"
-              className="inline-block bg-petrole text-papier font-sans font-medium text-lg px-8 py-4 hover:bg-[#17393A] transition-colors duration-200 mb-4"
+              className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-lg px-8 py-4 hover:bg-[#3A3632] transition-colors duration-200 mb-4"
             >
               Commencer mon histoire →
             </a>
@@ -93,11 +103,11 @@ export default function Home() {
           <div className="mt-14 lg:mt-0">
             <div className="relative overflow-hidden shadow-[6px_6px_0px_#DAD4C5]">
               <Image
-                src="/hero-livre.webp"
+                src="/hero-livre.jpg"
                 alt="Le livre de votre vie — Racontez-moi"
                 width={420}
                 height={525}
-                className="object-cover w-full"
+                className="object-cover object-[center_58%] w-full"
                 priority
               />
               {/* Fine bordure papier-foncé */}
@@ -116,7 +126,7 @@ export default function Home() {
       <section className="bg-sauge py-20 px-6">
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
           <div className="bg-papier p-8 shadow-[5px_5px_0px_#DAD4C5] text-center">
-            <div className="w-8 h-[3px] mx-auto mb-6 bg-petrole" />
+            <div className="w-8 h-[3px] mx-auto mb-6 bg-encre" />
             <p className="font-serif text-base leading-relaxed text-encre">
               <strong className="font-semibold block mb-2">Pour eux.</strong>
               Un récit de vie cohérent se transmet&nbsp;: la recherche sur
@@ -129,7 +139,7 @@ export default function Home() {
           </div>
 
           <div className="bg-papier p-8 shadow-[5px_5px_0px_#DAD4C5] text-center">
-            <div className="w-8 h-[3px] mx-auto mb-6 bg-petrole" />
+            <div className="w-8 h-[3px] mx-auto mb-6 bg-encre" />
             <p className="font-serif text-base leading-relaxed text-encre">
               <strong className="font-semibold block mb-2">Pour vous.</strong>
               Mettre sa vie en récit n&apos;est pas un caprice&nbsp;: c&apos;est une
@@ -138,7 +148,7 @@ export default function Home() {
           </div>
 
           <div className="bg-papier p-8 shadow-[5px_5px_0px_#DAD4C5] text-center">
-            <div className="w-8 h-[3px] mx-auto mb-6 bg-petrole" />
+            <div className="w-8 h-[3px] mx-auto mb-6 bg-encre" />
             <p className="font-serif text-base leading-relaxed text-encre">
               <strong className="font-semibold block mb-2">Pour votre équilibre.</strong>
               Ce qui se raconte pèse moins. Quarante ans d&apos;études sur
@@ -153,7 +163,7 @@ export default function Home() {
       </section>
 
       {/* ─── LEAD TEXT ────────────────────────────────────────────────── */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6 bg-blanc">
         <div className="max-w-2xl mx-auto space-y-6 font-serif text-lg leading-[1.85] text-encre">
           <p>
             Vous vous êtes déjà dit qu&apos;il faudrait raconter tout ça, un jour.
@@ -189,7 +199,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="grid md:grid-cols-3 gap-10">
             <div className="relative px-2">
-              <p className="font-display text-7xl text-petrole/20 leading-none mb-2">01</p>
+              <p className="font-display text-7xl text-encre/15 leading-none mb-2">01</p>
               <p className="font-display text-2xl text-encre mb-3">Vous commencez.</p>
               <p className="font-sans text-base text-encre/80 leading-relaxed">
                 Une première séance offerte, sans engagement&nbsp;— vous verrez tout de suite
@@ -197,14 +207,14 @@ export default function Home() {
               </p>
             </div>
             <div className="relative px-2">
-              <p className="font-display text-7xl text-petrole/20 leading-none mb-2">02</p>
+              <p className="font-display text-7xl text-encre/15 leading-none mb-2">02</p>
               <p className="font-display text-2xl text-encre mb-3">Vous racontez.</p>
               <p className="font-sans text-base text-encre/80 leading-relaxed">
                 Vingt minutes, une à deux fois par semaine, à votre rythme, pendant un an.
               </p>
             </div>
             <div className="relative px-2">
-              <p className="font-display text-7xl text-petrole/20 leading-none mb-2">03</p>
+              <p className="font-display text-7xl text-encre/15 leading-none mb-2">03</p>
               <p className="font-display text-2xl text-encre mb-3">Le livre arrive.</p>
               <p className="font-sans text-base text-encre/80 leading-relaxed">
                 Composé séance après séance, imprimé, relié. Le vôtre.
@@ -215,7 +225,7 @@ export default function Home() {
       </section>
 
       {/* ─── RIEN N'EST IMPROVISÉ ────────────────────────────────────── */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6 bg-blanc">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-display text-3xl text-encre mb-10">
             Rien n&apos;est improvisé
@@ -244,7 +254,7 @@ export default function Home() {
           <p className="font-sans text-center text-grege text-xs tracking-widest uppercase mb-10">
             Ce que garde une vie
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-5">
             {objetsMemoire.map((objet) => (
               <div key={objet.caption}>
                 <div className="relative aspect-[4/5] overflow-hidden bg-grege/30 shadow-[4px_4px_0px_#DAD4C5]">
@@ -252,8 +262,8 @@ export default function Home() {
                     src={objet.src}
                     alt={objet.alt}
                     fill
-                    className="object-cover grayscale-[15%] hover:grayscale-0 transition-all duration-500"
-                    sizes="(max-width: 768px) 50vw, 25vw"
+                    className={`object-cover ${objet.position}`}
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
                   />
                 </div>
                 <p className="mt-3 font-sans text-xs text-encre tracking-widest uppercase text-center">

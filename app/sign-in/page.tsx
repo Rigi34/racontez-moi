@@ -134,7 +134,7 @@ function SignInInner() {
           <button
             type="submit"
             disabled={loading || !email || password.length < 8}
-            className="w-full bg-petrole text-papier font-sans text-base py-3.5 tracking-wide hover:opacity-90 transition-opacity disabled:opacity-40"
+            className="w-full bg-encre text-blanc rounded-full font-sans text-base py-3.5 tracking-wide hover:opacity-90 transition-opacity disabled:opacity-40"
           >
             {loading
               ? "…"

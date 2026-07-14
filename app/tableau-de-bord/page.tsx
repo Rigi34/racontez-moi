@@ -44,7 +44,7 @@ export default async function TableauDeBord() {
           <div className="pt-4">
             <Link
               href="/seance"
-              className="inline-block bg-petrole text-papier font-sans text-sm px-8 py-3 hover:opacity-90 transition-opacity"
+              className="inline-block bg-encre text-blanc rounded-full font-sans text-sm px-8 py-3 hover:opacity-90 transition-opacity"
             >
               Commencer une séance
             </Link>

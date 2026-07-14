@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function Manifeste() {
   return (
-    <main className="min-h-screen bg-papier">
+    <main className="min-h-screen bg-blanc">
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
       <header className="px-6 py-8 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
@@ -93,7 +93,7 @@ export default function Manifeste() {
           <div className="mt-16 pt-10 border-t border-grege">
             <Link
               href="/#premiere-question"
-              className="inline-block bg-petrole text-papier font-sans font-medium text-base px-7 py-3 hover:bg-[#17393A] transition-colors duration-200"
+              className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-base px-7 py-3 hover:bg-[#3A3632] transition-colors duration-200"
             >
               Commencer mon histoire →
             </Link>

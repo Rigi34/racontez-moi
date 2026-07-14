@@ -24,7 +24,7 @@ export default function OffrirPage() {
 
         <a
           href="#offrir-cta"
-          className="inline-block bg-petrole text-papier font-sans font-medium text-lg px-8 py-4 hover:bg-[#17393A] transition-colors duration-200"
+          className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-lg px-8 py-4 hover:bg-[#3A3632] transition-colors duration-200"
         >
           Offrir le Parcours →
         </a>
@@ -47,7 +47,7 @@ export default function OffrirPage() {
       </section>
 
       {/* ─── POURQUOI ILS N'ONT JAMAIS ÉCRIT ─────────────────────────── */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6 bg-blanc">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-display font-normal text-3xl text-encre mb-8">
             Ce n&apos;est pas l&apos;envie qui leur manque.
@@ -115,7 +115,7 @@ export default function OffrirPage() {
       </section>
 
       {/* ─── LES TROIS FREINS DÉSAMORCÉS ─────────────────────────────── */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6 bg-blanc">
         <div className="max-w-2xl mx-auto space-y-10">
           <h2 className="font-display font-normal text-3xl text-encre">
             Vous vous demandez peut-être…
@@ -184,7 +184,7 @@ export default function OffrirPage() {
             </p>
             <a
               href="#"
-              className="inline-block bg-petrole text-papier font-sans font-medium text-lg px-8 py-4 hover:bg-[#17393A] transition-colors"
+              className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-lg px-8 py-4 hover:bg-[#3A3632] transition-colors"
             >
               Offrir le Parcours →
             </a>
