@@ -246,10 +246,10 @@ export default function OffrirPage() {
             <a href="/" className="hover:text-petrole transition-colors">
               Accueil
             </a>
-            <a href="#" className="hover:text-petrole transition-colors">
+            <a href="/confidentialite" className="hover:text-petrole transition-colors">
               Confidentialité
             </a>
-            <a href="#" className="hover:text-petrole transition-colors">
+            <a href="/contact" className="hover:text-petrole transition-colors">
               Contact
             </a>
           </div>

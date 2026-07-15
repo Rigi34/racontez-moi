@@ -100,16 +100,15 @@ export default function Home() {
           </div>
 
           {/* Colonne image — livre physique above the fold */}
+          {/* Placeholder temporaire : l'image précédente affichait une marque tierce
+              visible ("the type book" / "by youdiful") sur la tranche d'un livre —
+              retirée en urgence. À remplacer par l'image validée (mains + livre +
+              photo qui dépasse) dès qu'elle est fournie. */}
           <div className="mt-14 lg:mt-0">
-            <div className="relative overflow-hidden shadow-[6px_6px_0px_#DAD4C5]">
-              <Image
-                src="/hero-livre.jpg"
-                alt="Le livre de votre vie — Racontez-moi"
-                width={420}
-                height={525}
-                className="object-cover object-[center_58%] w-full"
-                priority
-              />
+            <div
+              className="relative overflow-hidden shadow-[6px_6px_0px_#DAD4C5] bg-gradient-to-br from-sauge to-papier"
+              style={{ aspectRatio: "420 / 525" }}
+            >
               {/* Fine bordure papier-foncé */}
               <div className="absolute inset-0 ring-1 ring-inset ring-grege/40" />
             </div>
@@ -301,10 +300,10 @@ export default function Home() {
             <a href="/blog" className="hover:text-petrole transition-colors">
               Journal
             </a>
-            <a href="#" className="hover:text-petrole transition-colors">
+            <a href="/confidentialite" className="hover:text-petrole transition-colors">
               Confidentialité
             </a>
-            <a href="#" className="hover:text-petrole transition-colors">
+            <a href="/contact" className="hover:text-petrole transition-colors">
               Contact
             </a>
           </div>
