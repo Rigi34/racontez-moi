@@ -3,33 +3,21 @@ import PremièreQuestion from "./components/PremièreQuestion";
 
 const objetsMemoire = [
   {
-    src: "https://images.unsplash.com/photo-1747246680560-b4a84a925603?fm=jpg&q=80&w=800&auto=format&fit=crop",
-    alt: "Homme écrivant dans un carnet, à la main, lumière naturelle",
-    caption: "L'acte d'écrire",
-    position: "object-[50%_25%]",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1758691031036-5b7b635e30b8?fm=jpg&q=80&w=800&auto=format&fit=crop",
-    alt: "Trois personnes regardant un album photo ensemble, complices",
-    caption: "Les souvenirs partagés",
+    src: "/objet-1-lecoute.webp",
+    alt: "Téléphone posé sur une table en bois affichant une séance en cours, entouré d'anciennes photos de famille",
+    caption: "L'écoute",
     position: "object-center",
   },
   {
-    src: "https://images.unsplash.com/photo-1750853736853-7eed0c15d4a0?fm=jpg&q=80&w=800&auto=format&fit=crop",
-    alt: "Portrait d'un homme souriant en extérieur, lumière du jour",
-    caption: "Le sourire qui reste",
+    src: "/objet-2-laseance.webp",
+    alt: "Femme de dos assise près d'une fenêtre, téléphone posé sur la table en train d'enregistrer",
+    caption: "La séance",
     position: "object-center",
   },
   {
-    src: "https://images.unsplash.com/photo-1775159013022-10ded1ea234b?fm=jpg&q=80&w=800&auto=format&fit=crop",
-    alt: "Portrait d'une femme souriante dans un parc fleuri",
-    caption: "La vie continue",
-    position: "object-center",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1758691031844-c8c880a9b764?fm=jpg&q=80&w=800&auto=format&fit=crop",
-    alt: "Femme souriante chez elle, intérieur contemporain et coloré",
-    caption: "Chez soi, aujourd'hui",
+    src: "/objet-3-lepartage.webp",
+    alt: "Trois personnes de dos, réunies sur un canapé, lisant un livre ensemble",
+    caption: "Le partage",
     position: "object-center",
   },
 ];
@@ -254,16 +242,16 @@ export default function Home() {
           <p className="font-sans text-center text-grege text-xs tracking-widest uppercase mb-10">
             Ce que garde une vie
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 max-w-3xl mx-auto">
             {objetsMemoire.map((objet) => (
               <div key={objet.caption}>
-                <div className="relative aspect-[4/5] overflow-hidden bg-grege/30 shadow-[4px_4px_0px_#DAD4C5]">
+                <div className="relative aspect-[4/5] overflow-hidden bg-grege/30 shadow-[5px_5px_0px_#DAD4C5]">
                   <Image
                     src={objet.src}
                     alt={objet.alt}
                     fill
                     className={`object-cover ${objet.position}`}
-                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
+                    sizes="(max-width: 640px) 90vw, 30vw"
                   />
                 </div>
                 <p className="mt-3 font-sans text-xs text-encre tracking-widest uppercase text-center">
