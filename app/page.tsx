@@ -292,6 +292,9 @@ export default function Home() {
             <a href="/confidentialite" className="hover:text-petrole transition-colors">
               Confidentialité
             </a>
+            <a href="/mentions-legales" className="hover:text-petrole transition-colors">
+              Mentions légales
+            </a>
             <a href="/contact" className="hover:text-petrole transition-colors">
               Contact
             </a>
