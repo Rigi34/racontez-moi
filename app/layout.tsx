@@ -37,6 +37,20 @@ export const metadata: Metadata = {
     title: "Racontez-moi — Le livre de votre vie",
     description: "Votre histoire n'attend pas l'inspiration. Elle attend un interlocuteur.",
     locale: "fr_FR",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Une personne tenant le livre Racontez-moi",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Racontez-moi — Le livre de votre vie",
+    description: "Votre histoire n'attend pas l'inspiration. Elle attend un interlocuteur.",
+    images: ["/og-image.jpg"],
   },
 };
 
