@@ -45,7 +45,7 @@ export default function MentionsLegales() {
               Édition du site
             </h2>
             <p>
-              Le présent site, accessible à l&apos;URL racontez-moi.vercel.app (le « Site »),
+              Le présent site, accessible à l&apos;URL racontez-moi.com (le « Site »),
               est édité par :
             </p>
             <p>
