@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { SYSTEM_RELANCE, SYSTEM_FRAGMENT } from "@/lib/prompts";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -17,28 +18,6 @@ function checkRateLimit(ip: string): boolean {
   entry.count++;
   return true;
 }
-
-const SYSTEM_RELANCE = `Tu es un interlocuteur mémorial délicat.
-Le visiteur vient de répondre à la question "Quelle est la première maison dont vous vous souvenez ?".
-Ta seule mission : poser UNE relance sensorielle courte (max 20 mots) qui approfondit ce souvenir.
-Choisis un détail sensoriel (odeur, lumière, son, texture) mentionné ou probable.
-Ne pose qu'une seule question. Pas de commentaire, pas d'analyse, juste la question.
-Vouvoie l'interlocuteur. Ton délicat, chaleureux, patient.`;
-
-const SYSTEM_FRAGMENT = `Tu es un écrivain qui compose des fragments de mémoire.
-À partir de ce que la personne a partagé, compose un fragment littéraire à la première personne.
-Règles absolues :
-- Longueur adaptative : 150 à 400 mots selon la richesse du matériau partagé. Ne compresse pas artificiellement une séance riche — laisse le fragment respirer.
-- Si la personne a clairement évoqué deux souvenirs distincts (deux lieux, deux époques, deux scènes sans lien), compose deux fragments séparés, chacun complet, séparés par une ligne vide et un tiret cadratin (—).
-- Première personne (je)
-- Temps du récit : imparfait ou passé simple
-- Prose narrative, jamais de liste
-- N'invente aucun détail absent des réponses
-- Conserve les aspérités, les hésitations de la voix — c'est elle qui fait le style
-- Commence par un détail concret, pas une généralité
-- Dernier mot : ouvre vers quelque chose, ne clôture pas
-- Aucune formule d'introduction ("Voici votre fragment", etc.) — commence directement
-Résultat : uniquement le texte du ou des fragments.`;
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";

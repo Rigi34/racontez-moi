@@ -8,6 +8,15 @@ export default async function TableauDeBord() {
 
   if (!user) redirect("/sign-in")
 
+  const { data: fragments } = await supabase
+    .from("fragments")
+    .select("texte, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+
+  const dernierFragment = fragments?.[0]
+  const nombreSeances = fragments?.length ?? 0
+
   return (
     <div className="min-h-screen bg-papier flex flex-col">
       <header className="px-8 py-6 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)] flex items-center justify-between">
@@ -34,22 +43,43 @@ export default async function TableauDeBord() {
           </p>
         </div>
 
-        <div className="bg-sauge border border-grege p-8 text-center space-y-4">
-          <p className="font-display text-xl italic text-encre">
-            Votre premier chapitre n&apos;a pas encore commencé.
-          </p>
-          <p className="font-sans text-sm text-grege">
-            Les séances et fragments apparaîtront ici au fil de votre parcours.
-          </p>
-          <div className="pt-4">
+        {nombreSeances === 0 ? (
+          <div className="bg-sauge border border-grege p-8 text-center space-y-4">
+            <p className="font-display text-xl italic text-encre">
+              Votre premier chapitre n&apos;a pas encore commencé.
+            </p>
+            <p className="font-sans text-sm text-grege">
+              Les séances et fragments apparaîtront ici au fil de votre parcours.
+            </p>
+            <div className="pt-4">
+              <Link
+                href="/seance"
+                className="inline-block bg-encre text-blanc rounded-full font-sans text-sm px-8 py-3 hover:opacity-90 transition-opacity"
+              >
+                Commencer une séance
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="bg-sauge border border-grege p-8 space-y-2">
+              <p className="font-sans text-sm text-grege">
+                {nombreSeances} séance{nombreSeances > 1 ? "s" : ""} enregistrée{nombreSeances > 1 ? "s" : ""}
+              </p>
+              {dernierFragment && (
+                <p className="font-serif text-base text-encre whitespace-pre-line line-clamp-4">
+                  {dernierFragment.texte}
+                </p>
+              )}
+            </div>
             <Link
               href="/seance"
               className="inline-block bg-encre text-blanc rounded-full font-sans text-sm px-8 py-3 hover:opacity-90 transition-opacity"
             >
-              Commencer une séance
+              Continuer mon parcours
             </Link>
           </div>
-        </div>
+        )}
       </main>
     </div>
   )

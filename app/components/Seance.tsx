@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useRef, useCallback, Dispatch, SetStateAction } from "react";
+import { useState, useRef, useCallback, useEffect, Dispatch, SetStateAction } from "react";
 
-type Phase = "question" | "relance" | "fragment";
+type Phase = "chargement" | "reprise" | "question" | "relance" | "fragment";
 
 const QUESTION_INITIALE = "Quelle est la première maison dont vous vous souvenez ?";
 
 export default function Seance() {
-  const [phase, setPhase] = useState<Phase>("question");
+  const [phase, setPhase] = useState<Phase>("chargement");
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [reponse, setReponse] = useState("");
   const [relance, setRelance] = useState("");
   const [reponseRelance, setReponseRelance] = useState("");
@@ -19,6 +20,26 @@ export default function Seance() {
   const [transcribing, setTranscribing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/seance");
+        const data = await res.json();
+        const session = data.session as { id: string; transcript: { role: string; text: string }[] } | null;
+        if (session && session.transcript?.length >= 2) {
+          setSessionId(session.id);
+          setReponse(session.transcript[0].text);
+          setRelance(session.transcript[1].text);
+          setPhase("reprise");
+        } else {
+          setPhase("question");
+        }
+      } catch {
+        setPhase("question");
+      }
+    })();
+  }, []);
 
   const startVoice = useCallback(async (setter: Dispatch<SetStateAction<string>>) => {
     try {
@@ -61,15 +82,55 @@ export default function Seance() {
     setIsRecording(false);
   }, []);
 
+  const reprendreSeance = () => {
+    setPhase("relance");
+  };
+
+  const recommencerSeance = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/seance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ step: "start", fresh: true }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setSessionId(data.session_id);
+      setReponse("");
+      setRelance("");
+      setReponseRelance("");
+      setPhase("question");
+    } catch {
+      setError("Une erreur s'est produite. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const submitReponse = async () => {
     if (!reponse.trim()) return;
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/premiere-question", {
+      let currentSessionId = sessionId;
+      if (!currentSessionId) {
+        const startRes = await fetch("/api/seance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ step: "start" }),
+        });
+        if (!startRes.ok) throw new Error();
+        const startData = await startRes.json();
+        currentSessionId = startData.session_id;
+        setSessionId(currentSessionId);
+      }
+
+      const res = await fetch("/api/seance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ step: "relance", reponse }),
+        body: JSON.stringify({ step: "relance", session_id: currentSessionId, reponse }),
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
@@ -87,10 +148,10 @@ export default function Seance() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/premiere-question", {
+      const res = await fetch("/api/seance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ step: "fragment", reponse, reponseRelance }),
+        body: JSON.stringify({ step: "fragment", session_id: sessionId, reponse, reponseRelance }),
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
@@ -115,6 +176,40 @@ export default function Seance() {
 
   return (
     <div className="space-y-8">
+      {/* Chargement initial — vérification d'une séance en cours */}
+      {phase === "chargement" && (
+        <p className="text-center font-sans text-sm text-grege">Un instant…</p>
+      )}
+
+      {/* Reprise d'une séance interrompue */}
+      {phase === "reprise" && (
+        <div className="text-center space-y-8">
+          <h2 className="font-display font-normal text-2xl md:text-3xl text-encre leading-[1.3]">
+            Vous avez une séance en cours, jamais terminée.
+          </h2>
+          <p className="font-serif text-lg text-grege">
+            Voulez-vous la reprendre là où vous vous étiez arrêté, ou en commencer une nouvelle ?
+          </p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <button
+              onClick={recommencerSeance}
+              disabled={loading}
+              className="font-sans text-sm px-5 py-2.5 border border-grege text-grege hover:border-grege transition-colors disabled:opacity-40"
+            >
+              Recommencer à zéro
+            </button>
+            <button
+              onClick={reprendreSeance}
+              disabled={loading}
+              className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-2.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
+            >
+              Reprendre ma séance →
+            </button>
+          </div>
+          {error && <p className="font-sans text-sm text-red-700">{error}</p>}
+        </div>
+      )}
+
       {/* Phase 1 — Question initiale */}
       {phase === "question" && (
         <div className="text-center space-y-8">
@@ -229,8 +324,7 @@ export default function Seance() {
             </div>
 
             <p className="font-sans text-xs text-grege max-w-md mx-auto">
-              La sauvegarde automatique de vos séances arrive bientôt. En attendant, copiez ce
-              texte si vous voulez le garder.
+              Cette séance est enregistrée dans votre parcours.
             </p>
             {error && <p className="font-sans text-sm text-red-700">{error}</p>}
           </div>
