@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/utils/supabase/server";
 import { QUESTION_INITIALE, SYSTEM_RELANCE, SYSTEM_FRAGMENT } from "@/lib/prompts";
+import { embedText } from "@/lib/embeddings";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -131,6 +132,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Séance introuvable." }, { status: 404 });
     }
 
+    // Recherche des fragments passés du même narrateur pour donner à Sonnet
+    // du fil (continuité inter-séances) — silencieux si pas d'embedding dispo.
+    let contexteMemoire = "";
+    const embeddingRequete = await embedText(`${reponse} ${reponseRelance}`);
+    if (embeddingRequete) {
+      const { data: souvenirs } = await supabase.rpc("match_fragments", {
+        query_embedding: embeddingRequete,
+        match_user_id: user.id,
+        match_count: 3,
+      });
+      if (souvenirs?.length) {
+        contexteMemoire = `\n\nFragments d'une séance précédente, pour mémoire (ne les répète pas, tisse un lien si naturel, sinon ignore-les) :\n${souvenirs
+          .map((s: { texte: string }) => `— ${s.texte}`)
+          .join("\n")}`;
+      }
+    }
+
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 700,
@@ -138,12 +156,13 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "user",
-          content: `Question : ${QUESTION_INITIALE}\n\nRéponse initiale : ${reponse}\n\nRelance et réponse : ${reponseRelance}`,
+          content: `Question : ${QUESTION_INITIALE}\n\nRéponse initiale : ${reponse}\n\nRelance et réponse : ${reponseRelance}${contexteMemoire}`,
         },
       ],
     });
 
     const fragment = (message.content[0] as { type: string; text: string }).text.trim();
+    const embeddingFragment = await embedText(fragment);
 
     const transcript: TranscriptEntry[] = [
       ...(session.transcript ?? []),
@@ -155,6 +174,7 @@ export async function POST(req: NextRequest) {
       session_id,
       user_id: user.id,
       texte: fragment,
+      embedding: embeddingFragment,
     });
 
     await supabase
