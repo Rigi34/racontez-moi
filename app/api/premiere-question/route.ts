@@ -78,13 +78,54 @@ export async function POST(req: NextRequest) {
   }
 
   if (step === "email") {
-    // Ici : intégration Brevo future. Pour MVP, on log simplement.
     const { email, fragment } = body;
-    if (!email?.trim()) {
-      return NextResponse.json({ error: "Email manquant." }, { status: 400 });
+    if (!email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "Adresse email invalide." }, { status: 400 });
     }
-    // TODO: envoyer via Brevo avec le fragment en PDF
-    console.log(`[lead] ${email} — fragment: ${fragment?.slice(0, 60)}…`);
+    if (!fragment?.trim()) {
+      return NextResponse.json({ error: "Fragment manquant." }, { status: 400 });
+    }
+
+    const fragmentHtml = fragment
+      .split("\n\n")
+      .map((p) => `<p style="margin: 0 0 1.2em;">${p.replace(/\n/g, "<br>")}</p>`)
+      .join("");
+
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": process.env.BREVO_API_KEY!,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name: "Régis — Racontez-moi", email: "regis@coherencelab.fr" },
+        to: [{ email }],
+        subject: "Votre premier fragment — Racontez-moi",
+        htmlContent: `
+          <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #242220; line-height: 1.75;">
+            <p style="font-style: italic; color: #6B6660;">Voici ce que ce souvenir pourrait devenir.</p>
+            <div style="border-left: 2px solid #D9CFA9; padding-left: 1.5em; margin: 1.5em 0;">
+              ${fragmentHtml}
+            </div>
+            <p>Il reste toute une vie à raconter.</p>
+            <p style="margin-top: 2em;">
+              <a href="https://racontez-moi.com/sign-in" style="background: #242220; color: #FFFEFB; padding: 12px 24px; text-decoration: none; border-radius: 999px; display: inline-block;">
+                Commencer mon histoire →
+              </a>
+            </p>
+            <p style="margin-top: 2.5em;">À bientôt,<br><strong>Régis</strong><br>Racontez-moi</p>
+            <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0;">
+            <p style="font-size: 0.8rem; color: #888;">Ce fragment vous appartient. Il ne servira jamais à entraîner une IA.</p>
+          </div>
+        `,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error("Brevo email error:", await res.text());
+      return NextResponse.json({ error: "Erreur lors de l'envoi. Réessayez." }, { status: 500 });
+    }
+
     return NextResponse.json({ ok: true });
   }
 
