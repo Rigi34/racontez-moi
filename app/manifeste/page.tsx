@@ -73,14 +73,15 @@ export default function Manifeste() {
               l&apos;interlocuteur qu&apos;aucun proche ne peut occuper indéfiniment.
             </p>
 
-            {/* Placeholder origine personnelle */}
-            <div className="my-10 pl-6 border-l-2 border-grege">
-              <p className="font-sans text-sm text-grege italic leading-relaxed">
-                [Origine personnelle — à compléter si vous souhaitez ajouter un fait
-                fondateur propre à votre parcours&nbsp;; sinon cette section reste telle
-                quelle et le manifeste fonctionne sans elle.]
-              </p>
-            </div>
+            <p>
+              Ce besoin n&apos;est pas nouveau, et il n&apos;est pas propre à un âge en
+              particulier&nbsp;— mais il se fait sentir avec une force particulière à
+              mesure que le temps s&apos;accumule. Regarder sa vie et vouloir la mettre
+              en ordre n&apos;est ni un caprice ni un signe de repli&nbsp;: c&apos;est
+              une étape reconnue, documentée, presque universelle. Ce qui manque
+              n&apos;est jamais le désir de comprendre ce qu&apos;on a vécu&nbsp;—
+              c&apos;est l&apos;occasion, tout simplement, de le faire.
+            </p>
 
             <p>
               Le résultat n&apos;est jamais un texte généré. C&apos;est un livre fait de vos
