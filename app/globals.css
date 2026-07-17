@@ -55,4 +55,13 @@ body {
   .note-marginale {
     transition: transform 0.2s ease-out;
   }
+
+  @keyframes onde-sonore {
+    0%, 100% { transform: scaleY(0.32); }
+    50% { transform: scaleY(1); }
+  }
+
+  .barre-onde--active {
+    animation: onde-sonore 0.9s ease-in-out infinite;
+  }
 }

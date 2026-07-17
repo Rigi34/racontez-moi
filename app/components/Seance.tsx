@@ -6,6 +6,51 @@ type Phase = "chargement" | "reprise" | "question" | "relance" | "fragment";
 
 const QUESTION_INITIALE = "Quelle est la première maison dont vous vous souvenez ?";
 
+const HAUTEURS_ONDE = [5, 9, 13, 8, 6]; // px, au repos — silhouette d'onde sonore
+
+function OndeSonore({ active }: { active: boolean }) {
+  return (
+    <span className="flex items-end gap-[3px] h-[13px]" aria-hidden="true">
+      {HAUTEURS_ONDE.map((h, i) => (
+        <span
+          key={i}
+          className={`w-[2.5px] rounded-full bg-current origin-bottom ${
+            active ? "h-[13px] barre-onde--active" : ""
+          }`}
+          style={active ? { animationDelay: `${i * 0.12}s` } : { height: `${h}px` }}
+        />
+      ))}
+    </span>
+  );
+}
+
+function BoutonDicter({
+  isRecording,
+  transcribing,
+  onClick,
+  label,
+}: {
+  isRecording: boolean;
+  transcribing: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={transcribing}
+      className={`inline-flex items-center gap-2.5 rounded-full border font-sans text-sm px-5 py-2.5 shadow-[0_1px_3px_rgba(36,34,32,0.1)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+        isRecording
+          ? "border-petrole/40 bg-petrole/10 text-petrole"
+          : "border-sauge bg-blanc text-grege hover:border-grege hover:text-encre"
+      }`}
+    >
+      <OndeSonore active={isRecording} />
+      {isRecording ? "Arrêter l'écoute" : transcribing ? "Transcription…" : label}
+    </button>
+  );
+}
+
 export default function Seance() {
   const [phase, setPhase] = useState<Phase>("chargement");
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -224,19 +269,12 @@ export default function Seance() {
               className="w-full min-h-[140px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
             />
             <div className="flex gap-3 justify-center flex-wrap">
-              <button
-                onClick={() =>
-                  isRecording ? stopVoice() : startVoice(setReponse)
-                }
-                disabled={transcribing}
-                className={`font-sans text-sm px-5 py-2.5 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                  isRecording
-                    ? "border-petrole text-petrole bg-petrole/10"
-                    : "border-grege text-grege hover:border-grege"
-                }`}
-              >
-                {isRecording ? "⏹ Arrêter la dictée" : transcribing ? "Transcription…" : "🎙 Dicter à la voix"}
-              </button>
+              <BoutonDicter
+                isRecording={isRecording}
+                transcribing={transcribing}
+                onClick={() => (isRecording ? stopVoice() : startVoice(setReponse))}
+                label="Dicter à la voix"
+              />
               <button
                 onClick={submitReponse}
                 disabled={!reponse.trim() || loading || transcribing}
@@ -245,6 +283,9 @@ export default function Seance() {
                 {loading ? "Un instant…" : "Continuer →"}
               </button>
             </div>
+            <p className="font-display italic text-sm text-grege">
+              Votre voix, à votre rythme.
+            </p>
           </div>
           {error && <p className="font-sans text-sm text-red-700">{error}</p>}
         </div>
@@ -264,19 +305,12 @@ export default function Seance() {
               className="w-full min-h-[120px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
             />
             <div className="flex gap-3 justify-center flex-wrap">
-              <button
-                onClick={() =>
-                  isRecording ? stopVoice() : startVoice(setReponseRelance)
-                }
-                disabled={transcribing}
-                className={`font-sans text-sm px-5 py-2.5 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                  isRecording
-                    ? "border-petrole text-petrole bg-petrole/10"
-                    : "border-grege text-grege hover:border-grege"
-                }`}
-              >
-                {isRecording ? "⏹ Arrêter" : transcribing ? "Transcription…" : "🎙 Dicter"}
-              </button>
+              <BoutonDicter
+                isRecording={isRecording}
+                transcribing={transcribing}
+                onClick={() => (isRecording ? stopVoice() : startVoice(setReponseRelance))}
+                label="Dicter"
+              />
               <button
                 onClick={submitRelance}
                 disabled={!reponseRelance.trim() || loading}
