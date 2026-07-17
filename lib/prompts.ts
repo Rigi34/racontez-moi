@@ -1,9 +1,10 @@
 export const QUESTION_INITIALE = "Quelle est la première maison dont vous vous souvenez ?";
 
 // Construit dynamiquement pour pouvoir y injecter des extraits de la
-// bibliothèque de référence (14 ouvrages), retrouvés par similarité avec la
-// réponse du narrateur — cf. lib/retrieval.ts.
-export function construireSystemRelance(techniques: string[]): string {
+// bibliothèque de référence (14 ouvrages, cf. lib/retrieval.ts) et un résumé
+// du profil narrateur (cf. lib/profil-narrateur.ts) — périodes déjà
+// explorées, ancrages sensoriels déjà sollicités, sujets esquivés.
+export function construireSystemRelance(techniques: string[], profilResume = ""): string {
   const blocTechniques = techniques.length
     ? `\n\nExtraits de référence sur l'art de la relance mémorielle (inspire-toi-en librement, ne les cite jamais et ne les paraphrase pas servilement) :\n${techniques
         .map((t) => `— ${t}`)
@@ -15,7 +16,7 @@ Le visiteur vient de répondre à la question "${QUESTION_INITIALE}".
 Ta seule mission : poser UNE relance sensorielle courte (max 20 mots) qui approfondit ce souvenir.
 Choisis un détail sensoriel (odeur, lumière, son, texture) mentionné ou probable.
 Ne pose qu'une seule question. Pas de commentaire, pas d'analyse, juste la question.
-Vouvoie l'interlocuteur. Ton délicat, chaleureux, patient.${blocTechniques}`;
+Vouvoie l'interlocuteur. Ton délicat, chaleureux, patient.${blocTechniques}${profilResume}`;
 }
 
 export const SYSTEM_FRAGMENT = `Tu es un écrivain qui compose des fragments de mémoire.

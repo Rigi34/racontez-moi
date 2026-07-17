@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { QUESTION_INITIALE, construireSystemRelance, SYSTEM_FRAGMENT } from "@/lib/prompts";
 import { embedText } from "@/lib/embeddings";
 import { retrieverTechniques } from "@/lib/retrieval";
+import { lireProfil, resumerProfilPourPrompt, mettreAJourProfil } from "@/lib/profil-narrateur";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -96,12 +97,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Séance introuvable." }, { status: 404 });
     }
 
-    const techniques = await retrieverTechniques(supabase, reponse, "type_question", 3);
+    const [techniques, profil] = await Promise.all([
+      retrieverTechniques(supabase, reponse, "type_question", 3),
+      lireProfil(supabase, user.id),
+    ]);
 
     const message = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 80,
-      system: construireSystemRelance(techniques.map((t) => t.texte)),
+      system: construireSystemRelance(
+        techniques.map((t) => t.texte),
+        resumerProfilPourPrompt(profil)
+      ),
       messages: [{ role: "user", content: reponse }],
     });
 
@@ -184,6 +191,12 @@ export async function POST(req: NextRequest) {
       .from("sessions")
       .update({ transcript, status: "completed", ended_at: new Date().toISOString() })
       .eq("id", session_id);
+
+    // Mise à jour du profil narrateur (périodes/ancrages/profondeur) — ne
+    // bloque pas la réponse à l'utilisateur si ça échoue, non critique.
+    mettreAJourProfil(supabase, user.id, `${reponse}\n${reponseRelance}\n${fragment}`).catch((e) =>
+      console.error("mise à jour profil narrateur échouée:", e)
+    );
 
     return NextResponse.json({ fragment });
   }
