@@ -304,7 +304,7 @@ export default function Seance() {
               </button>
             </div>
             <p className="font-display italic text-sm text-grege">
-              Votre voix, à votre rythme.
+              Votre voix, à votre rythme. Relisez et corrigez si besoin.
             </p>
           </div>
           {error && <p className="font-sans text-sm text-red-700">{error}</p>}
@@ -339,6 +339,9 @@ export default function Seance() {
                 {loading ? "Composition en cours…" : "Terminer la séance →"}
               </button>
             </div>
+            <p className="font-display italic text-sm text-grege">
+              Relisez et corrigez si besoin.
+            </p>
           </div>
           {error && <p className="font-sans text-sm text-red-700">{error}</p>}
         </div>
