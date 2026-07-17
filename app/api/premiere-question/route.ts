@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { SYSTEM_RELANCE, SYSTEM_FRAGMENT } from "@/lib/prompts";
+import { construireSystemRelance, SYSTEM_FRAGMENT } from "@/lib/prompts";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 80,
-      system: SYSTEM_RELANCE,
+      system: construireSystemRelance([]),
       messages: [{ role: "user", content: reponse }],
     });
 

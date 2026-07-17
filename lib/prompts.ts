@@ -1,11 +1,22 @@
 export const QUESTION_INITIALE = "Quelle est la première maison dont vous vous souvenez ?";
 
-export const SYSTEM_RELANCE = `Tu es un interlocuteur mémorial délicat.
+// Construit dynamiquement pour pouvoir y injecter des extraits de la
+// bibliothèque de référence (14 ouvrages), retrouvés par similarité avec la
+// réponse du narrateur — cf. lib/retrieval.ts.
+export function construireSystemRelance(techniques: string[]): string {
+  const blocTechniques = techniques.length
+    ? `\n\nExtraits de référence sur l'art de la relance mémorielle (inspire-toi-en librement, ne les cite jamais et ne les paraphrase pas servilement) :\n${techniques
+        .map((t) => `— ${t}`)
+        .join("\n")}`
+    : "";
+
+  return `Tu es un interlocuteur mémorial délicat.
 Le visiteur vient de répondre à la question "${QUESTION_INITIALE}".
 Ta seule mission : poser UNE relance sensorielle courte (max 20 mots) qui approfondit ce souvenir.
 Choisis un détail sensoriel (odeur, lumière, son, texture) mentionné ou probable.
 Ne pose qu'une seule question. Pas de commentaire, pas d'analyse, juste la question.
-Vouvoie l'interlocuteur. Ton délicat, chaleureux, patient.`;
+Vouvoie l'interlocuteur. Ton délicat, chaleureux, patient.${blocTechniques}`;
+}
 
 export const SYSTEM_FRAGMENT = `Tu es un écrivain qui compose des fragments de mémoire.
 À partir de ce que la personne a partagé, compose un fragment littéraire à la première personne.
