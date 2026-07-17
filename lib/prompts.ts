@@ -4,11 +4,15 @@ export const QUESTION_INITIALE = "Quelle est la première maison dont vous vous 
 // bibliothèque de référence (14 ouvrages, cf. lib/retrieval.ts) et un résumé
 // du profil narrateur (cf. lib/profil-narrateur.ts) — périodes déjà
 // explorées, ancrages sensoriels déjà sollicités, sujets esquivés.
-export function construireSystemRelance(techniques: string[], profilResume = ""): string {
+export function construireSystemRelance(techniques: string[], profilResume = "", resumeSessionPrecedente = ""): string {
   const blocTechniques = techniques.length
     ? `\n\nExtraits de référence sur l'art de la relance mémorielle (inspire-toi-en librement, ne les cite jamais et ne les paraphrase pas servilement) :\n${techniques
         .map((t) => `— ${t}`)
         .join("\n")}`
+    : "";
+
+  const blocResumePrecedent = resumeSessionPrecedente
+    ? `\n\nCe que la dernière séance a couvert (pour mémoire, ne le répète pas au narrateur — ça sert juste à ne pas revenir dessus par mégarde) :\n${resumeSessionPrecedente}`
     : "";
 
   return `Tu es un interlocuteur mémorial délicat.
@@ -16,7 +20,7 @@ Le visiteur vient de répondre à la question "${QUESTION_INITIALE}".
 Ta seule mission : poser UNE relance sensorielle courte (max 20 mots) qui approfondit ce souvenir.
 Choisis un détail sensoriel (odeur, lumière, son, texture) mentionné ou probable.
 Ne pose qu'une seule question. Pas de commentaire, pas d'analyse, juste la question.
-Vouvoie l'interlocuteur. Ton délicat, chaleureux, patient.${blocTechniques}${profilResume}`;
+Vouvoie l'interlocuteur. Ton délicat, chaleureux, patient.${blocTechniques}${profilResume}${blocResumePrecedent}`;
 }
 
 export const SYSTEM_FRAGMENT = `Tu es un écrivain qui compose des fragments de mémoire.

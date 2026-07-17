@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/utils/supabase/server";
-import { QUESTION_INITIALE, construireSystemRelance, SYSTEM_FRAGMENT } from "@/lib/prompts";
+import { QUESTION_INITIALE, construireSystemRelance } from "@/lib/prompts";
 import { embedText } from "@/lib/embeddings";
 import { retrieverTechniques } from "@/lib/retrieval";
 import { lireProfil, resumerProfilPourPrompt, mettreAJourProfil } from "@/lib/profil-narrateur";
+import { composerFragment, genererResumeSession } from "@/lib/redaction";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -99,9 +100,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Séance introuvable." }, { status: 404 });
     }
 
-    const [techniques, profil] = await Promise.all([
+    const [techniques, profil, derniereSession] = await Promise.all([
       retrieverTechniques(supabase, reponse, "type_question", 3),
       lireProfil(supabase, user.id),
+      supabase
+        .from("sessions")
+        .select("resume_session")
+        .eq("user_id", user.id)
+        .eq("status", "completed")
+        .not("resume_session", "is", null)
+        .order("ended_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .then((r) => r.data),
     ]);
 
     const message = await client.messages.create({
@@ -109,7 +120,8 @@ export async function POST(req: NextRequest) {
       max_tokens: 80,
       system: construireSystemRelance(
         techniques.map((t) => t.texte),
-        resumerProfilPourPrompt(profil)
+        resumerProfilPourPrompt(profil),
+        derniereSession?.resume_session ?? ""
       ),
       messages: [{ role: "user", content: reponse }],
     });
@@ -173,20 +185,25 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const message = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 700,
-      system: SYSTEM_FRAGMENT,
-      messages: [
-        {
-          role: "user",
-          content: `Question : ${QUESTION_INITIALE}\n\nRéponse initiale : ${reponse}\n\nRelance et réponse : ${reponseRelance}${contexteMemoire}`,
-        },
-      ],
-    });
+    const questionRelance = session.transcript?.find((e: TranscriptEntry) => e.role === "relance")?.text ?? "";
 
-    const fragment = (message.content[0] as { type: string; text: string }).text.trim();
+    const fragment = await composerFragment(client, {
+      question: QUESTION_INITIALE,
+      reponse,
+      questionRelance,
+      reponseRelance,
+      contexteMemoire,
+    });
     const embeddingFragment = await embedText(fragment);
+    const resumeSession = await genererResumeSession(client, {
+      question: QUESTION_INITIALE,
+      reponse,
+      questionRelance,
+      reponseRelance,
+    }).catch((e) => {
+      console.error("génération résumé de séance échouée:", e);
+      return null;
+    });
 
     const transcript: TranscriptEntry[] = [
       ...(session.transcript ?? []),
@@ -203,13 +220,17 @@ export async function POST(req: NextRequest) {
 
     await supabase
       .from("sessions")
-      .update({ transcript, status: "completed", ended_at: new Date().toISOString() })
+      .update({
+        transcript,
+        status: "completed",
+        ended_at: new Date().toISOString(),
+        resume_session: resumeSession,
+      })
       .eq("id", session_id);
 
     // Tour 2 : la question posée est la relance générée à l'étape
-    // précédente (déjà dans le transcript), avec les chunks RAG qui ont
-    // servi à la formuler et le silence avant cette réponse-ci.
-    const questionRelance = session.transcript?.find((e: TranscriptEntry) => e.role === "relance")?.text ?? "";
+    // précédente, avec les chunks RAG qui ont servi à la formuler et le
+    // silence avant cette réponse-ci.
     await supabase.from("tours_conversation").insert({
       session_id,
       user_id: user.id,
