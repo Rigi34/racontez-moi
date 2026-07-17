@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
     reponse?: string;
     reponseRelance?: string;
     fresh?: boolean;
+    duree_silence_ms?: number | null;
+    chunks_rag_utilises?: string[];
   };
   try {
     body = await req.json();
@@ -122,11 +124,23 @@ export async function POST(req: NextRequest) {
 
     await supabase.from("sessions").update({ transcript }).eq("id", session_id);
 
-    return NextResponse.json({ relance });
+    // Tour 1 : la question initiale est fixe (pas de RAG pour la générer),
+    // on trace juste la réponse et le silence qui l'a précédée.
+    await supabase.from("tours_conversation").insert({
+      session_id,
+      user_id: user.id,
+      tour_index: 0,
+      question: QUESTION_INITIALE,
+      reponse_brute: reponse,
+      duree_silence_ms: body.duree_silence_ms ?? null,
+      chunks_rag_utilises: null,
+    });
+
+    return NextResponse.json({ relance, chunks_rag_utilises: techniques.map((t) => t.id) });
   }
 
   if (step === "fragment") {
-    const { session_id, reponse, reponseRelance } = body;
+    const { session_id, reponse, reponseRelance, chunks_rag_utilises } = body;
     if (!session_id || !reponse?.trim() || !reponseRelance?.trim()) {
       return NextResponse.json({ error: "Réponses manquantes." }, { status: 400 });
     }
@@ -191,6 +205,20 @@ export async function POST(req: NextRequest) {
       .from("sessions")
       .update({ transcript, status: "completed", ended_at: new Date().toISOString() })
       .eq("id", session_id);
+
+    // Tour 2 : la question posée est la relance générée à l'étape
+    // précédente (déjà dans le transcript), avec les chunks RAG qui ont
+    // servi à la formuler et le silence avant cette réponse-ci.
+    const questionRelance = session.transcript?.find((e: TranscriptEntry) => e.role === "relance")?.text ?? "";
+    await supabase.from("tours_conversation").insert({
+      session_id,
+      user_id: user.id,
+      tour_index: 1,
+      question: questionRelance,
+      reponse_brute: reponseRelance,
+      duree_silence_ms: body.duree_silence_ms ?? null,
+      chunks_rag_utilises: chunks_rag_utilises?.length ? chunks_rag_utilises : null,
+    });
 
     // Mise à jour du profil narrateur (périodes/ancrages/profondeur) — ne
     // bloque pas la réponse à l'utilisateur si ça échoue, non critique.

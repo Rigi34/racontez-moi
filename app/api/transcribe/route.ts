@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   groqForm.append("file", audio, "recording.webm");
   groqForm.append("model", "whisper-large-v3");
   groqForm.append("language", "fr");
-  groqForm.append("response_format", "json");
+  groqForm.append("response_format", "verbose_json");
 
   const res = await fetch(
     "https://api.groq.com/openai/v1/audio/transcriptions",
@@ -30,5 +30,12 @@ export async function POST(req: NextRequest) {
   }
 
   const data = await res.json();
-  return NextResponse.json({ text: data.text });
+
+  // Silence avant le premier mot prononcé — signal doux d'hésitation
+  // (l'enregistrement est en push-to-talk : ce délai reflète le temps de
+  // réflexion avant de répondre, pas du bruit ambiant).
+  const segments = data.segments as { start: number }[] | undefined;
+  const dureeSilenceMs = segments?.length ? Math.round(segments[0].start * 1000) : null;
+
+  return NextResponse.json({ text: data.text, duree_silence_ms: dureeSilenceMs });
 }

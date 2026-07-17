@@ -65,6 +65,9 @@ export default function Seance() {
   const [transcribing, setTranscribing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const dureeSilenceReponseRef = useRef<number | null>(null);
+  const dureeSilenceRelanceRef = useRef<number | null>(null);
+  const chunksRagRef = useRef<string[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -86,7 +89,10 @@ export default function Seance() {
     })();
   }, []);
 
-  const startVoice = useCallback(async (setter: Dispatch<SetStateAction<string>>) => {
+  const startVoice = useCallback(async (
+    setter: Dispatch<SetStateAction<string>>,
+    dureeSilenceRef: React.MutableRefObject<number | null>
+  ) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunksRef.current = [];
@@ -107,6 +113,7 @@ export default function Seance() {
           if (!res.ok) throw new Error();
           const data = await res.json();
           setter((prev) => (prev ? prev + " " + data.text : data.text));
+          dureeSilenceRef.current = data.duree_silence_ms ?? null;
         } catch {
           setError("Erreur lors de la transcription. Veuillez réessayer.");
         } finally {
@@ -175,11 +182,17 @@ export default function Seance() {
       const res = await fetch("/api/seance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ step: "relance", session_id: currentSessionId, reponse }),
+        body: JSON.stringify({
+          step: "relance",
+          session_id: currentSessionId,
+          reponse,
+          duree_silence_ms: dureeSilenceReponseRef.current,
+        }),
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
       setRelance(data.relance);
+      chunksRagRef.current = data.chunks_rag_utilises ?? [];
       setPhase("relance");
     } catch {
       setError("Une erreur s'est produite. Veuillez réessayer.");
@@ -196,7 +209,14 @@ export default function Seance() {
       const res = await fetch("/api/seance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ step: "fragment", session_id: sessionId, reponse, reponseRelance }),
+        body: JSON.stringify({
+          step: "fragment",
+          session_id: sessionId,
+          reponse,
+          reponseRelance,
+          duree_silence_ms: dureeSilenceRelanceRef.current,
+          chunks_rag_utilises: chunksRagRef.current,
+        }),
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
@@ -272,7 +292,7 @@ export default function Seance() {
               <BoutonDicter
                 isRecording={isRecording}
                 transcribing={transcribing}
-                onClick={() => (isRecording ? stopVoice() : startVoice(setReponse))}
+                onClick={() => (isRecording ? stopVoice() : startVoice(setReponse, dureeSilenceReponseRef))}
                 label="Dicter à la voix"
               />
               <button
@@ -308,7 +328,7 @@ export default function Seance() {
               <BoutonDicter
                 isRecording={isRecording}
                 transcribing={transcribing}
-                onClick={() => (isRecording ? stopVoice() : startVoice(setReponseRelance))}
+                onClick={() => (isRecording ? stopVoice() : startVoice(setReponseRelance, dureeSilenceRelanceRef))}
                 label="Dicter"
               />
               <button
