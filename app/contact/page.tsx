@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import FormulaireContact from "./FormulaireContact";
 
 export const metadata: Metadata = {
   title: "Contact — Racontez-moi",
@@ -36,12 +37,7 @@ export default function Contact() {
             Écrivez-nous directement — nous répondons personnellement à chaque
             message.
           </p>
-          <a
-            href="mailto:contact@racontez-moi.com"
-            className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-lg px-8 py-4 hover:bg-[#3A3632] transition-colors duration-200"
-          >
-            contact@racontez-moi.com
-          </a>
+          <FormulaireContact />
         </div>
       </article>
 
