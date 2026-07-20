@@ -9,6 +9,14 @@ export default async function SeancePage() {
 
   if (!user) redirect("/sign-in")
 
+  const { data: abonnement } = await supabase
+    .from("abonnements")
+    .select("status")
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  if (abonnement?.status !== "active") redirect("/parcours")
+
   return (
     <div className="min-h-screen bg-papier flex flex-col">
       <header className="px-8 py-6 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)] flex items-center justify-between">
