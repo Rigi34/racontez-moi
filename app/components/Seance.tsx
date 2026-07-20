@@ -24,6 +24,30 @@ function OndeSonore({ active }: { active: boolean }) {
   );
 }
 
+const HAUTEURS_ONDE_GRANDE = [10, 22, 34, 48, 30, 44, 20, 38, 52, 28, 42, 16, 36, 24, 46, 18];
+
+function PanneauEnregistrement({ duree }: { duree: number }) {
+  const minutes = Math.floor(duree / 60);
+  const secondes = duree % 60;
+  const chrono = `${minutes}:${secondes.toString().padStart(2, "0")}`;
+
+  return (
+    <div className="bg-blanc border border-sauge rounded-2xl px-6 py-7 shadow-[0_2px_8px_rgba(36,34,32,0.08)]">
+      <div className="flex items-end justify-center gap-[5px] h-14" aria-hidden="true">
+        {HAUTEURS_ONDE_GRANDE.map((h, i) => (
+          <span
+            key={i}
+            className="w-[5px] rounded-full bg-petrole origin-bottom barre-onde-grande--active"
+            style={{ height: `${h}px`, animationDelay: `${i * 0.09}s` }}
+          />
+        ))}
+      </div>
+      <p className="mt-4 font-sans text-lg text-petrole font-medium">{chrono}</p>
+      <p className="mt-1 font-sans text-sm text-grege">Enregistrement en cours</p>
+    </div>
+  );
+}
+
 function BoutonDicter({
   isRecording,
   transcribing,
@@ -39,7 +63,7 @@ function BoutonDicter({
     <button
       onClick={onClick}
       disabled={transcribing}
-      className={`inline-flex items-center gap-2.5 rounded-full border font-sans text-sm px-5 py-2.5 shadow-[0_1px_3px_rgba(36,34,32,0.1)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+      className={`inline-flex items-center gap-3 rounded-full border font-sans text-base px-7 py-4 shadow-[0_1px_3px_rgba(36,34,32,0.1)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
         isRecording
           ? "border-petrole/40 bg-petrole/10 text-petrole"
           : "border-sauge bg-blanc text-grege hover:border-grege hover:text-encre"
@@ -63,8 +87,10 @@ export default function Seance() {
   const [copie, setCopie] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
+  const [dureeEnregistrement, setDureeEnregistrement] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const chronoRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const dureeSilenceReponseRef = useRef<number | null>(null);
   const dureeSilenceRelanceRef = useRef<number | null>(null);
   const chunksRagRef = useRef<string[]>([]);
@@ -104,6 +130,7 @@ export default function Seance() {
 
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
+        if (chronoRef.current) clearInterval(chronoRef.current);
         const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         setTranscribing(true);
         try {
@@ -124,6 +151,8 @@ export default function Seance() {
       recorder.start();
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
+      setDureeEnregistrement(0);
+      chronoRef.current = setInterval(() => setDureeEnregistrement((d) => d + 1), 1000);
     } catch {
       setError("Accès au microphone refusé. Vérifiez les permissions du navigateur.");
     }
@@ -288,6 +317,7 @@ export default function Seance() {
               placeholder="Prenez votre temps. Écrivez ou dictez à la voix."
               className="w-full min-h-[140px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
             />
+            {isRecording && <PanneauEnregistrement duree={dureeEnregistrement} />}
             <div className="flex gap-3 justify-center flex-wrap">
               <BoutonDicter
                 isRecording={isRecording}
@@ -324,6 +354,7 @@ export default function Seance() {
               placeholder="Continuez, prenez votre temps…"
               className="w-full min-h-[120px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
             />
+            {isRecording && <PanneauEnregistrement duree={dureeEnregistrement} />}
             <div className="flex gap-3 justify-center flex-wrap">
               <BoutonDicter
                 isRecording={isRecording}

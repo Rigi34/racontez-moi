@@ -64,4 +64,8 @@ body {
   .barre-onde--active {
     animation: onde-sonore 0.9s ease-in-out infinite;
   }
+
+  .barre-onde-grande--active {
+    animation: onde-sonore 1.1s ease-in-out infinite;
+  }
 }

@@ -44,7 +44,7 @@ export default function Home() {
             {/* Épigraphe Cyrulnik */}
             <div className="mb-8 max-w-[540px]">
               <p className="font-display italic text-[22px] leading-[1.6] text-encre">
-                «&nbsp;Dès qu&apos;on en fait un récit, on donne sens à nos souffrances.&nbsp;»
+                «&nbsp;Dès qu&apos;on en fait un récit, on donne sens à nos souffrances, on comprend, longtemps après, comment on a pu changer un malheur en merveille.&nbsp;»
               </p>
               <p className="note-marginale mt-2 text-2xl">
                 — Boris Cyrulnik, neuropsychiatre
