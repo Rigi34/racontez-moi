@@ -62,14 +62,14 @@ export default function Confidentialite() {
             </p>
             <p>
               <strong className="font-semibold">
-                À ce stade du développement du site, ni l&apos;audio ni le texte de
-                vos séances ne sont conservés dans une base de données après votre
-                session.
+                L&apos;audio de votre voix n&apos;est jamais conservé
               </strong>{" "}
-              La sauvegarde permanente de vos séances est une fonctionnalité en
-              cours de construction, pas encore active — nous préférons le dire
-              clairement plutôt que de laisser croire à une conservation qui
-              n&apos;existe pas encore.
+              — il est envoyé à Groq pour être transcrit en texte, puis
+              immédiatement supprimé de leur côté. Le texte de vos séances et les
+              fragments composés à partir de vos réponses sont, eux, enregistrés
+              dans notre base de données (hébergée par Supabase, en Europe), pour
+              que votre parcours se poursuive d&apos;une séance à l&apos;autre et
+              que votre livre puisse être assemblé.
             </p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
@@ -79,19 +79,26 @@ export default function Confidentialite() {
               Nous ne vendons aucune donnée à un tiers. Nous ne partageons rien de
               ce que vous racontez avec qui que ce soit sans votre accord explicite.
               Il n&apos;y a aujourd&apos;hui aucun outil de suivi publicitaire sur
-              le site.
+              le site. Vos séances ne servent jamais à entraîner un modèle d&apos;IA.
             </p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
               Vos droits
             </h2>
             <p>
-              Vous pouvez demander la suppression de votre compte à tout moment en
-              nous écrivant depuis la page{" "}
+              Depuis votre{" "}
+              <Link href="/tableau-de-bord" className="text-petrole hover:text-encre transition-colors">
+                tableau de bord
+              </Link>
+              , vous pouvez à tout moment télécharger l&apos;intégralité de vos
+              données (droit à la portabilité) ou supprimer définitivement votre
+              compte et toutes vos séances (droit à l&apos;effacement), en libre
+              accès, sans avoir à nous écrire. Pour toute autre question sur vos
+              données, la page{" "}
               <Link href="/contact" className="text-petrole hover:text-encre transition-colors">
                 Contact
-              </Link>
-              .
+              </Link>{" "}
+              reste ouverte.
             </p>
           </div>
         </div>

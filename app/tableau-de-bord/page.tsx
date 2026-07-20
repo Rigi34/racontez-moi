@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import Link from "next/link"
+import GestionCompte from "./GestionCompte"
 
 export default async function TableauDeBord() {
   const supabase = await createClient()
@@ -80,6 +81,8 @@ export default async function TableauDeBord() {
             </Link>
           </div>
         )}
+
+        <GestionCompte />
       </main>
     </div>
   )
