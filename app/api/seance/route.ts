@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/utils/supabase/server";
-import { QUESTION_INITIALE, construireSystemRelance } from "@/lib/prompts";
+import { QUESTION_INITIALE, construireSystemRelance, construireSystemOuverture } from "@/lib/prompts";
 import { embedText } from "@/lib/embeddings";
 import { retrieverTechniques } from "@/lib/retrieval";
 import { lireProfil, resumerProfilPourPrompt, mettreAJourProfil } from "@/lib/profil-narrateur";
@@ -61,7 +61,9 @@ export async function POST(req: NextRequest) {
       .limit(1)
       .maybeSingle();
 
-    if (existing && !body.fresh) return NextResponse.json({ session_id: existing.id });
+    if (existing && !body.fresh) {
+      return NextResponse.json({ session_id: existing.id, question: QUESTION_INITIALE });
+    }
 
     if (existing && body.fresh) {
       // Séance précédente abandonnée sans fragment — on la clôture pour qu'elle
@@ -72,16 +74,50 @@ export async function POST(req: NextRequest) {
         .eq("id", existing.id);
     }
 
+    // La question fixe ne sert qu'à la toute première séance d'un narrateur
+    // (aucun fragment produit jusqu'ici) — au-delà, question d'ouverture
+    // générée dynamiquement pour ne jamais reposer la même (cf. profil
+    // narrateur + résumé de la dernière séance), cohérent avec les relances.
+    const { count: nombreFragments } = await supabase
+      .from("fragments")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+
+    let question = QUESTION_INITIALE;
+    if ((nombreFragments ?? 0) > 0) {
+      const [profil, derniereSession] = await Promise.all([
+        lireProfil(supabase, user.id),
+        supabase
+          .from("sessions")
+          .select("resume_session")
+          .eq("user_id", user.id)
+          .eq("status", "completed")
+          .not("resume_session", "is", null)
+          .order("ended_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+          .then((r) => r.data),
+      ]);
+
+      const message = await client.messages.create({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 60,
+        system: construireSystemOuverture(resumerProfilPourPrompt(profil), derniereSession?.resume_session ?? ""),
+        messages: [{ role: "user", content: "Génère la question d'ouverture de cette nouvelle séance." }],
+      });
+      question = (message.content[0] as { type: string; text: string }).text.trim();
+    }
+
     const { data: created, error } = await supabase
       .from("sessions")
-      .insert({ user_id: user.id })
+      .insert({ user_id: user.id, question_ouverture: question })
       .select("id")
       .single();
 
     if (error || !created) {
       return NextResponse.json({ error: "Impossible de démarrer la séance." }, { status: 500 });
     }
-    return NextResponse.json({ session_id: created.id });
+    return NextResponse.json({ session_id: created.id, question });
   }
 
   if (step === "relance") {
@@ -92,7 +128,7 @@ export async function POST(req: NextRequest) {
 
     const { data: session } = await supabase
       .from("sessions")
-      .select("id, transcript, status")
+      .select("id, transcript, status, question_ouverture")
       .eq("id", session_id)
       .eq("user_id", user.id)
       .maybeSingle();
@@ -137,13 +173,14 @@ export async function POST(req: NextRequest) {
 
     await supabase.from("sessions").update({ transcript }).eq("id", session_id);
 
-    // Tour 1 : la question initiale est fixe (pas de RAG pour la générer),
-    // on trace juste la réponse et le silence qui l'a précédée.
+    // Tour 1 : la question d'ouverture (fixe pour la 1ère séance, générée
+    // dynamiquement ensuite — cf. étape "start"), pas de RAG ici, on trace
+    // juste la réponse et le silence qui l'a précédée.
     await supabase.from("tours_conversation").insert({
       session_id,
       user_id: user.id,
       tour_index: 0,
-      question: QUESTION_INITIALE,
+      question: session.question_ouverture ?? QUESTION_INITIALE,
       reponse_brute: reponse,
       duree_silence_ms: body.duree_silence_ms ?? null,
       chunks_rag_utilises: null,
@@ -234,7 +271,7 @@ export async function POST(req: NextRequest) {
 
     const { data: session } = await supabase
       .from("sessions")
-      .select("id, transcript, status")
+      .select("id, transcript, status, question_ouverture")
       .eq("id", session_id)
       .eq("user_id", user.id)
       .maybeSingle();
@@ -253,7 +290,7 @@ export async function POST(req: NextRequest) {
     const relance2 = t[3]?.text ?? "";
 
     const tours = [
-      { question: QUESTION_INITIALE, reponse },
+      { question: session.question_ouverture ?? QUESTION_INITIALE, reponse },
       { question: relance1, reponse: reponseRelance },
       { question: relance2, reponse: reponseRelance2 },
     ];

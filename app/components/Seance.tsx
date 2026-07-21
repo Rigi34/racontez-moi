@@ -4,7 +4,10 @@ import { useState, useRef, useCallback, useEffect, Dispatch, SetStateAction } fr
 
 type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment";
 
-const QUESTION_INITIALE = "Quelle est la première maison dont vous vous souvenez ?";
+// Repli affiché si jamais la question n'a pas pu être récupérée du serveur
+// (erreur réseau au chargement) — le serveur reste la source de vérité :
+// fixe pour la toute première séance, générée dynamiquement ensuite.
+const QUESTION_INITIALE_REPLI = "Quelle est la première maison dont vous vous souvenez ?";
 
 const HAUTEURS_ONDE = [5, 9, 13, 8, 6]; // px, au repos — silhouette d'onde sonore
 
@@ -78,6 +81,7 @@ function BoutonDicter({
 export default function Seance() {
   const [phase, setPhase] = useState<Phase>("chargement");
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [question, setQuestion] = useState(QUESTION_INITIALE_REPLI);
   const [reponse, setReponse] = useState("");
   const [relance, setRelance] = useState("");
   const [reponseRelance, setReponseRelance] = useState("");
@@ -122,6 +126,24 @@ export default function Seance() {
           setPhaseApresReprise("relance");
           setPhase("reprise");
         } else {
+          // Pas de séance en cours : on en démarre une tout de suite pour
+          // récupérer la vraie question (fixe en 1ère séance, générée
+          // dynamiquement ensuite côté serveur) avant de l'afficher.
+          try {
+            const startRes = await fetch("/api/seance", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ step: "start" }),
+            });
+            if (!startRes.ok) throw new Error();
+            const startData = await startRes.json();
+            setSessionId(startData.session_id);
+            setQuestion(startData.question ?? QUESTION_INITIALE_REPLI);
+          } catch {
+            // Repli silencieux : la question par défaut s'affiche, et la
+            // séance sera créée au moment de la première réponse (voir
+            // submitReponse).
+          }
           setPhase("question");
         }
       } catch {
@@ -194,6 +216,7 @@ export default function Seance() {
       if (!res.ok) throw new Error();
       const data = await res.json();
       setSessionId(data.session_id);
+      setQuestion(data.question ?? QUESTION_INITIALE_REPLI);
       setReponse("");
       setRelance("");
       setReponseRelance("");
@@ -352,7 +375,7 @@ export default function Seance() {
       {phase === "question" && (
         <div className="text-center space-y-8">
           <h2 className="font-display font-normal text-3xl md:text-4xl text-encre leading-[1.25]">
-            {QUESTION_INITIALE}
+            {question}
           </h2>
           <div className="space-y-4">
             <textarea

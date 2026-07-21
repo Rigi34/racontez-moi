@@ -23,6 +23,22 @@ Ne pose qu'une seule question. Pas de commentaire, pas d'analyse, juste la quest
 Vouvoie l'interlocuteur. Ton délicat, chaleureux, patient.${blocTechniques}${profilResume}${blocResumePrecedent}`;
 }
 
+// Question d'ouverture des séances suivantes (2e séance et au-delà) — la
+// question fixe QUESTION_INITIALE ne sert qu'à la toute première séance
+// d'un narrateur. Au-delà, reposer la même question serait absurde et
+// contredirait la promesse "jamais deux fois la même question".
+export function construireSystemOuverture(profilResume = "", resumeSessionPrecedente = ""): string {
+  const blocResumePrecedent = resumeSessionPrecedente
+    ? `\n\nCe que la dernière séance a couvert (pour mémoire, ne le répète pas au narrateur — sers-t'en pour ouvrir un sujet différent) :\n${resumeSessionPrecedente}`
+    : "";
+
+  return `Tu es un interlocuteur mémorial délicat.
+Le narrateur commence une nouvelle séance d'entretien mémoriel.
+Ta seule mission : poser UNE question d'ouverture courte (max 20 mots) qui invite à raconter un souvenir, sur une période ou un thème pas encore exploré avec cette personne.
+Pas de salutation, pas de commentaire — juste la question.
+Vouvoie l'interlocuteur. Ton délicat, chaleureux, patient.${profilResume}${blocResumePrecedent}`;
+}
+
 export const SYSTEM_FRAGMENT = `Tu es un écrivain qui compose des fragments de mémoire.
 À partir de ce que la personne a partagé, compose un fragment littéraire à la première personne.
 Règles absolues :
