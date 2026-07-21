@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect, Dispatch, SetStateAction } from "react";
 
-type Phase = "chargement" | "reprise" | "question" | "relance" | "fragment";
+type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment";
 
 const QUESTION_INITIALE = "Quelle est la première maison dont vous vous souvenez ?";
 
@@ -81,6 +81,8 @@ export default function Seance() {
   const [reponse, setReponse] = useState("");
   const [relance, setRelance] = useState("");
   const [reponseRelance, setReponseRelance] = useState("");
+  const [relance2, setRelance2] = useState("");
+  const [reponseRelance2, setReponseRelance2] = useState("");
   const [fragment, setFragment] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -93,7 +95,10 @@ export default function Seance() {
   const chronoRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const dureeSilenceReponseRef = useRef<number | null>(null);
   const dureeSilenceRelanceRef = useRef<number | null>(null);
+  const dureeSilenceRelance2Ref = useRef<number | null>(null);
   const chunksRagRef = useRef<string[]>([]);
+  const chunksRagRef2 = useRef<string[]>([]);
+  const [phaseApresReprise, setPhaseApresReprise] = useState<Phase>("relance");
 
   useEffect(() => {
     (async () => {
@@ -101,10 +106,20 @@ export default function Seance() {
         const res = await fetch("/api/seance");
         const data = await res.json();
         const session = data.session as { id: string; transcript: { role: string; text: string }[] } | null;
-        if (session && session.transcript?.length >= 2) {
+        const t = session?.transcript ?? [];
+        if (session && t.length >= 4) {
           setSessionId(session.id);
-          setReponse(session.transcript[0].text);
-          setRelance(session.transcript[1].text);
+          setReponse(t[0].text);
+          setRelance(t[1].text);
+          setReponseRelance(t[2].text);
+          setRelance2(t[3].text);
+          setPhaseApresReprise("relance2");
+          setPhase("reprise");
+        } else if (session && t.length >= 2) {
+          setSessionId(session.id);
+          setReponse(t[0].text);
+          setRelance(t[1].text);
+          setPhaseApresReprise("relance");
           setPhase("reprise");
         } else {
           setPhase("question");
@@ -164,7 +179,7 @@ export default function Seance() {
   }, []);
 
   const reprendreSeance = () => {
-    setPhase("relance");
+    setPhase(phaseApresReprise);
   };
 
   const recommencerSeance = async () => {
@@ -182,6 +197,8 @@ export default function Seance() {
       setReponse("");
       setRelance("");
       setReponseRelance("");
+      setRelance2("");
+      setReponseRelance2("");
       setPhase("question");
     } catch {
       setError("Une erreur s'est produite. Veuillez réessayer.");
@@ -239,12 +256,39 @@ export default function Seance() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          step: "fragment",
+          step: "relance2",
           session_id: sessionId,
-          reponse,
           reponseRelance,
           duree_silence_ms: dureeSilenceRelanceRef.current,
           chunks_rag_utilises: chunksRagRef.current,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setRelance2(data.relance);
+      chunksRagRef2.current = data.chunks_rag_utilises ?? [];
+      setPhase("relance2");
+    } catch {
+      setError("Une erreur s'est produite. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitRelance2 = async () => {
+    if (!reponseRelance2.trim()) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/seance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          step: "fragment",
+          session_id: sessionId,
+          reponseRelance2,
+          duree_silence_ms: dureeSilenceRelance2Ref.current,
+          chunks_rag_utilises: chunksRagRef2.current,
         }),
       });
       if (!res.ok) throw new Error();
@@ -315,7 +359,7 @@ export default function Seance() {
               value={reponse}
               onChange={(e) => setReponse(e.target.value)}
               placeholder="Prenez votre temps. Écrivez ou dictez à la voix."
-              className="w-full min-h-[140px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
+              className="w-full min-h-[220px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
             />
             {isRecording && <PanneauEnregistrement duree={dureeEnregistrement} />}
             <div className="flex gap-3 justify-center flex-wrap">
@@ -341,7 +385,7 @@ export default function Seance() {
         </div>
       )}
 
-      {/* Phase 2 — Relance sensorielle */}
+      {/* Phase 2 — Première relance sensorielle */}
       {phase === "relance" && (
         <div className="text-center space-y-8">
           <p className="font-display italic text-xl text-grege">
@@ -352,7 +396,7 @@ export default function Seance() {
               value={reponseRelance}
               onChange={(e) => setReponseRelance(e.target.value)}
               placeholder="Continuez, prenez votre temps…"
-              className="w-full min-h-[120px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
+              className="w-full min-h-[200px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
             />
             {isRecording && <PanneauEnregistrement duree={dureeEnregistrement} />}
             <div className="flex gap-3 justify-center flex-wrap">
@@ -365,6 +409,43 @@ export default function Seance() {
               <button
                 onClick={submitRelance}
                 disabled={!reponseRelance.trim() || loading}
+                className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-2.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {loading ? "Un instant…" : "Continuer →"}
+              </button>
+            </div>
+            <p className="font-display italic text-sm text-grege">
+              Relisez et corrigez si besoin.
+            </p>
+          </div>
+          {error && <p className="font-sans text-sm text-red-700">{error}</p>}
+        </div>
+      )}
+
+      {/* Phase 2bis — Seconde relance sensorielle */}
+      {phase === "relance2" && (
+        <div className="text-center space-y-8">
+          <p className="font-display italic text-xl text-grege">
+            {relance2}
+          </p>
+          <div className="space-y-4">
+            <textarea
+              value={reponseRelance2}
+              onChange={(e) => setReponseRelance2(e.target.value)}
+              placeholder="Continuez, prenez votre temps…"
+              className="w-full min-h-[200px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
+            />
+            {isRecording && <PanneauEnregistrement duree={dureeEnregistrement} />}
+            <div className="flex gap-3 justify-center flex-wrap">
+              <BoutonDicter
+                isRecording={isRecording}
+                transcribing={transcribing}
+                onClick={() => (isRecording ? stopVoice() : startVoice(setReponseRelance2, dureeSilenceRelance2Ref))}
+                label="Dicter"
+              />
+              <button
+                onClick={submitRelance2}
+                disabled={!reponseRelance2.trim() || loading}
                 className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-2.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading ? "Composition en cours…" : "Terminer la séance →"}

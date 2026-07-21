@@ -39,6 +39,20 @@ export default async function ParcoursPage() {
           <p className="font-sans text-sm text-grege">12 mensualités, puis c&apos;est terminé — jamais de renouvellement automatique.</p>
         </div>
 
+        <p className="font-sans text-sm text-grege">
+          Pas d&apos;engagement caché : après le douzième mois, plus aucun prélèvement — à moins que vous ne choisissiez vous-même de continuer.
+        </p>
+
+        <div className="text-left space-y-4">
+          <h2 className="font-display text-xl text-encre text-center">Ce qui est inclus</h2>
+          <ul className="space-y-3 font-serif text-base text-grege leading-relaxed">
+            <li>Des séances illimitées, une à deux fois par semaine, pendant douze mois.</li>
+            <li>Une mémoire qui vous suit d&apos;une séance à l&apos;autre — jamais deux fois la même question.</li>
+            <li>Vous relisez, vous corrigez, vous validez : le livre reste fidèle à vos mots.</li>
+            <li>Un livre relié, imprimé, envoyé chez vous à la fin du Parcours.</li>
+          </ul>
+        </div>
+
         <BoutonParcours />
       </main>
     </div>

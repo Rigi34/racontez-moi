@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     line_items: [{ price: process.env.STRIPE_PRICE_ID_PARCOURS!, quantity: 1 }],
     client_reference_id: user.id,
     customer_email: user.email,
+    allow_promotion_codes: true,
     success_url: `${origin}/tableau-de-bord?parcours=confirme`,
     cancel_url: `${origin}/parcours?parcours=annule`,
   });

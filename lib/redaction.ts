@@ -8,13 +8,18 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { SYSTEM_FRAGMENT } from "./prompts";
 
+export type Tour = { question: string; reponse: string };
+
 export type EchangeBrut = {
-  question: string;
-  reponse: string;
-  questionRelance: string;
-  reponseRelance: string;
+  tours: Tour[];
   contexteMemoire?: string;
 };
+
+function formaterTours(tours: Tour[]): string {
+  return tours
+    .map((t, i) => (i === 0 ? `Question : ${t.question}\n\nRéponse initiale : ${t.reponse}` : `Relance ("${t.question}") et réponse : ${t.reponse}`))
+    .join("\n\n");
+}
 
 export async function composerFragment(client: Anthropic, echange: EchangeBrut): Promise<string> {
   const message = await client.messages.create({
@@ -24,7 +29,7 @@ export async function composerFragment(client: Anthropic, echange: EchangeBrut):
     messages: [
       {
         role: "user",
-        content: `Question : ${echange.question}\n\nRéponse initiale : ${echange.reponse}\n\nRelance ("${echange.questionRelance}") et réponse : ${echange.reponseRelance}${echange.contexteMemoire ?? ""}`,
+        content: `${formaterTours(echange.tours)}${echange.contexteMemoire ?? ""}`,
       },
     ],
   });
@@ -44,7 +49,7 @@ export async function genererResumeSession(client: Anthropic, echange: EchangeBr
     messages: [
       {
         role: "user",
-        content: `Question : ${echange.question}\nRéponse : ${echange.reponse}\n\nRelance : ${echange.questionRelance}\nRéponse : ${echange.reponseRelance}`,
+        content: formaterTours(echange.tours),
       },
     ],
   });

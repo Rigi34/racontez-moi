@@ -15,7 +15,6 @@ export default async function TableauDeBord() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
-  const dernierFragment = fragments?.[0]
   const nombreSeances = fragments?.length ?? 0
 
   return (
@@ -67,11 +66,6 @@ export default async function TableauDeBord() {
               <p className="font-sans text-sm text-grege">
                 {nombreSeances} séance{nombreSeances > 1 ? "s" : ""} enregistrée{nombreSeances > 1 ? "s" : ""}
               </p>
-              {dernierFragment && (
-                <p className="font-serif text-base text-encre whitespace-pre-line line-clamp-4">
-                  {dernierFragment.texte}
-                </p>
-              )}
             </div>
             <Link
               href="/seance"
@@ -79,6 +73,29 @@ export default async function TableauDeBord() {
             >
               Continuer mon parcours
             </Link>
+
+            <div className="space-y-4 pt-4">
+              <h2 className="font-display text-xl text-encre">Vos fragments</h2>
+              <p className="font-sans text-sm text-grege">
+                Relisez à tout moment ce que vos séances ont déjà écrit.
+              </p>
+              <div className="space-y-4">
+                {fragments?.map((f, i) => (
+                  <div key={i} className="bg-papier border-l-2 border-grege pl-6 pr-4 py-5 space-y-2">
+                    <p className="font-sans text-xs text-grege">
+                      {new Date(f.created_at).toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
+                    <p className="font-serif text-base text-encre whitespace-pre-line leading-relaxed">
+                      {f.texte}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
