@@ -88,6 +88,8 @@ export default function Seance() {
   const [relance2, setRelance2] = useState("");
   const [reponseRelance2, setReponseRelance2] = useState("");
   const [fragment, setFragment] = useState("");
+  const [fragmentId, setFragmentId] = useState<string | null>(null);
+  const [statutFragment, setStatutFragment] = useState<"brouillon" | "valide" | "a_revoir">("brouillon");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copie, setCopie] = useState(false);
@@ -317,11 +319,28 @@ export default function Seance() {
       if (!res.ok) throw new Error();
       const data = await res.json();
       setFragment(data.fragment);
+      setFragmentId(data.fragment_id ?? null);
+      setStatutFragment("brouillon");
       setPhase("fragment");
     } catch {
       setError("Une erreur s'est produite. Veuillez réessayer.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const marquerFragment = async (statut: "valide" | "a_revoir") => {
+    if (!fragmentId) return;
+    try {
+      const res = await fetch(`/api/fragments/${fragmentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ statut }),
+      });
+      if (!res.ok) throw new Error();
+      setStatutFragment(statut);
+    } catch {
+      setError("Une erreur s'est produite. Veuillez réessayer.");
     }
   };
 
@@ -499,6 +518,32 @@ export default function Seance() {
             <p className="font-serif text-lg text-grege italic">
               Il reste toute une vie à raconter.
             </p>
+
+            {statutFragment === "brouillon" ? (
+              <div className="space-y-2">
+                <p className="font-sans text-sm text-grege">Est-ce que ça vous ressemble ?</p>
+                <div className="flex gap-3 justify-center flex-wrap">
+                  <button
+                    onClick={() => marquerFragment("valide")}
+                    className="border border-grege text-encre font-sans text-sm px-5 py-2 hover:border-petrole transition-colors"
+                  >
+                    Ça me ressemble
+                  </button>
+                  <button
+                    onClick={() => marquerFragment("a_revoir")}
+                    className="border border-grege text-encre font-sans text-sm px-5 py-2 hover:border-amber-700 transition-colors"
+                  >
+                    À revoir
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="font-sans text-sm text-petrole">
+                {statutFragment === "valide"
+                  ? "Noté — vous pourrez toujours le relire et le corriger depuis votre parcours."
+                  : "Noté — retrouvez-le dans votre parcours pour le corriger ou le recomposer."}
+              </p>
+            )}
 
             <div className="flex gap-3 justify-center flex-wrap">
               <button

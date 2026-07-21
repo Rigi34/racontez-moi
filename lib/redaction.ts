@@ -13,6 +13,11 @@ export type Tour = { question: string; reponse: string };
 export type EchangeBrut = {
   tours: Tour[];
   contexteMemoire?: string;
+  // Régénération ciblée (décision du 20 juillet 2026) : le narrateur peut
+  // préciser ce qui ne sonne pas juste sans savoir corriger lui-même le
+  // texte. Reste bordé par SYSTEM_FRAGMENT — n'autorise aucun ajout de
+  // détail absent des tours d'origine, juste une nouvelle composition.
+  instruction?: string;
 };
 
 function formaterTours(tours: Tour[]): string {
@@ -22,6 +27,10 @@ function formaterTours(tours: Tour[]): string {
 }
 
 export async function composerFragment(client: Anthropic, echange: EchangeBrut): Promise<string> {
+  const blocInstruction = echange.instruction?.trim()
+    ? `\n\nLe narrateur a demandé à recomposer ce fragment avec cette précision (n'invente rien au-delà des tours ci-dessus, utilise-la seulement pour mieux cadrer la composition) : ${echange.instruction.trim()}`
+    : "";
+
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 700,
@@ -29,7 +38,7 @@ export async function composerFragment(client: Anthropic, echange: EchangeBrut):
     messages: [
       {
         role: "user",
-        content: `${formaterTours(echange.tours)}${echange.contexteMemoire ?? ""}`,
+        content: `${formaterTours(echange.tours)}${echange.contexteMemoire ?? ""}${blocInstruction}`,
       },
     ],
   });

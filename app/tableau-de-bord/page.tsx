@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import Link from "next/link"
 import GestionCompte from "./GestionCompte"
+import FragmentCard from "./FragmentCard"
 
 export default async function TableauDeBord() {
   const supabase = await createClient()
@@ -11,7 +12,7 @@ export default async function TableauDeBord() {
 
   const { data: fragments } = await supabase
     .from("fragments")
-    .select("texte, created_at")
+    .select("id, texte, statut, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
@@ -80,19 +81,18 @@ export default async function TableauDeBord() {
                 Relisez à tout moment ce que vos séances ont déjà écrit.
               </p>
               <div className="space-y-4">
-                {fragments?.map((f, i) => (
-                  <div key={i} className="bg-papier border-l-2 border-grege pl-6 pr-4 py-5 space-y-2">
-                    <p className="font-sans text-xs text-grege">
-                      {new Date(f.created_at).toLocaleDateString("fr-FR", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </p>
-                    <p className="font-serif text-base text-encre whitespace-pre-line leading-relaxed">
-                      {f.texte}
-                    </p>
-                  </div>
+                {fragments?.map((f) => (
+                  <FragmentCard
+                    key={f.id}
+                    id={f.id}
+                    texteInitial={f.texte}
+                    statutInitial={f.statut}
+                    date={new Date(f.created_at).toLocaleDateString("fr-FR", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  />
                 ))}
               </div>
             </div>

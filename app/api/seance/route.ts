@@ -325,12 +325,16 @@ export async function POST(req: NextRequest) {
       { role: "fragment", text: fragment },
     ];
 
-    await supabase.from("fragments").insert({
-      session_id,
-      user_id: user.id,
-      texte: fragment,
-      embedding: embeddingFragment,
-    });
+    const { data: fragmentCree } = await supabase
+      .from("fragments")
+      .insert({
+        session_id,
+        user_id: user.id,
+        texte: fragment,
+        embedding: embeddingFragment,
+      })
+      .select("id")
+      .single();
 
     await supabase
       .from("sessions")
@@ -360,7 +364,7 @@ export async function POST(req: NextRequest) {
       console.error("mise à jour profil narrateur échouée:", e)
     );
 
-    return NextResponse.json({ fragment });
+    return NextResponse.json({ fragment, fragment_id: fragmentCree?.id ?? null });
   }
 
   return NextResponse.json({ error: "Étape inconnue." }, { status: 400 });
