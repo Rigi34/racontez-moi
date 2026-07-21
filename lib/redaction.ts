@@ -32,8 +32,12 @@ export async function composerFragment(client: Anthropic, echange: EchangeBrut):
     : "";
 
   const message = await client.messages.create({
+    // 700 s'est avéré insuffisant dès qu'une séance couvre plusieurs
+    // souvenirs enchaînés (le modèle peut légitimement vouloir composer deux
+    // fragments distincts, ~400 mots chacun) — coupait le texte en plein
+    // milieu de phrase, sans qu'aucune trace n'en reste dans les logs.
+    max_tokens: 1600,
     model: "claude-sonnet-4-6",
-    max_tokens: 700,
     system: SYSTEM_FRAGMENT,
     messages: [
       {
@@ -42,6 +46,9 @@ export async function composerFragment(client: Anthropic, echange: EchangeBrut):
       },
     ],
   });
+  if (message.stop_reason === "max_tokens") {
+    console.error("composerFragment: réponse tronquée par max_tokens", { tours: echange.tours.length });
+  }
   return (message.content[0] as { type: string; text: string }).text.trim();
 }
 

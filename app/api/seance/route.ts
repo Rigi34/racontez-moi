@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/utils/supabase/server";
 import { QUESTION_INITIALE, construireSystemRelance, construireSystemOuverture } from "@/lib/prompts";
@@ -359,9 +359,16 @@ export async function POST(req: NextRequest) {
     });
 
     // Mise à jour du profil narrateur (périodes/ancrages/profondeur) — ne
-    // bloque pas la réponse à l'utilisateur si ça échoue, non critique.
-    mettreAJourProfil(supabase, user.id, `${reponse}\n${reponseRelance}\n${reponseRelance2}\n${fragment}`).catch((e) =>
-      console.error("mise à jour profil narrateur échouée:", e)
+    // doit pas retarder la réponse à l'utilisateur, mais un simple appel non
+    // attendu ("fire and forget") n'a aucune garantie de se terminer sur une
+    // fonction serverless Vercel : l'exécution peut être gelée dès que la
+    // réponse part, avant que l'appel Anthropic + l'upsert n'aient eu le
+    // temps d'aboutir. `after()` garde la fonction active jusqu'à la fin de
+    // cet appel tout en renvoyant la réponse immédiatement au client.
+    after(() =>
+      mettreAJourProfil(supabase, user.id, `${reponse}\n${reponseRelance}\n${reponseRelance2}\n${fragment}`).catch((e) =>
+        console.error("mise à jour profil narrateur échouée:", e)
+      )
     );
 
     return NextResponse.json({ fragment, fragment_id: fragmentCree?.id ?? null });
