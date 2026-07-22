@@ -30,12 +30,12 @@ export default async function ParcoursPage() {
             Le Parcours
           </h1>
           <p className="font-serif text-lg text-grege leading-relaxed">
-            Un interlocuteur mémorial à votre rythme, séance après séance, jusqu&apos;au livre imprimé qui rassemble votre histoire.
+            Un interlocuteur mémorial à votre rythme, séance après séance, pour composer le récit de votre vie.
           </p>
         </div>
 
         <div className="bg-blanc border border-sauge rounded-2xl px-8 py-10 space-y-2">
-          <p className="font-display text-4xl text-encre">348€</p>
+          <p className="font-display text-4xl text-encre">129€</p>
           <p className="font-sans text-sm text-grege">Un seul paiement, aucune mensualité.</p>
         </div>
 
@@ -49,8 +49,11 @@ export default async function ParcoursPage() {
             <li>Des séances illimitées, une à deux fois par semaine, pendant deux à quatre mois.</li>
             <li>Une mémoire qui vous suit d&apos;une séance à l&apos;autre — jamais deux fois la même question.</li>
             <li>Vous relisez, vous corrigez, vous validez : le livre reste fidèle à vos mots.</li>
-            <li>Un livre relié, imprimé, envoyé chez vous à la fin du Parcours.</li>
+            <li>Votre manuscrit complet en PDF et ebook, à la fin du Parcours.</li>
           </ul>
+          <p className="font-sans text-sm text-grege pt-2">
+            Le livre imprimé et relié sera proposé en option séparée, une fois votre Parcours terminé.
+          </p>
         </div>
 
         <BoutonParcours />
