@@ -13,6 +13,7 @@ export type ProfilNarrateur = {
   ancrages_sensoriels_utilises: string[];
   profondeur_par_periode: Record<string, string>;
   sujets_esquives: string[];
+  sections_couvertes: string[];
 };
 
 const PROFIL_DEFAUT: ProfilNarrateur = {
@@ -20,12 +21,13 @@ const PROFIL_DEFAUT: ProfilNarrateur = {
   ancrages_sensoriels_utilises: [],
   profondeur_par_periode: {},
   sujets_esquives: [],
+  sections_couvertes: [],
 };
 
 export async function lireProfil(supabase: SupabaseClient, userId: string): Promise<ProfilNarrateur> {
   const { data } = await supabase
     .from("profil_narrateur")
-    .select("periodes_couvertes, ancrages_sensoriels_utilises, profondeur_par_periode, sujets_esquives")
+    .select("periodes_couvertes, ancrages_sensoriels_utilises, profondeur_par_periode, sujets_esquives, sections_couvertes")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -35,7 +37,28 @@ export async function lireProfil(supabase: SupabaseClient, userId: string): Prom
     ancrages_sensoriels_utilises: data.ancrages_sensoriels_utilises ?? [],
     profondeur_par_periode: data.profondeur_par_periode ?? {},
     sujets_esquives: data.sujets_esquives ?? [],
+    sections_couvertes: data.sections_couvertes ?? [],
   };
+}
+
+// Marque la section de la banque de questions (chapitre 6) utilisée pour
+// ouvrir une séance comme "couverte" une fois la séance menée à terme —
+// pilote la sélection adaptative de la prochaine question d'ouverture
+// (cf. lib/banque-questions.ts), plutôt qu'une administration linéaire des
+// 205 questions à tout le monde.
+export async function marquerSectionCouverte(supabase: SupabaseClient, userId: string, section: string): Promise<void> {
+  const profil = await lireProfil(supabase, userId);
+  if (profil.sections_couvertes.includes(section)) return;
+
+  const { error } = await supabase.from("profil_narrateur").upsert(
+    {
+      user_id: userId,
+      sections_couvertes: [...profil.sections_couvertes, section],
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
+  if (error) console.error("marquerSectionCouverte: upsert échoué", error.message);
 }
 
 export function resumerProfilPourPrompt(profil: ProfilNarrateur): string {

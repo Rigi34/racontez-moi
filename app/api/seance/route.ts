@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/utils/supabase/server";
-import { QUESTION_INITIALE, construireSystemRelance, construireSystemOuverture } from "@/lib/prompts";
+import { QUESTION_INITIALE, construireSystemRelance } from "@/lib/prompts";
 import { embedText } from "@/lib/embeddings";
 import { retrieverTechniques } from "@/lib/retrieval";
-import { lireProfil, resumerProfilPourPrompt, mettreAJourProfil } from "@/lib/profil-narrateur";
+import { lireProfil, resumerProfilPourPrompt, mettreAJourProfil, marquerSectionCouverte } from "@/lib/profil-narrateur";
+import { prochaineQuestionBanque } from "@/lib/banque-questions";
 import { composerFragment, genererResumeSession } from "@/lib/redaction";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
   if (step === "start") {
     const { data: existing } = await supabase
       .from("sessions")
-      .select("id, transcript, started_at")
+      .select("id, transcript, started_at, question_ouverture")
       .eq("user_id", user.id)
       .eq("status", "in_progress")
       .order("started_at", { ascending: false })
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     if (existing && !body.fresh) {
-      return NextResponse.json({ session_id: existing.id, question: QUESTION_INITIALE });
+      return NextResponse.json({ session_id: existing.id, question: existing.question_ouverture ?? QUESTION_INITIALE });
     }
 
     if (existing && body.fresh) {
@@ -75,42 +76,31 @@ export async function POST(req: NextRequest) {
     }
 
     // La question fixe ne sert qu'à la toute première séance d'un narrateur
-    // (aucun fragment produit jusqu'ici) — au-delà, question d'ouverture
-    // générée dynamiquement pour ne jamais reposer la même (cf. profil
-    // narrateur + résumé de la dernière séance), cohérent avec les relances.
+    // (aucun fragment produit jusqu'ici, thématiquement section A de la
+    // banque). Au-delà, question d'ouverture sélectionnée dans la banque de
+    // 205 questions (chapitre 6, étude HÉRITAGE 2026) — sélection adaptative
+    // sur les sections B à Q selon ce qui a déjà été couvert, plutôt qu'une
+    // administration linéaire ou une génération 100% dynamique (décision du
+    // 22 juillet 2026).
     const { count: nombreFragments } = await supabase
       .from("fragments")
       .select("id", { count: "exact", head: true })
       .eq("user_id", user.id);
 
     let question = QUESTION_INITIALE;
+    let sectionOuverture: string | null = null;
     if ((nombreFragments ?? 0) > 0) {
-      const [profil, derniereSession] = await Promise.all([
-        lireProfil(supabase, user.id),
-        supabase
-          .from("sessions")
-          .select("resume_session")
-          .eq("user_id", user.id)
-          .eq("status", "completed")
-          .not("resume_session", "is", null)
-          .order("ended_at", { ascending: false })
-          .limit(1)
-          .maybeSingle()
-          .then((r) => r.data),
-      ]);
-
-      const message = await client.messages.create({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 60,
-        system: construireSystemOuverture(resumerProfilPourPrompt(profil), derniereSession?.resume_session ?? ""),
-        messages: [{ role: "user", content: "Génère la question d'ouverture de cette nouvelle séance." }],
-      });
-      question = (message.content[0] as { type: string; text: string }).text.trim();
+      const profil = await lireProfil(supabase, user.id);
+      const pick = await prochaineQuestionBanque(supabase, profil.sections_couvertes);
+      if (pick) {
+        question = pick.texte;
+        sectionOuverture = pick.section;
+      }
     }
 
     const { data: created, error } = await supabase
       .from("sessions")
-      .insert({ user_id: user.id, question_ouverture: question })
+      .insert({ user_id: user.id, question_ouverture: question, section_ouverture: sectionOuverture })
       .select("id")
       .single();
 
@@ -271,7 +261,7 @@ export async function POST(req: NextRequest) {
 
     const { data: session } = await supabase
       .from("sessions")
-      .select("id, transcript, status, question_ouverture")
+      .select("id, transcript, status, question_ouverture, section_ouverture")
       .eq("id", session_id)
       .eq("user_id", user.id)
       .maybeSingle();
@@ -365,11 +355,16 @@ export async function POST(req: NextRequest) {
     // réponse part, avant que l'appel Anthropic + l'upsert n'aient eu le
     // temps d'aboutir. `after()` garde la fonction active jusqu'à la fin de
     // cet appel tout en renvoyant la réponse immédiatement au client.
-    after(() =>
-      mettreAJourProfil(supabase, user.id, `${reponse}\n${reponseRelance}\n${reponseRelance2}\n${fragment}`).catch((e) =>
+    after(async () => {
+      await mettreAJourProfil(supabase, user.id, `${reponse}\n${reponseRelance}\n${reponseRelance2}\n${fragment}`).catch((e) =>
         console.error("mise à jour profil narrateur échouée:", e)
-      )
-    );
+      );
+      if (session.section_ouverture) {
+        await marquerSectionCouverte(supabase, user.id, session.section_ouverture).catch((e) =>
+          console.error("marquerSectionCouverte échouée:", e)
+        );
+      }
+    });
 
     return NextResponse.json({ fragment, fragment_id: fragmentCree?.id ?? null });
   }
