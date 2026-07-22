@@ -41,7 +41,7 @@ export default function OffrirPage() {
             restent où elles sont.
           </p>
           <p>
-            Ce cadeau les pose pour vous. Une par une, avec douceur, pendant deux à trois mois.
+            Ce cadeau les pose pour vous. Une par une, avec douceur, pendant deux à quatre mois.
           </p>
         </div>
       </section>
@@ -171,7 +171,7 @@ export default function OffrirPage() {
 
           <div className="bg-papier p-8 border border-grege">
             <p className="font-display text-2xl text-encre mb-2">
-              Le Parcours — 2 à 3 mois
+              Le Parcours — 2 à 4 mois
             </p>
             <p className="font-sans text-grege text-base mb-6">
               Entretiens illimités · Fragments enrichis · Manuscrit imprimé relié

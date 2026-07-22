@@ -46,7 +46,7 @@ export default async function ParcoursPage() {
         <div className="text-left space-y-4">
           <h2 className="font-display text-xl text-encre text-center">Ce qui est inclus</h2>
           <ul className="space-y-3 font-serif text-base text-grege leading-relaxed">
-            <li>Des séances illimitées, une à deux fois par semaine, pendant deux à trois mois.</li>
+            <li>Des séances illimitées, une à deux fois par semaine, pendant deux à quatre mois.</li>
             <li>Une mémoire qui vous suit d&apos;une séance à l&apos;autre — jamais deux fois la même question.</li>
             <li>Vous relisez, vous corrigez, vous validez : le livre reste fidèle à vos mots.</li>
             <li>Un livre relié, imprimé, envoyé chez vous à la fin du Parcours.</li>
