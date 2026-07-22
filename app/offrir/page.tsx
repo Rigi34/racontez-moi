@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Cadeau Mémoire — Racontez-moi",
   description:
-    "Offrez à vos parents une année de conversations pour raconter leur histoire. Un vrai livre imprimé à la fin.",
+    "Offrez à vos parents quelques mois de conversations pour raconter leur histoire. Un vrai livre imprimé à la fin.",
 };
 
 export default function OffrirPage() {
@@ -18,7 +18,7 @@ export default function OffrirPage() {
         </h1>
 
         <p className="font-serif text-lg md:text-xl text-grege max-w-xl mb-10 leading-relaxed italic">
-          Le Cadeau Mémoire&nbsp;: un an de conversations guidées, chez eux, à leur
+          Le Cadeau Mémoire&nbsp;: quelques mois de conversations guidées, chez eux, à leur
           rythme. À la fin, un livre imprimé — le leur. Et le vôtre.
         </p>
 
@@ -41,7 +41,7 @@ export default function OffrirPage() {
             restent où elles sont.
           </p>
           <p>
-            Ce cadeau les pose pour vous. Une par une, avec douceur, pendant un an.
+            Ce cadeau les pose pour vous. Une par une, avec douceur, pendant deux à trois mois.
           </p>
         </div>
       </section>
@@ -171,16 +171,16 @@ export default function OffrirPage() {
 
           <div className="bg-papier p-8 border border-grege">
             <p className="font-display text-2xl text-encre mb-2">
-              Le Parcours — 12 mois
+              Le Parcours — 2 à 3 mois
             </p>
             <p className="font-sans text-grege text-base mb-6">
               Entretiens illimités · Fragments enrichis · Manuscrit imprimé relié
             </p>
             <p className="font-display text-4xl text-encre mb-1">
-              Prix à venir
+              348€
             </p>
             <p className="font-sans text-sm text-grege mb-6">
-              Comptant ou mensualisé sur 12 mois
+              Un seul paiement, pas de mensualités
             </p>
             <a
               href="#"

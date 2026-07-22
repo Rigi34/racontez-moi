@@ -35,18 +35,18 @@ export default async function ParcoursPage() {
         </div>
 
         <div className="bg-blanc border border-sauge rounded-2xl px-8 py-10 space-y-2">
-          <p className="font-display text-4xl text-encre">29€<span className="font-sans text-lg text-grege">/mois</span></p>
-          <p className="font-sans text-sm text-grege">12 mensualités, puis c&apos;est terminé — jamais de renouvellement automatique.</p>
+          <p className="font-display text-4xl text-encre">348€</p>
+          <p className="font-sans text-sm text-grege">Un seul paiement, aucune mensualité.</p>
         </div>
 
         <p className="font-sans text-sm text-grege">
-          Pas d&apos;engagement caché : après le douzième mois, plus aucun prélèvement — à moins que vous ne choisissiez vous-même de continuer.
+          Pas d&apos;engagement caché : vous payez une fois, rien d&apos;autre ne sera jamais prélevé.
         </p>
 
         <div className="text-left space-y-4">
           <h2 className="font-display text-xl text-encre text-center">Ce qui est inclus</h2>
           <ul className="space-y-3 font-serif text-base text-grege leading-relaxed">
-            <li>Des séances illimitées, une à deux fois par semaine, pendant douze mois.</li>
+            <li>Des séances illimitées, une à deux fois par semaine, pendant deux à trois mois.</li>
             <li>Une mémoire qui vous suit d&apos;une séance à l&apos;autre — jamais deux fois la même question.</li>
             <li>Vous relisez, vous corrigez, vous validez : le livre reste fidèle à vos mots.</li>
             <li>Un livre relié, imprimé, envoyé chez vous à la fin du Parcours.</li>

@@ -198,7 +198,7 @@ export default function Home() {
               <p className="font-display text-7xl text-encre/15 leading-none mb-2">02</p>
               <p className="font-display text-2xl text-encre mb-3">Vous racontez.</p>
               <p className="font-sans text-base text-encre/80 leading-relaxed">
-                Vingt minutes, une à deux fois par semaine, à votre rythme, pendant un an.
+                Vingt minutes, une à deux fois par semaine, à votre rythme, pendant deux à trois mois.
               </p>
             </div>
             <div className="relative px-2">
