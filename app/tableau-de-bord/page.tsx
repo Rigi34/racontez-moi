@@ -68,12 +68,20 @@ export default async function TableauDeBord() {
                 {nombreSeances} séance{nombreSeances > 1 ? "s" : ""} enregistrée{nombreSeances > 1 ? "s" : ""}
               </p>
             </div>
-            <Link
-              href="/seance"
-              className="inline-block bg-encre text-blanc rounded-full font-sans text-sm px-8 py-3 hover:opacity-90 transition-opacity"
-            >
-              Continuer mon parcours
-            </Link>
+            <div className="flex gap-3 flex-wrap">
+              <Link
+                href="/seance"
+                className="inline-block bg-encre text-blanc rounded-full font-sans text-sm px-8 py-3 hover:opacity-90 transition-opacity"
+              >
+                Continuer mon parcours
+              </Link>
+              <Link
+                href="/mon-livre"
+                className="inline-block border border-grege text-encre rounded-full font-sans text-sm px-8 py-3 hover:border-encre transition-colors"
+              >
+                Voir mon livre
+              </Link>
+            </div>
 
             <div className="space-y-4 pt-4">
               <h2 className="font-display text-xl text-encre">Vos fragments</h2>
