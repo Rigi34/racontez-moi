@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import PhotosFragment from "./PhotosFragment";
 
 type Statut = "brouillon" | "valide" | "a_revoir";
 type Version = { id: string; texte: string; created_at: string };
@@ -157,6 +158,8 @@ export default function FragmentCard({
       ) : (
         <p className="font-serif text-base text-encre whitespace-pre-line leading-relaxed">{texte}</p>
       )}
+
+      <PhotosFragment fragmentId={id} />
 
       {enRegeneration && (
         <div className="space-y-2 bg-sauge/40 p-4">
