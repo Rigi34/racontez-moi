@@ -1,9 +1,13 @@
 // Intégration Lulu Print API — impression et expédition à la demande du
-// livre final. Sandbox pour l'instant (jamais facturé, jamais imprimé pour
-// de vrai) ; passage en production quand le pipeline d'assemblage du livre
-// complet (couverture + relecture finale) existera.
-
-const LULU_BASE_URL = "https://api.sandbox.lulu.com";
+// livre final. Sandbox par défaut (jamais facturé, jamais imprimé pour de
+// vrai). Bascule en production uniquement si LULU_PRODUCTION=true ET les
+// identifiants LULU_CLIENT_KEY/LULU_CLIENT_SECRET (compte production, carte
+// bancaire — action manuelle de Régis, jamais faite) sont renseignés —
+// jamais un simple changement de code.
+const EN_PRODUCTION = process.env.LULU_PRODUCTION === "true";
+const LULU_BASE_URL = EN_PRODUCTION ? "https://api.lulu.com" : "https://api.sandbox.lulu.com";
+const LULU_CLIENT_KEY = EN_PRODUCTION ? process.env.LULU_CLIENT_KEY : process.env.LULU_SANDBOX_CLIENT_KEY;
+const LULU_CLIENT_SECRET = EN_PRODUCTION ? process.env.LULU_CLIENT_SECRET : process.env.LULU_SANDBOX_CLIENT_SECRET;
 
 // Format retenu le 23 juillet 2026 (offre tout-compris ~179€, décision
 // prise après vérification du coût réel : couleur relié ~29€ tout compris
@@ -12,14 +16,17 @@ const LULU_BASE_URL = "https://api.sandbox.lulu.com";
 // spike Typst de juin.
 export const POD_PACKAGE_ID_PARCOURS = "0600X0900FCSTDCW080CW444GXX";
 
+// Contrainte physique du relié casewrap, vérifiée en direct auprès de
+// l'API Lulu (pas une supposition) : en dessous de ce seuil, Lulu refuse
+// ("Wrong pages number") — impossible de relier un livre trop fin.
+export const PAGES_MINIMUM_RELIE = 24;
+
 let tokenCache: { token: string; expireA: number } | null = null;
 
 async function obtenirToken(): Promise<string> {
   if (tokenCache && tokenCache.expireA > Date.now()) return tokenCache.token;
 
-  const credentials = Buffer.from(
-    `${process.env.LULU_SANDBOX_CLIENT_KEY}:${process.env.LULU_SANDBOX_CLIENT_SECRET}`
-  ).toString("base64");
+  const credentials = Buffer.from(`${LULU_CLIENT_KEY}:${LULU_CLIENT_SECRET}`).toString("base64");
 
   const res = await fetch(`${LULU_BASE_URL}/auth/realms/glasstree/protocol/openid-connect/token`, {
     method: "POST",

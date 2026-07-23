@@ -2,17 +2,24 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import FormulaireAdresse from "./FormulaireAdresse";
+import BoutonCommande from "./BoutonCommande";
+import { compilerInterieur } from "@/lib/manuscrit";
+import { PAGES_MINIMUM_RELIE } from "@/lib/lulu";
 
 export default async function MonLivrePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in");
 
-  const { count: nombreFragments } = await supabase
-    .from("fragments")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id)
-    .neq("statut", "a_revoir");
+  const [{ data: fragments }, { data: adresse }, { data: commande }] = await Promise.all([
+    supabase.from("fragments").select("texte").eq("user_id", user.id).neq("statut", "a_revoir").order("created_at", { ascending: true }),
+    supabase.from("adresses_livraison").select("nom").eq("user_id", user.id).maybeSingle(),
+    supabase.from("commandes_livre").select("statut").eq("user_id", user.id).in("statut", ["en_cours", "confirmee"]).maybeSingle(),
+  ]);
+
+  const nombreFragments = fragments?.length ?? 0;
+  const nombrePages = nombreFragments ? compilerInterieur(fragments!.map((f) => f.texte)).nombrePages : 0;
+  const assezDePages = nombrePages >= PAGES_MINIMUM_RELIE;
 
   return (
     <div className="min-h-screen bg-papier flex flex-col">
@@ -71,9 +78,22 @@ export default async function MonLivrePage() {
               <FormulaireAdresse />
             </div>
 
-            <p className="font-sans text-sm text-grege italic">
-              La commande du livre imprimé arrive bientôt — votre manuscrit et votre adresse seront prêts dès son ouverture.
-            </p>
+            <div className="space-y-3 border-t border-grege/30 pt-8">
+              <h2 className="font-display text-lg text-encre">Impression</h2>
+              {commande ? (
+                <p className="font-sans text-sm text-petrole">
+                  {commande.statut === "confirmee"
+                    ? "Votre livre a été envoyé à l'impression."
+                    : "Votre commande est en cours de traitement."}
+                </p>
+              ) : !assezDePages ? (
+                <p className="font-sans text-sm text-grege">
+                  Votre manuscrit fait {nombrePages} page{nombrePages > 1 ? "s" : ""} pour l&apos;instant — il en faut au moins {PAGES_MINIMUM_RELIE} pour un livre relié. Continuez vos séances, l&apos;impression sera possible dès que vous y serez.
+                </p>
+              ) : (
+                <BoutonCommande adresseRemplie={!!adresse} />
+              )}
+            </div>
           </div>
         )}
       </main>

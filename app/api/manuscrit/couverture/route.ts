@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
-import { NodeCompiler } from "@myriaddreamin/typst-ts-node-compiler";
 import { createClient } from "@/utils/supabase/server";
-import { assemblerFragments, genererSourceTypst } from "@/lib/typst";
-import { genererSourceCouverture } from "@/lib/couverture";
-import { dimensionsCouverture } from "@/lib/lulu";
+import { compilerInterieur, compilerCouverture } from "@/lib/manuscrit";
 
 // Génère la couverture (recto + dos + quatrième) aux dimensions exactes
-// attendues par Lulu pour la pagination réelle de ce narrateur — recompile
-// d'abord l'intérieur (silencieusement, sans le renvoyer) pour connaître le
-// nombre de pages, seule donnée nécessaire à la demande de dimensions.
+// attendues par Lulu pour la pagination réelle de ce narrateur.
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -26,20 +21,10 @@ export async function GET() {
   }
 
   try {
-    const compiler = NodeCompiler.create();
-    const corps = assemblerFragments(fragments.map((f) => f.texte));
-    const sourceInterieur = genererSourceTypst(corps, { titre: "Mes Mémoires" });
-    const resultatInterieur = compiler.compile({ mainFileContent: sourceInterieur });
-    if (resultatInterieur.hasError()) throw new Error(JSON.stringify(resultatInterieur.takeError()));
-    const nombrePages = resultatInterieur.result!.numOfPages;
+    const { nombrePages } = compilerInterieur(fragments.map((f) => f.texte));
+    const pdfBuffer = await compilerCouverture(nombrePages);
 
-    const dims = await dimensionsCouverture(nombrePages);
-    const sourceCouverture = genererSourceCouverture("Mes Mémoires", "Racontez-moi", dims);
-    const resultatCouverture = compiler.compile({ mainFileContent: sourceCouverture });
-    if (resultatCouverture.hasError()) throw new Error(JSON.stringify(resultatCouverture.takeError()));
-    const pdfBuffer = Buffer.from(compiler.pdf(resultatCouverture.result!));
-
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
