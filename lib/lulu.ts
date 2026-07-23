@@ -5,9 +5,12 @@
 
 const LULU_BASE_URL = "https://api.sandbox.lulu.com";
 
-// Format retenu depuis le spike Typst de juin : 6x9po (US Trade), noir et
-// blanc, broché, papier blanc 60#, couverture mate.
-export const POD_PACKAGE_ID_PARCOURS = "0600X0900BWSTDPB060UC444MXX";
+// Format retenu le 23 juillet 2026 (offre tout-compris ~179€, décision
+// prise après vérification du coût réel : couleur relié ~29€ tout compris
+// en France, pas le facteur 3-5x redouté) : 6x9po (US Trade), couleur,
+// relié (casewrap), couverture brillante. Remplace le format N&B broché du
+// spike Typst de juin.
+export const POD_PACKAGE_ID_PARCOURS = "0600X0900FCSTDCW080CW444GXX";
 
 let tokenCache: { token: string; expireA: number } | null = null;
 
@@ -41,6 +44,23 @@ export type AdresseLivraison = {
   postcode: string;
   phone_number: string;
 };
+
+// Dimensions exactes de la couverture (front + dos + quatrième de
+// couverture + fond perdu), en points (1pt = 1/72po) — la largeur du dos
+// dépend du nombre de pages intérieures et doit être demandée à Lulu,
+// jamais calculée à la main (pas de formule publique fiable pour le
+// casewrap couleur).
+export async function dimensionsCouverture(nombrePages: number): Promise<{ largeurPt: number; hauteurPt: number }> {
+  const token = await obtenirToken();
+  const res = await fetch(`${LULU_BASE_URL}/cover-dimensions/`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ pod_package_id: POD_PACKAGE_ID_PARCOURS, interior_page_count: nombrePages }),
+  });
+  if (!res.ok) throw new Error("Calcul des dimensions de couverture Lulu échoué: " + (await res.text()));
+  const data = await res.json();
+  return { largeurPt: Number(data.width), hauteurPt: Number(data.height) };
+}
 
 export async function calculerCoutImpression(adresse: AdresseLivraison, nombrePages: number) {
   const token = await obtenirToken();
