@@ -29,7 +29,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const { data: fragment } = await supabase
     .from("fragments")
-    .select("id, session_id")
+    .select("id, session_id, texte")
     .eq("id", id)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -56,6 +56,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const fragmentRecompose = await composerFragment(client, { tours, instruction: body.instruction });
   const embedding = await embedText(fragmentRecompose);
+
+  // Historique de versions (décision du 23 juillet 2026) : la version que
+  // la régénération s'apprête à remplacer est sauvegardée avant l'écrasement.
+  await supabase.from("fragments_historique").insert({ fragment_id: id, user_id: user.id, texte: fragment.texte });
 
   const { data: updated, error } = await supabase
     .from("fragments")

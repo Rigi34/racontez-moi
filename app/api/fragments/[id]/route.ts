@@ -39,6 +39,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Rien à mettre à jour." }, { status: 400 });
   }
 
+  // Historique de versions (décision du 23 juillet 2026, suite à un
+  // incident où une régénération avait remplacé un fragment sans aucun
+  // filet) : la version qui va être écrasée est sauvegardée avant toute
+  // modification du texte — restaurer une ancienne version passe par ce
+  // même PATCH, donc elle est elle-même historisée avant d'être réappliquée.
+  if (updates.texte) {
+    const { data: avant } = await supabase.from("fragments").select("texte").eq("id", id).eq("user_id", user.id).maybeSingle();
+    if (avant && avant.texte !== updates.texte) {
+      await supabase.from("fragments_historique").insert({ fragment_id: id, user_id: user.id, texte: avant.texte });
+    }
+  }
+
   const { data, error } = await supabase
     .from("fragments")
     .update(updates)

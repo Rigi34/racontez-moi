@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 type Statut = "brouillon" | "valide" | "a_revoir";
+type Version = { id: string; texte: string; created_at: string };
 
 export default function FragmentCard({
   id,
@@ -20,6 +21,8 @@ export default function FragmentCard({
   const [statut, setStatut] = useState<Statut>(statutInitial as Statut);
   const [enEdition, setEnEdition] = useState(false);
   const [enRegeneration, setEnRegeneration] = useState(false);
+  const [enHistorique, setEnHistorique] = useState(false);
+  const [versions, setVersions] = useState<Version[] | null>(null);
   const [instruction, setInstruction] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -61,6 +64,48 @@ export default function FragmentCard({
       if (!res.ok) throw new Error();
       const data = await res.json();
       setStatut(data.fragment.statut);
+    } catch {
+      setError("Une erreur s'est produite. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const ouvrirHistorique = async () => {
+    setEnHistorique(true);
+    if (versions !== null) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/fragments/${id}/historique`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setVersions(data.versions);
+    } catch {
+      setError("Une erreur s'est produite. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const restaurerVersion = async (version: Version) => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/fragments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ texte: version.texte }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setTexte(data.fragment.texte);
+      setBrouillonTexte(data.fragment.texte);
+      setStatut(data.fragment.statut);
+      setEnHistorique(false);
+      setVersions(null);
+      setConfirmation("Version restaurée.");
+      setTimeout(() => setConfirmation(""), 2500);
     } catch {
       setError("Une erreur s'est produite. Veuillez réessayer.");
     } finally {
@@ -127,6 +172,33 @@ export default function FragmentCard({
         </div>
       )}
 
+      {enHistorique && (
+        <div className="space-y-3 bg-sauge/40 p-4">
+          <p className="font-sans text-xs text-grege">
+            Versions précédentes de ce fragment — la plus récente en premier.
+          </p>
+          {loading && versions === null && <p className="font-sans text-xs text-grege">Chargement…</p>}
+          {versions?.length === 0 && (
+            <p className="font-sans text-xs text-grege">Aucune version antérieure — ce fragment n&apos;a jamais été modifié.</p>
+          )}
+          {versions?.map((v) => (
+            <div key={v.id} className="bg-blanc border border-grege p-3 space-y-2">
+              <p className="font-sans text-xs text-grege">
+                {new Date(v.created_at).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short" })}
+              </p>
+              <p className="font-serif text-sm text-encre whitespace-pre-line leading-relaxed line-clamp-4">{v.texte}</p>
+              <button
+                onClick={() => restaurerVersion(v)}
+                disabled={loading}
+                className="font-sans text-xs border border-grege text-encre px-3 py-1.5 hover:border-petrole transition-colors disabled:opacity-40"
+              >
+                Restaurer cette version
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="flex gap-2 flex-wrap items-center">
         {enEdition ? (
           <>
@@ -166,6 +238,10 @@ export default function FragmentCard({
               Annuler
             </button>
           </>
+        ) : enHistorique ? (
+          <button onClick={() => setEnHistorique(false)} className="font-sans text-sm text-grege px-3 py-2">
+            Fermer l&apos;historique
+          </button>
         ) : (
           <>
             <button
@@ -193,6 +269,12 @@ export default function FragmentCard({
               className="font-sans text-xs text-grege px-3 py-1.5 hover:text-encre transition-colors"
             >
               Recomposer ce passage
+            </button>
+            <button
+              onClick={ouvrirHistorique}
+              className="font-sans text-xs text-grege px-3 py-1.5 hover:text-encre transition-colors"
+            >
+              Historique
             </button>
           </>
         )}
