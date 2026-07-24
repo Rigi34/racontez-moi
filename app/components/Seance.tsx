@@ -223,7 +223,7 @@ function ZoneEcoute({
                 className={`inline-flex items-center gap-3 rounded-full font-sans font-medium text-[15px] px-8 py-3.5 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                   isRecording
                     ? "bg-petrole/10 border-petrole/40 text-petrole"
-                    : "btn-ecoute bg-blanc border-sauge text-petrole shadow-[0_1px_2px_rgba(36,34,32,0.05),0_6px_18px_-10px_rgba(36,34,32,0.25)] hover:border-petrole/50"
+                    : "bg-blanc border-sauge text-petrole shadow-[0_1px_2px_rgba(36,34,32,0.05),0_6px_18px_-10px_rgba(36,34,32,0.25)] hover:border-petrole/50"
                 }`}
               >
                 {isRecording ? <span className="rec-dot" /> : <IconeMicro souffle className="w-4 h-4" />}

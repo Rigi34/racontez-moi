@@ -159,10 +159,11 @@ body {
 
 /* Souffle permanent, très lent, autour du micro — présent même au repos
    (pas seulement en enregistrement) pour que l'interface paraisse vivante,
-   à la manière de Siri. */
+   à la manière de Siri. Halo doux (dégradé, pas de bord tranché), mais bien
+   visible et à l'ondulation ample avant même l'appui sur le bouton. */
 @keyframes mic-breathe {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.08); opacity: 0.9; }
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.32); opacity: 1; }
 }
 
 .mic-ring {
@@ -173,10 +174,10 @@ body {
 .mic-ring::before {
   content: '';
   position: absolute;
-  inset: -10px;
+  inset: -20px;
   border-radius: 9999px;
-  border: 1px solid rgba(31, 75, 76, 0.16);
-  opacity: 0.5;
+  background: radial-gradient(circle, rgba(31, 75, 76, 0.22), transparent 72%);
+  opacity: 0.55;
   animation: mic-breathe 4.5s ease-in-out infinite;
 }
 
@@ -205,38 +206,6 @@ body {
 .mic-cta:hover .mic-ring,
 .mic-cta:focus-within .mic-ring {
   box-shadow: 0 0 0 1px rgba(31, 75, 76, 0.1), 0 0 34px 8px rgba(31, 75, 76, 0.16);
-}
-
-/* Halo du bouton principal — plus grand, plus mouvant, derrière le bouton. */
-.btn-ecoute {
-  position: relative;
-}
-
-.btn-ecoute::before {
-  content: '';
-  position: absolute;
-  inset: -26px;
-  border-radius: 9999px;
-  background: radial-gradient(circle, rgba(31, 75, 76, 0.34) 0%, rgba(31, 75, 76, 0.34) 38%, transparent 66%);
-  opacity: 0.8;
-  animation: btn-halo-breathe 3.6s ease-in-out infinite;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.mic-cta:hover .btn-ecoute::before,
-.mic-cta:focus-within .btn-ecoute::before {
-  animation: btn-halo-breathe-hover 2.2s ease-in-out infinite;
-}
-
-@keyframes btn-halo-breathe {
-  0%, 100% { transform: scale(0.85); opacity: 0.55; }
-  50% { transform: scale(1.4); opacity: 1; }
-}
-
-@keyframes btn-halo-breathe-hover {
-  0%, 100% { transform: scale(1); opacity: 0.55; }
-  50% { transform: scale(1.4); opacity: 0.9; }
 }
 
 /* Icône micro discrètement animée dans le bouton principal — respire au
@@ -280,9 +249,6 @@ body {
   .mic-ring--recording::before { animation: none; }
   .mic-cta:hover .mic-ring::before,
   .mic-cta:focus-within .mic-ring::before { animation: none; }
-  .btn-ecoute::before { animation: none; }
-  .mic-cta:hover .btn-ecoute::before,
-  .mic-cta:focus-within .btn-ecoute::before { animation: none; }
   .btn-icone-souffle { animation: none; }
   .rec-dot { animation: none; }
 }
