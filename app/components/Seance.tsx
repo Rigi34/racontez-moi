@@ -33,6 +33,18 @@ const INVITATIONS = [
   "Laissez venir ce qui vous vient, sans vous presser.",
 ];
 
+// Approximation légère de l'idée "saisons du livre" (retour du 24 juillet) :
+// une seule photo, mais la teinte du voile glisse doucement selon
+// l'avancement dans le cycle des 16 sections — jamais nommée, jamais
+// écrite. Pas encore de vraies photos saisonnières (idée plus large,
+// à discuter séparément si elle mérite sa propre production photo).
+const TEINTES_AMBIANCE = ["#EEF0DE", "#F7E9C7", "#F2DAB8", "#E6ECEF"];
+
+function teinteAmbiance(pourcentageCouverture: number): string {
+  const index = Math.min(3, Math.floor(pourcentageCouverture / 25));
+  return TEINTES_AMBIANCE[index];
+}
+
 function IconeMicro({ souffle = false, className = "w-8 h-8" }: { souffle?: boolean; className?: string }) {
   return (
     <svg
@@ -131,6 +143,7 @@ function ZoneEcoute({
   loading,
   silencePhrase,
   silenceVisible,
+  pourcentageCouverture,
   error,
 }: {
   eyebrow: string;
@@ -150,14 +163,19 @@ function ZoneEcoute({
   loading: boolean;
   silencePhrase: string;
   silenceVisible: boolean;
+  pourcentageCouverture: number;
   error: string;
 }) {
   const montrerTexte = ecrireForce || valeur.trim().length > 0;
   const [invitation] = useState(() => INVITATIONS[Math.floor(Math.random() * INVITATIONS.length)]);
 
   return (
-    <div className={`stage min-h-[58vh] flex items-center justify-center px-6 py-16 ${isRecording ? "stage--recording" : ""}`}>
+    <div
+      className={`stage min-h-[58vh] flex items-center justify-center px-6 py-16 ${isRecording ? "stage--recording" : ""}`}
+      style={{ "--veil-tint": teinteAmbiance(pourcentageCouverture) } as React.CSSProperties}
+    >
       <div className="stage-photo" aria-hidden="true" />
+      <div className="stage-light" aria-hidden="true" />
       <div className="stage-photo-veil" aria-hidden="true" />
       <div className="stage-inner max-w-xl w-full text-center space-y-10">
         <div>
@@ -168,7 +186,7 @@ function ZoneEcoute({
         </div>
 
         {!montrerTexte ? (
-          <div className="stage-fade-in mt-16 space-y-7" style={{ animationDelay: "0.18s" }}>
+          <div className="stage-fade-in mic-cta mt-16 space-y-5" style={{ animationDelay: "0.18s" }}>
             <div
               className={`mic-ring w-20 h-20 mx-auto rounded-full bg-blanc border flex items-center justify-center shadow-[0_1px_2px_rgba(36,34,32,0.06),0_8px_24px_-12px_rgba(36,34,32,0.2)] ${
                 isRecording ? "mic-ring--recording border-petrole text-petrole" : "border-sauge text-petrole"
@@ -181,6 +199,9 @@ function ZoneEcoute({
               <div className="space-y-5">
                 <p className="font-display italic text-xl text-petrole">Je vous écoute.</p>
                 <PanneauEnregistrement duree={dureeEnregistrement} />
+                <p className={`font-serif italic text-sm text-ambre min-h-[1.4em] silence-phrase ${silenceVisible ? "silence-phrase--visible" : ""}`}>
+                  {silencePhrase}
+                </p>
               </div>
             ) : transcribing ? (
               <p className="font-display italic text-xl text-petrole">Un instant, je transcris…</p>
@@ -188,18 +209,21 @@ function ZoneEcoute({
               <p className="font-serif text-lg text-encre max-w-sm mx-auto">{invitation}</p>
             )}
 
-            <p className={`font-serif italic text-sm text-ambre min-h-[1.4em] silence-phrase ${silenceVisible ? "silence-phrase--visible" : ""}`}>
-              {silencePhrase}
-            </p>
-
-            <div className="flex flex-col items-center gap-3 pt-2">
+            <div className="flex flex-col items-center gap-2.5">
+              {!isRecording && !transcribing && (
+                <p className="font-sans text-xs text-grege max-w-[280px]">
+                  Parlez simplement comme vous parleriez à un proche.
+                  <br />
+                  Je m&apos;occupe du reste.
+                </p>
+              )}
               <button
                 onClick={onToggleVoice}
                 disabled={transcribing}
                 className={`inline-flex items-center gap-3 rounded-full font-sans font-medium text-[15px] px-8 py-3.5 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                   isRecording
                     ? "bg-petrole/10 border-petrole/40 text-petrole"
-                    : "bg-blanc border-sauge text-petrole shadow-[0_1px_2px_rgba(36,34,32,0.05),0_6px_18px_-10px_rgba(36,34,32,0.25)] hover:border-petrole/50"
+                    : "btn-ecoute bg-blanc border-sauge text-petrole shadow-[0_1px_2px_rgba(36,34,32,0.05),0_6px_18px_-10px_rgba(36,34,32,0.25)] hover:border-petrole/50"
                 }`}
               >
                 {isRecording ? <span className="rec-dot" /> : <IconeMicro souffle className="w-4 h-4" />}
@@ -638,6 +662,7 @@ export default function Seance() {
             loading={loading}
             silencePhrase={silencePhrase}
             silenceVisible={silenceVisible}
+            pourcentageCouverture={pourcentageCouverture}
             error={error}
           />
         )}
@@ -662,6 +687,7 @@ export default function Seance() {
             loading={loading}
             silencePhrase={silencePhrase}
             silenceVisible={silenceVisible}
+            pourcentageCouverture={pourcentageCouverture}
             error={error}
           />
         )}
@@ -686,6 +712,7 @@ export default function Seance() {
             loading={loading}
             silencePhrase={silencePhrase}
             silenceVisible={silenceVisible}
+            pourcentageCouverture={pourcentageCouverture}
             error={error}
           />
         )}

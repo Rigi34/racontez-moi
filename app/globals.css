@@ -89,19 +89,42 @@ body {
   background-size: 190%;
   background-repeat: no-repeat;
   background-position: 68% 12%;
-  filter: blur(5px) saturate(0.55);
-  opacity: 0.26;
+  filter: blur(2px) saturate(0.65);
+  opacity: 0.8;
   pointer-events: none;
   transition: opacity 1s ease, filter 1s ease;
 }
 
+/* Netteté quasi entière + voile marqué plutôt que du flou — "le cerveau voit
+   la personne, il ne la regarde pas" (retour du 24 juillet). La teinte est
+   pilotée en JS (--veil-tint, cf. Seance.tsx) selon l'avancement du cycle de
+   sections : une approximation légère de l'idée "saisons du livre" (une
+   seule photo, teinte qui glisse), pas encore de vraies photos saisonnières.
+*/
 .stage-photo-veil {
   position: absolute;
   inset: 0;
-  background: #FAF8F3;
-  opacity: 0.45;
+  background: var(--veil-tint, #FAF8F3);
+  opacity: 0.7;
   pointer-events: none;
-  transition: opacity 1s ease;
+  transition: opacity 1s ease, background 1.5s ease;
+}
+
+/* Lumière très lente derrière la fenêtre — le décor vit, sans jamais
+   distraire (échelle de la minute, pas de la seconde). */
+.stage-light {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 250, 235, 0.4), transparent 55%);
+  filter: blur(60px);
+  opacity: 0.6;
+  animation: stage-light-drift 42s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes stage-light-drift {
+  0% { transform: translate(-2%, -1%) scale(1); }
+  100% { transform: translate(3%, 2%) scale(1.08); }
 }
 
 /* Pendant l'enregistrement, l'image doit s'effacer au profit du souvenir —
@@ -113,7 +136,11 @@ body {
 }
 
 .stage--recording .stage-photo-veil {
-  opacity: 0.8;
+  opacity: 0.88;
+}
+
+.stage--recording .stage-light {
+  opacity: 0.2;
 }
 
 .stage-inner {
@@ -163,6 +190,55 @@ body {
   100% { transform: scale(1.35); opacity: 0; }
 }
 
+/* "Comme si quelqu'un attendait tranquillement" — au survol/effleurement du
+   bloc micro+bouton, le halo se marque davantage. */
+@keyframes mic-breathe-hover {
+  0%, 100% { transform: scale(1.02); opacity: 0.65; }
+  50% { transform: scale(1.22); opacity: 1; }
+}
+
+.mic-cta:hover .mic-ring::before,
+.mic-cta:focus-within .mic-ring::before {
+  animation: mic-breathe-hover 2.4s ease-in-out infinite;
+}
+
+.mic-cta:hover .mic-ring,
+.mic-cta:focus-within .mic-ring {
+  box-shadow: 0 0 0 1px rgba(31, 75, 76, 0.1), 0 0 34px 8px rgba(31, 75, 76, 0.16);
+}
+
+/* Halo du bouton principal — plus grand, plus mouvant, derrière le bouton. */
+.btn-ecoute {
+  position: relative;
+}
+
+.btn-ecoute::before {
+  content: '';
+  position: absolute;
+  inset: -18px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(31, 75, 76, 0.2), transparent 70%);
+  opacity: 0.55;
+  animation: btn-halo-breathe 3.6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.mic-cta:hover .btn-ecoute::before,
+.mic-cta:focus-within .btn-ecoute::before {
+  animation: btn-halo-breathe-hover 2.2s ease-in-out infinite;
+}
+
+@keyframes btn-halo-breathe {
+  0%, 100% { transform: scale(0.9); opacity: 0.4; }
+  50% { transform: scale(1.2); opacity: 0.75; }
+}
+
+@keyframes btn-halo-breathe-hover {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.4); opacity: 0.9; }
+}
+
 /* Icône micro discrètement animée dans le bouton principal — respire au
    même rythme que l'anneau, pour donner l'impression que l'interface
    "écoute" déjà avant même d'appuyer. */
@@ -199,8 +275,14 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .stage-fade-in { animation: none; opacity: 1; }
+  .stage-light { animation: none; }
   .mic-ring::before { animation: none; }
   .mic-ring--recording::before { animation: none; }
+  .mic-cta:hover .mic-ring::before,
+  .mic-cta:focus-within .mic-ring::before { animation: none; }
+  .btn-ecoute::before { animation: none; }
+  .mic-cta:hover .btn-ecoute::before,
+  .mic-cta:focus-within .btn-ecoute::before { animation: none; }
   .btn-icone-souffle { animation: none; }
   .rec-dot { animation: none; }
 }
