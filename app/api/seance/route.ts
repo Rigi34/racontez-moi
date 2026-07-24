@@ -5,8 +5,9 @@ import { QUESTION_INITIALE, construireSystemRelance } from "@/lib/prompts";
 import { embedText } from "@/lib/embeddings";
 import { retrieverTechniques } from "@/lib/retrieval";
 import { lireProfil, resumerProfilPourPrompt, mettreAJourProfil, marquerSectionCouverte } from "@/lib/profil-narrateur";
-import { prochaineQuestionBanque } from "@/lib/banque-questions";
+import { prochaineQuestionBanque, titreSection, TITRE_SECTION_A } from "@/lib/banque-questions";
 import { composerFragment, genererResumeSession } from "@/lib/redaction";
+import { calculerProgression } from "@/lib/progression";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -17,16 +18,21 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
 
-  const { data } = await supabase
-    .from("sessions")
-    .select("id, transcript, started_at")
-    .eq("user_id", user.id)
-    .eq("status", "in_progress")
-    .order("started_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const [{ data }, progression] = await Promise.all([
+    supabase
+      .from("sessions")
+      .select("id, transcript, started_at, section_ouverture")
+      .eq("user_id", user.id)
+      .eq("status", "in_progress")
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    calculerProgression(supabase, user.id),
+  ]);
 
-  return NextResponse.json({ session: data ?? null });
+  const titre_section = data ? await titreSection(supabase, data.section_ouverture ?? "") ?? TITRE_SECTION_A : null;
+
+  return NextResponse.json({ session: data ?? null, titre_section, progression });
 }
 
 export async function POST(req: NextRequest) {
@@ -55,7 +61,7 @@ export async function POST(req: NextRequest) {
   if (step === "start") {
     const { data: existing } = await supabase
       .from("sessions")
-      .select("id, transcript, started_at, question_ouverture")
+      .select("id, transcript, started_at, question_ouverture, section_ouverture")
       .eq("user_id", user.id)
       .eq("status", "in_progress")
       .order("started_at", { ascending: false })
@@ -63,7 +69,14 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     if (existing && !body.fresh) {
-      return NextResponse.json({ session_id: existing.id, question: existing.question_ouverture ?? QUESTION_INITIALE });
+      const titre_section = await titreSection(supabase, existing.section_ouverture ?? "") ?? TITRE_SECTION_A;
+      const progression = await calculerProgression(supabase, user.id);
+      return NextResponse.json({
+        session_id: existing.id,
+        question: existing.question_ouverture ?? QUESTION_INITIALE,
+        titre_section,
+        progression,
+      });
     }
 
     if (existing && body.fresh) {
@@ -89,12 +102,14 @@ export async function POST(req: NextRequest) {
 
     let question = QUESTION_INITIALE;
     let sectionOuverture: string | null = null;
+    let titreSectionOuverture: string = TITRE_SECTION_A;
     if ((nombreFragments ?? 0) > 0) {
       const profil = await lireProfil(supabase, user.id);
       const pick = await prochaineQuestionBanque(supabase, profil.sections_couvertes);
       if (pick) {
         question = pick.texte;
         sectionOuverture = pick.section;
+        titreSectionOuverture = pick.titre_section;
       }
     }
 
@@ -107,7 +122,8 @@ export async function POST(req: NextRequest) {
     if (error || !created) {
       return NextResponse.json({ error: "Impossible de démarrer la séance." }, { status: 500 });
     }
-    return NextResponse.json({ session_id: created.id, question });
+    const progression = await calculerProgression(supabase, user.id);
+    return NextResponse.json({ session_id: created.id, question, titre_section: titreSectionOuverture, progression });
   }
 
   if (step === "relance") {

@@ -9,7 +9,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const SECTIONS_APRES_OUVERTURE = ["B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"];
 
-export type QuestionBanque = { numero: number; section: string; texte: string };
+export type QuestionBanque = { numero: number; section: string; titre_section: string; texte: string };
 
 export async function prochaineQuestionBanque(
   supabase: SupabaseClient,
@@ -23,12 +23,28 @@ export async function prochaineQuestionBanque(
 
   const { data } = await supabase
     .from("banque_questions")
-    .select("numero, section, texte, est_nucleaire")
+    .select("numero, section, titre_section, texte, est_nucleaire")
     .eq("section", prochaineSection)
     .eq("est_nucleaire", false);
 
   if (!data?.length) return null;
 
   const choisie = data[Math.floor(Math.random() * data.length)];
-  return { numero: choisie.numero, section: choisie.section, texte: choisie.texte };
+  return { numero: choisie.numero, section: choisie.section, titre_section: choisie.titre_section, texte: choisie.texte };
+}
+
+// Titre lisible pour la toute première séance (section A, thématiquement
+// "Racines et petite enfance") — la question elle-même reste fixe
+// (QUESTION_INITIALE, cf. lib/prompts.ts), seul le titre affiché en chapitre
+// vient de la banque.
+export const TITRE_SECTION_A = "Racines et petite enfance";
+
+export async function titreSection(supabase: SupabaseClient, section: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("banque_questions")
+    .select("titre_section")
+    .eq("section", section)
+    .limit(1)
+    .maybeSingle();
+  return data?.titre_section ?? null;
 }

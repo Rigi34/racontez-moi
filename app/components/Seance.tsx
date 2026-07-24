@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect, Dispatch, SetStateAction } from "react";
+import { useState, useRef, useCallback, useEffect, Dispatch, SetStateAction, ReactNode } from "react";
+import Link from "next/link";
 
 type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment";
 
@@ -8,26 +9,31 @@ type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "f
 // (erreur réseau au chargement) — le serveur reste la source de vérité :
 // fixe pour la toute première séance, générée dynamiquement ensuite.
 const QUESTION_INITIALE_REPLI = "Quelle est la première maison dont vous vous souvenez ?";
+const TITRE_SECTION_REPLI = "Racines et petite enfance";
 
-const HAUTEURS_ONDE = [5, 9, 13, 8, 6]; // px, au repos — silhouette d'onde sonore
-
-function OndeSonore({ active }: { active: boolean }) {
-  return (
-    <span className="flex items-end gap-[3px] h-[13px]" aria-hidden="true">
-      {HAUTEURS_ONDE.map((h, i) => (
-        <span
-          key={i}
-          className={`w-[2.5px] rounded-full bg-current origin-bottom ${
-            active ? "h-[13px] barre-onde--active" : ""
-          }`}
-          style={active ? { animationDelay: `${i * 0.12}s` } : { height: `${h}px` }}
-        />
-      ))}
-    </span>
-  );
-}
+// Phrases affichées après quelques secondes sans reprise de parole —
+// purement décoratif à ce stade (basé sur un minuteur, pas sur une vraie
+// détection audio du silence). La vraie détection de silence reste un
+// chantier séparé, non couvert par cette refonte de l'interface.
+const PHRASES_SILENCE = [
+  "Prenez votre temps.",
+  "Les souvenirs viennent souvent après quelques secondes.",
+  "Il n'y a aucune bonne réponse.",
+  "Fermez les yeux si cela vous aide.",
+];
 
 const HAUTEURS_ONDE_GRANDE = [10, 22, 34, 48, 30, 44, 20, 38, 52, 28, 42, 16, 36, 24, 46, 18];
+
+function IconeMicro() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+      <path d="M12 15a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 0 0-7 0v5.5A3.5 3.5 0 0 0 12 15Z" />
+      <path d="M6.5 11.2V12a5.5 5.5 0 0 0 11 0v-.8" />
+      <path d="M12 17.5V21" />
+      <path d="M9 21h6" />
+    </svg>
+  );
+}
 
 function PanneauEnregistrement({ duree }: { duree: number }) {
   const minutes = Math.floor(duree / 60);
@@ -35,8 +41,8 @@ function PanneauEnregistrement({ duree }: { duree: number }) {
   const chrono = `${minutes}:${secondes.toString().padStart(2, "0")}`;
 
   return (
-    <div className="bg-blanc border border-sauge rounded-2xl px-6 py-7 shadow-[0_2px_8px_rgba(36,34,32,0.08)]">
-      <div className="flex items-end justify-center gap-[5px] h-14" aria-hidden="true">
+    <div className="space-y-3">
+      <div className="flex items-end justify-center gap-[5px] h-12" aria-hidden="true">
         {HAUTEURS_ONDE_GRANDE.map((h, i) => (
           <span
             key={i}
@@ -45,36 +51,187 @@ function PanneauEnregistrement({ duree }: { duree: number }) {
           />
         ))}
       </div>
-      <p className="mt-4 font-sans text-lg text-petrole font-medium">{chrono}</p>
-      <p className="mt-1 font-sans text-sm text-grege">Enregistrement en cours</p>
+      <p className="font-sans text-sm text-petrole font-medium tabular-nums">{chrono}</p>
     </div>
   );
 }
 
-function BoutonDicter({
-  isRecording,
-  transcribing,
-  onClick,
-  label,
+// Le "chargement..." affiché en topbar peut être trompeur avant la première
+// vraie compilation Typst (coûteuse, cf. lib/manuscrit.ts) : c'est une
+// approximation à partir du nombre de mots, d'où le "~" permanent.
+function BarreProgression({
+  titreSection,
+  pagesEstimees,
+  pourcentageCouverture,
 }: {
-  isRecording: boolean;
-  transcribing: boolean;
-  onClick: () => void;
-  label: string;
+  titreSection: string | null;
+  pagesEstimees: number | null;
+  pourcentageCouverture: number;
 }) {
   return (
-    <button
-      onClick={onClick}
-      disabled={transcribing}
-      className={`inline-flex items-center gap-3 rounded-full border font-sans text-base px-7 py-4 shadow-[0_1px_3px_rgba(36,34,32,0.1)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-        isRecording
-          ? "border-petrole/40 bg-petrole/10 text-petrole"
-          : "border-sauge bg-blanc text-grege hover:border-grege hover:text-encre"
-      }`}
-    >
-      <OndeSonore active={isRecording} />
-      {isRecording ? "Arrêter l'écoute" : transcribing ? "Transcription…" : label}
-    </button>
+    <header className="sticky top-0 z-20 bg-papier/90 backdrop-blur-sm border-b border-sauge/50">
+      <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+        <div className="flex items-baseline gap-4">
+          <span className="font-display italic text-petrole text-lg whitespace-nowrap">Racontez-moi</span>
+          <Link href="/tableau-de-bord" className="font-sans text-xs text-grege hover:text-encre transition-colors whitespace-nowrap">
+            Mon parcours
+          </Link>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-right leading-tight">
+            <p className="font-sans text-xs font-medium text-encre tabular-nums">
+              {pagesEstimees !== null ? `~${pagesEstimees} page${pagesEstimees > 1 ? "s" : ""}` : "…"}
+            </p>
+            <p className="font-sans text-[11px] text-grege uppercase tracking-wide">{titreSection ?? "…"}</p>
+          </div>
+          <div className="w-16 h-[5px] rounded-full bg-sauge/50 overflow-hidden">
+            <div
+              className="h-full bg-petrole rounded-full transition-[width] duration-500"
+              style={{ width: `${Math.max(4, pourcentageCouverture)}%` }}
+            />
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function ZoneEcoute({
+  eyebrow,
+  question,
+  valeur,
+  setValeur,
+  placeholder,
+  isRecording,
+  transcribing,
+  dureeEnregistrement,
+  onToggleVoice,
+  ecrireForce,
+  setEcrireForce,
+  onContinuer,
+  continuerLabel,
+  continuerLoadingLabel,
+  loading,
+  silencePhrase,
+  silenceVisible,
+  error,
+}: {
+  eyebrow: string;
+  question: ReactNode;
+  valeur: string;
+  setValeur: Dispatch<SetStateAction<string>>;
+  placeholder: string;
+  isRecording: boolean;
+  transcribing: boolean;
+  dureeEnregistrement: number;
+  onToggleVoice: () => void;
+  ecrireForce: boolean;
+  setEcrireForce: (v: boolean) => void;
+  onContinuer: () => void;
+  continuerLabel: string;
+  continuerLoadingLabel: string;
+  loading: boolean;
+  silencePhrase: string;
+  silenceVisible: boolean;
+  error: string;
+}) {
+  const montrerTexte = ecrireForce || valeur.trim().length > 0;
+
+  return (
+    <div className="stage min-h-[58vh] flex items-center justify-center px-6 py-16">
+      <div className="stage-photo" aria-hidden="true" />
+      <div className="stage-photo-veil" aria-hidden="true" />
+      <div className="stage-inner max-w-xl w-full text-center space-y-8">
+        <div>
+          <p className="stage-fade-in font-sans text-xs font-medium text-grege uppercase tracking-widest">{eyebrow}</p>
+          <div className="stage-fade-in mt-4" style={{ animationDelay: "0.08s" }}>
+            {question}
+          </div>
+        </div>
+
+        {!montrerTexte ? (
+          <div className="stage-fade-in space-y-6" style={{ animationDelay: "0.18s" }}>
+            <div
+              className={`mic-ring w-20 h-20 mx-auto rounded-full bg-blanc border flex items-center justify-center shadow-[0_1px_2px_rgba(36,34,32,0.06),0_8px_24px_-12px_rgba(36,34,32,0.2)] ${
+                isRecording ? "mic-ring--recording border-petrole text-petrole" : "border-sauge text-petrole"
+              }`}
+            >
+              <IconeMicro />
+            </div>
+
+            <div>
+              <p className="font-display italic text-xl text-petrole">
+                {isRecording ? "Je vous écoute." : transcribing ? "Un instant, je transcris…" : "Je vous écoute."}
+              </p>
+              {!isRecording && !transcribing && (
+                <p className="font-serif text-lg text-encre mt-1.5">Prenez votre temps.</p>
+              )}
+            </div>
+
+            {isRecording && <PanneauEnregistrement duree={dureeEnregistrement} />}
+
+            <p className={`font-serif italic text-sm text-ambre min-h-[1.4em] silence-phrase ${silenceVisible ? "silence-phrase--visible" : ""}`}>
+              {silencePhrase}
+            </p>
+
+            <div className="flex flex-col items-center gap-3">
+              <button
+                onClick={onToggleVoice}
+                disabled={transcribing}
+                className="inline-flex items-center gap-2.5 rounded-full bg-petrole text-blanc font-sans font-medium text-[15px] px-8 py-3.5 shadow-[0_1px_2px_rgba(36,34,32,0.06),0_8px_24px_-12px_rgba(36,34,32,0.2)] hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isRecording && <span className="rec-dot" />}
+                {isRecording ? "Terminer la séance" : transcribing ? "Transcription…" : "Commencer à parler"}
+              </button>
+              {!isRecording && (
+                <button
+                  onClick={() => setEcrireForce(true)}
+                  className="font-sans text-[15px] text-encre underline decoration-sauge underline-offset-4 hover:decoration-grege transition-colors"
+                >
+                  ou écrire à la place
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="stage-fade-in space-y-4 text-left" style={{ animationDelay: "0.1s" }}>
+            <textarea
+              value={valeur}
+              onChange={(e) => setValeur(e.target.value)}
+              placeholder={placeholder}
+              className="w-full min-h-[200px] bg-blanc/95 border border-sauge font-serif text-lg text-encre p-5 rounded-xl resize-none focus:outline-none focus:border-petrole placeholder:text-grege placeholder:text-base leading-relaxed"
+              autoFocus
+            />
+            {isRecording && (
+              <div className="flex justify-center">
+                <PanneauEnregistrement duree={dureeEnregistrement} />
+              </div>
+            )}
+            <div className="flex gap-3 justify-center flex-wrap pt-1">
+              <button
+                onClick={onToggleVoice}
+                disabled={transcribing}
+                className={`inline-flex items-center gap-2.5 rounded-full border font-sans text-[15px] px-6 py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                  isRecording ? "border-petrole/40 bg-petrole/10 text-petrole" : "border-sauge bg-blanc text-grege hover:border-grege hover:text-encre"
+                }`}
+              >
+                {isRecording && <span className="rec-dot" />}
+                {isRecording ? "Arrêter l'écoute" : transcribing ? "Transcription…" : "Dicter à la voix"}
+              </button>
+              <button
+                onClick={onContinuer}
+                disabled={!valeur.trim() || loading || transcribing}
+                className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-3 hover:bg-[#3A3632] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {loading ? continuerLoadingLabel : continuerLabel}
+              </button>
+            </div>
+            <p className="font-display italic text-sm text-grege text-center">Relisez et corrigez si besoin.</p>
+          </div>
+        )}
+        {error && <p className="font-sans text-sm text-red-700">{error}</p>}
+      </div>
+    </div>
   );
 }
 
@@ -82,6 +239,9 @@ export default function Seance() {
   const [phase, setPhase] = useState<Phase>("chargement");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [question, setQuestion] = useState(QUESTION_INITIALE_REPLI);
+  const [titreSection, setTitreSection] = useState<string | null>(null);
+  const [pagesEstimees, setPagesEstimees] = useState<number | null>(null);
+  const [pourcentageCouverture, setPourcentageCouverture] = useState(0);
   const [reponse, setReponse] = useState("");
   const [relance, setRelance] = useState("");
   const [reponseRelance, setReponseRelance] = useState("");
@@ -96,9 +256,15 @@ export default function Seance() {
   const [isRecording, setIsRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const [dureeEnregistrement, setDureeEnregistrement] = useState(0);
+  const [ecrireForce, setEcrireForce] = useState(false);
+  const [silencePhrase, setSilencePhrase] = useState("");
+  const [silenceVisible, setSilenceVisible] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const chronoRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const silenceCycleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const silenceIndexRef = useRef(0);
   const dureeSilenceReponseRef = useRef<number | null>(null);
   const dureeSilenceRelanceRef = useRef<number | null>(null);
   const dureeSilenceRelance2Ref = useRef<number | null>(null);
@@ -113,6 +279,9 @@ export default function Seance() {
         const data = await res.json();
         const session = data.session as { id: string; transcript: { role: string; text: string }[] } | null;
         const t = session?.transcript ?? [];
+        setTitreSection(data.titre_section ?? null);
+        setPagesEstimees(data.progression?.pagesEstimees ?? null);
+        setPourcentageCouverture(data.progression?.pourcentageCouverture ?? 0);
         if (session && t.length >= 4) {
           setSessionId(session.id);
           setReponse(t[0].text);
@@ -141,6 +310,9 @@ export default function Seance() {
             const startData = await startRes.json();
             setSessionId(startData.session_id);
             setQuestion(startData.question ?? QUESTION_INITIALE_REPLI);
+            setTitreSection(startData.titre_section ?? TITRE_SECTION_REPLI);
+            setPagesEstimees(startData.progression?.pagesEstimees ?? null);
+            setPourcentageCouverture(startData.progression?.pourcentageCouverture ?? 0);
           } catch {
             // Repli silencieux : la question par défaut s'affiche, et la
             // séance sera créée au moment de la première réponse (voir
@@ -153,6 +325,24 @@ export default function Seance() {
       }
     })();
   }, []);
+
+  // Phrase de silence : purement décorative (minuteur, pas de vraie
+  // détection audio) — apparaît une fois, ~6s après le début de
+  // l'enregistrement, pour rassurer sans presser le narrateur.
+  useEffect(() => {
+    if (!isRecording) return;
+    silenceTimerRef.current = setTimeout(() => {
+      setSilencePhrase(PHRASES_SILENCE[silenceIndexRef.current % PHRASES_SILENCE.length]);
+      silenceIndexRef.current += 1;
+      setSilenceVisible(true);
+      silenceCycleTimerRef.current = setTimeout(() => setSilenceVisible(false), 3600);
+    }, 6000);
+    return () => {
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+      if (silenceCycleTimerRef.current) clearTimeout(silenceCycleTimerRef.current);
+      setSilenceVisible(false);
+    };
+  }, [isRecording]);
 
   const startVoice = useCallback(async (
     setter: Dispatch<SetStateAction<string>>,
@@ -203,6 +393,7 @@ export default function Seance() {
   }, []);
 
   const reprendreSeance = () => {
+    setEcrireForce(false);
     setPhase(phaseApresReprise);
   };
 
@@ -219,11 +410,15 @@ export default function Seance() {
       const data = await res.json();
       setSessionId(data.session_id);
       setQuestion(data.question ?? QUESTION_INITIALE_REPLI);
+      setTitreSection(data.titre_section ?? TITRE_SECTION_REPLI);
+      setPagesEstimees(data.progression?.pagesEstimees ?? null);
+      setPourcentageCouverture(data.progression?.pourcentageCouverture ?? 0);
       setReponse("");
       setRelance("");
       setReponseRelance("");
       setRelance2("");
       setReponseRelance2("");
+      setEcrireForce(false);
       setPhase("question");
     } catch {
       setError("Une erreur s'est produite. Veuillez réessayer.");
@@ -264,6 +459,7 @@ export default function Seance() {
       const data = await res.json();
       setRelance(data.relance);
       chunksRagRef.current = data.chunks_rag_utilises ?? [];
+      setEcrireForce(false);
       setPhase("relance");
     } catch {
       setError("Une erreur s'est produite. Veuillez réessayer.");
@@ -292,6 +488,7 @@ export default function Seance() {
       const data = await res.json();
       setRelance2(data.relance);
       chunksRagRef2.current = data.chunks_rag_utilises ?? [];
+      setEcrireForce(false);
       setPhase("relance2");
     } catch {
       setError("Une erreur s'est produite. Veuillez réessayer.");
@@ -355,218 +552,189 @@ export default function Seance() {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Chargement initial — vérification d'une séance en cours */}
-      {phase === "chargement" && (
-        <p className="text-center font-sans text-sm text-grege">Un instant…</p>
+    <div>
+      {phase !== "chargement" && (
+        <BarreProgression titreSection={titreSection} pagesEstimees={pagesEstimees} pourcentageCouverture={pourcentageCouverture} />
       )}
 
-      {/* Reprise d'une séance interrompue */}
-      {phase === "reprise" && (
-        <div className="text-center space-y-8">
-          <h2 className="font-display font-normal text-2xl md:text-3xl text-encre leading-[1.3]">
-            Vous avez une séance en cours, jamais terminée.
-          </h2>
-          <p className="font-serif text-lg text-grege">
-            Voulez-vous la reprendre là où vous vous étiez arrêté, ou en commencer une nouvelle ?
-          </p>
-          <div className="flex gap-3 justify-center flex-wrap">
-            <button
-              onClick={recommencerSeance}
-              disabled={loading}
-              className="font-sans text-sm px-5 py-2.5 border border-grege text-grege hover:border-grege transition-colors disabled:opacity-40"
-            >
-              Recommencer à zéro
-            </button>
-            <button
-              onClick={reprendreSeance}
-              disabled={loading}
-              className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-2.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
-            >
-              Reprendre ma séance →
-            </button>
-          </div>
-          {error && <p className="font-sans text-sm text-red-700">{error}</p>}
-        </div>
-      )}
+      <div className="max-w-2xl mx-auto px-6 py-10 space-y-8">
+        {/* Chargement initial — vérification d'une séance en cours */}
+        {phase === "chargement" && (
+          <p className="text-center font-sans text-sm text-grege">Un instant…</p>
+        )}
 
-      {/* Phase 1 — Question initiale */}
-      {phase === "question" && (
-        <div className="text-center space-y-8">
-          <h2 className="font-display font-normal text-3xl md:text-4xl text-encre leading-[1.25]">
-            {question}
-          </h2>
-          <div className="space-y-4">
-            <textarea
-              value={reponse}
-              onChange={(e) => setReponse(e.target.value)}
-              placeholder="Prenez votre temps. Écrivez ou dictez à la voix."
-              className="w-full min-h-[220px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
-            />
-            {isRecording && <PanneauEnregistrement duree={dureeEnregistrement} />}
-            <div className="flex gap-3 justify-center flex-wrap">
-              <BoutonDicter
-                isRecording={isRecording}
-                transcribing={transcribing}
-                onClick={() => (isRecording ? stopVoice() : startVoice(setReponse, dureeSilenceReponseRef))}
-                label="Dicter à la voix"
-              />
-              <button
-                onClick={submitReponse}
-                disabled={!reponse.trim() || loading || transcribing}
-                className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-2.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {loading ? "Un instant…" : "Continuer →"}
-              </button>
-            </div>
-            <p className="font-display italic text-sm text-grege">
-              Votre voix, à votre rythme. Relisez et corrigez si besoin.
+        {/* Reprise d'une séance interrompue */}
+        {phase === "reprise" && (
+          <div className="text-center space-y-8">
+            <h2 className="font-display font-normal text-2xl md:text-3xl text-encre leading-[1.3]">
+              Vous avez une séance en cours, jamais terminée.
+            </h2>
+            <p className="font-serif text-lg text-grege">
+              Voulez-vous la reprendre là où vous vous étiez arrêté, ou en commencer une nouvelle ?
             </p>
-          </div>
-          {error && <p className="font-sans text-sm text-red-700">{error}</p>}
-        </div>
-      )}
-
-      {/* Phase 2 — Première relance sensorielle */}
-      {phase === "relance" && (
-        <div className="text-center space-y-8">
-          <p className="font-display italic text-xl text-grege">
-            {relance}
-          </p>
-          <div className="space-y-4">
-            <textarea
-              value={reponseRelance}
-              onChange={(e) => setReponseRelance(e.target.value)}
-              placeholder="Continuez, prenez votre temps…"
-              className="w-full min-h-[200px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
-            />
-            {isRecording && <PanneauEnregistrement duree={dureeEnregistrement} />}
-            <div className="flex gap-3 justify-center flex-wrap">
-              <BoutonDicter
-                isRecording={isRecording}
-                transcribing={transcribing}
-                onClick={() => (isRecording ? stopVoice() : startVoice(setReponseRelance, dureeSilenceRelanceRef))}
-                label="Dicter"
-              />
-              <button
-                onClick={submitRelance}
-                disabled={!reponseRelance.trim() || loading}
-                className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-2.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {loading ? "Un instant…" : "Continuer →"}
-              </button>
-            </div>
-            <p className="font-display italic text-sm text-grege">
-              Relisez et corrigez si besoin.
-            </p>
-          </div>
-          {error && <p className="font-sans text-sm text-red-700">{error}</p>}
-        </div>
-      )}
-
-      {/* Phase 2bis — Seconde relance sensorielle */}
-      {phase === "relance2" && (
-        <div className="text-center space-y-8">
-          <p className="font-display italic text-xl text-grege">
-            {relance2}
-          </p>
-          <div className="space-y-4">
-            <textarea
-              value={reponseRelance2}
-              onChange={(e) => setReponseRelance2(e.target.value)}
-              placeholder="Continuez, prenez votre temps…"
-              className="w-full min-h-[200px] bg-papier border border-grege font-serif text-lg text-encre p-5 resize-none focus:outline-none focus:border-grege placeholder:text-grege placeholder:text-base leading-relaxed"
-            />
-            {isRecording && <PanneauEnregistrement duree={dureeEnregistrement} />}
-            <div className="flex gap-3 justify-center flex-wrap">
-              <BoutonDicter
-                isRecording={isRecording}
-                transcribing={transcribing}
-                onClick={() => (isRecording ? stopVoice() : startVoice(setReponseRelance2, dureeSilenceRelance2Ref))}
-                label="Dicter"
-              />
-              <button
-                onClick={submitRelance2}
-                disabled={!reponseRelance2.trim() || loading}
-                className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-2.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {loading ? "Composition en cours…" : "Terminer la séance →"}
-              </button>
-            </div>
-            <p className="font-display italic text-sm text-grege">
-              Relisez et corrigez si besoin.
-            </p>
-          </div>
-          {error && <p className="font-sans text-sm text-red-700">{error}</p>}
-        </div>
-      )}
-
-      {/* Phase 3 — Rituel de clôture */}
-      {phase === "fragment" && (
-        <div className="space-y-10">
-          <p className="font-sans text-center text-sm text-grege tracking-wider uppercase">
-            Voici ce que cette séance vient de créer
-          </p>
-
-          <div className="bg-papier border-l-2 border-grege pl-8 pr-4 py-6">
-            <p className="font-display text-[19px] leading-[1.85] text-encre whitespace-pre-line">
-              {fragment}
-            </p>
-          </div>
-
-          <div className="text-center space-y-6">
-            <p className="font-serif text-lg text-grege italic">
-              Il reste toute une vie à raconter.
-            </p>
-
-            {statutFragment === "brouillon" ? (
-              <div className="space-y-2">
-                <p className="font-sans text-sm text-grege">Est-ce que ça vous ressemble ?</p>
-                <div className="flex gap-3 justify-center flex-wrap">
-                  <button
-                    onClick={() => marquerFragment("valide")}
-                    className="border border-grege text-encre font-sans text-sm px-5 py-2 hover:border-petrole transition-colors"
-                  >
-                    Ça me ressemble
-                  </button>
-                  <button
-                    onClick={() => marquerFragment("a_revoir")}
-                    className="border border-grege text-encre font-sans text-sm px-5 py-2 hover:border-amber-700 transition-colors"
-                  >
-                    À revoir
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <p className="font-sans text-sm text-petrole">
-                {statutFragment === "valide"
-                  ? "Noté — vous pourrez toujours le relire et le corriger depuis votre parcours."
-                  : "Noté — retrouvez-le dans votre parcours pour le corriger ou le recomposer."}
-              </p>
-            )}
-
             <div className="flex gap-3 justify-center flex-wrap">
               <button
-                onClick={copierFragment}
-                className="border border-grege text-encre font-sans text-sm px-6 py-3 hover:border-grege transition-colors"
+                onClick={recommencerSeance}
+                disabled={loading}
+                className="font-sans text-sm px-5 py-2.5 border border-grege text-grege hover:border-grege transition-colors disabled:opacity-40"
               >
-                {copie ? "Copié ✓" : "Copier le texte"}
+                Recommencer à zéro
               </button>
-              <a
-                href="/tableau-de-bord"
-                className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-base px-8 py-3 hover:bg-[#3A3632] transition-colors"
+              <button
+                onClick={reprendreSeance}
+                disabled={loading}
+                className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-2.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
               >
-                Retour à mon parcours →
-              </a>
+                Reprendre ma séance →
+              </button>
             </div>
-
-            <p className="font-sans text-xs text-grege max-w-md mx-auto">
-              Cette séance est enregistrée dans votre parcours.
-            </p>
             {error && <p className="font-sans text-sm text-red-700">{error}</p>}
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Phase 1 — Question initiale */}
+        {phase === "question" && (
+          <ZoneEcoute
+            eyebrow={titreSection ? `Chapitre · ${titreSection}` : "Question du jour"}
+            question={
+              <h1 className="font-display font-normal text-3xl md:text-4xl text-encre leading-[1.28] text-balance">
+                {question}
+              </h1>
+            }
+            valeur={reponse}
+            setValeur={setReponse}
+            placeholder="Prenez votre temps. Écrivez ou dictez à la voix."
+            isRecording={isRecording}
+            transcribing={transcribing}
+            dureeEnregistrement={dureeEnregistrement}
+            onToggleVoice={() => (isRecording ? stopVoice() : startVoice(setReponse, dureeSilenceReponseRef))}
+            ecrireForce={ecrireForce}
+            setEcrireForce={setEcrireForce}
+            onContinuer={submitReponse}
+            continuerLabel="Continuer →"
+            continuerLoadingLabel="Un instant…"
+            loading={loading}
+            silencePhrase={silencePhrase}
+            silenceVisible={silenceVisible}
+            error={error}
+          />
+        )}
+
+        {/* Phase 2 — Première relance sensorielle */}
+        {phase === "relance" && (
+          <ZoneEcoute
+            eyebrow="Vous continuez de raconter"
+            question={<p className="font-display italic text-xl md:text-2xl text-petrole text-balance">{relance}</p>}
+            valeur={reponseRelance}
+            setValeur={setReponseRelance}
+            placeholder="Continuez, prenez votre temps…"
+            isRecording={isRecording}
+            transcribing={transcribing}
+            dureeEnregistrement={dureeEnregistrement}
+            onToggleVoice={() => (isRecording ? stopVoice() : startVoice(setReponseRelance, dureeSilenceRelanceRef))}
+            ecrireForce={ecrireForce}
+            setEcrireForce={setEcrireForce}
+            onContinuer={submitRelance}
+            continuerLabel="Continuer →"
+            continuerLoadingLabel="Un instant…"
+            loading={loading}
+            silencePhrase={silencePhrase}
+            silenceVisible={silenceVisible}
+            error={error}
+          />
+        )}
+
+        {/* Phase 2bis — Seconde relance sensorielle */}
+        {phase === "relance2" && (
+          <ZoneEcoute
+            eyebrow="Vous continuez de raconter"
+            question={<p className="font-display italic text-xl md:text-2xl text-petrole text-balance">{relance2}</p>}
+            valeur={reponseRelance2}
+            setValeur={setReponseRelance2}
+            placeholder="Continuez, prenez votre temps…"
+            isRecording={isRecording}
+            transcribing={transcribing}
+            dureeEnregistrement={dureeEnregistrement}
+            onToggleVoice={() => (isRecording ? stopVoice() : startVoice(setReponseRelance2, dureeSilenceRelance2Ref))}
+            ecrireForce={ecrireForce}
+            setEcrireForce={setEcrireForce}
+            onContinuer={submitRelance2}
+            continuerLabel="Terminer la séance →"
+            continuerLoadingLabel="Composition en cours…"
+            loading={loading}
+            silencePhrase={silencePhrase}
+            silenceVisible={silenceVisible}
+            error={error}
+          />
+        )}
+
+        {/* Phase 3 — Rituel de clôture */}
+        {phase === "fragment" && (
+          <div className="space-y-10">
+            <p className="font-sans text-center text-sm text-grege tracking-wider uppercase">
+              Voici ce que cette séance vient de créer
+            </p>
+
+            <div className="bg-papier border-l-2 border-grege pl-8 pr-4 py-6">
+              <p className="font-display text-[19px] leading-[1.85] text-encre whitespace-pre-line">
+                {fragment}
+              </p>
+            </div>
+
+            <div className="text-center space-y-6">
+              <p className="font-serif text-lg text-grege italic">
+                Il reste toute une vie à raconter.
+              </p>
+
+              {statutFragment === "brouillon" ? (
+                <div className="space-y-2">
+                  <p className="font-sans text-sm text-grege">Est-ce que ça vous ressemble ?</p>
+                  <div className="flex gap-3 justify-center flex-wrap">
+                    <button
+                      onClick={() => marquerFragment("valide")}
+                      className="border border-grege text-encre font-sans text-sm px-5 py-2 hover:border-petrole transition-colors"
+                    >
+                      Ça me ressemble
+                    </button>
+                    <button
+                      onClick={() => marquerFragment("a_revoir")}
+                      className="border border-grege text-encre font-sans text-sm px-5 py-2 hover:border-amber-700 transition-colors"
+                    >
+                      À revoir
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="font-sans text-sm text-petrole">
+                  {statutFragment === "valide"
+                    ? "Noté — vous pourrez toujours le relire et le corriger depuis votre parcours."
+                    : "Noté — retrouvez-le dans votre parcours pour le corriger ou le recomposer."}
+                </p>
+              )}
+
+              <div className="flex gap-3 justify-center flex-wrap">
+                <button
+                  onClick={copierFragment}
+                  className="border border-grege text-encre font-sans text-sm px-6 py-3 hover:border-grege transition-colors"
+                >
+                  {copie ? "Copié ✓" : "Copier le texte"}
+                </button>
+                <a
+                  href="/tableau-de-bord"
+                  className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-base px-8 py-3 hover:bg-[#3A3632] transition-colors"
+                >
+                  Retour à mon parcours →
+                </a>
+              </div>
+
+              <p className="font-sans text-xs text-grege max-w-md mx-auto">
+                Cette séance est enregistrée dans votre parcours.
+              </p>
+              {error && <p className="font-sans text-sm text-red-700">{error}</p>}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
