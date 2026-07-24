@@ -12,7 +12,7 @@ export default async function TableauDeBord() {
 
   const { data: fragments } = await supabase
     .from("fragments")
-    .select("id, texte, statut, created_at")
+    .select("id, texte, statut, created_at, session:sessions(question_ouverture)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
@@ -89,19 +89,23 @@ export default async function TableauDeBord() {
                 Relisez à tout moment ce que vos séances ont déjà écrit.
               </p>
               <div className="space-y-4">
-                {fragments?.map((f) => (
-                  <FragmentCard
-                    key={f.id}
-                    id={f.id}
-                    texteInitial={f.texte}
-                    statutInitial={f.statut}
-                    date={new Date(f.created_at).toLocaleDateString("fr-FR", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  />
-                ))}
+                {fragments?.map((f) => {
+                  const session = Array.isArray(f.session) ? f.session[0] : f.session
+                  return (
+                    <FragmentCard
+                      key={f.id}
+                      id={f.id}
+                      texteInitial={f.texte}
+                      statutInitial={f.statut}
+                      questionInitiale={session?.question_ouverture ?? null}
+                      date={new Date(f.created_at).toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    />
+                  )
+                })}
               </div>
             </div>
           </div>

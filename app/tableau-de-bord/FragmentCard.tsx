@@ -10,11 +10,13 @@ export default function FragmentCard({
   id,
   texteInitial,
   statutInitial,
+  questionInitiale,
   date,
 }: {
   id: string;
   texteInitial: string;
   statutInitial: string;
+  questionInitiale?: string | null;
   date: string;
 }) {
   const [texte, setTexte] = useState(texteInitial);
@@ -148,6 +150,10 @@ export default function FragmentCard({
           <span className="font-sans text-xs text-amber-700">À revoir</span>
         )}
       </div>
+
+      {questionInitiale && (
+        <p className="font-display italic text-sm text-grege">{questionInitiale}</p>
+      )}
 
       {enEdition ? (
         <textarea
