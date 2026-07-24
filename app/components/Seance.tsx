@@ -24,9 +24,26 @@ const PHRASES_SILENCE = [
 
 const HAUTEURS_ONDE_GRANDE = [10, 22, 34, 48, 30, 44, 20, 38, 52, 28, 42, 16, 36, 24, 46, 18];
 
-function IconeMicro() {
+// Invitation plutôt qu'interrogation — retour du Révélateur du 24 juillet :
+// "il manque LE détail qui fera que les gens oublieront qu'ils parlent à une
+// IA". Choisie une fois par écran, pas recalculée à chaque rendu.
+const INVITATIONS = [
+  "Prenons quelques minutes pour retrouver ce souvenir.",
+  "Je vais simplement vous écouter.",
+  "Laissez venir ce qui vous vient, sans vous presser.",
+];
+
+function IconeMicro({ souffle = false, className = "w-8 h-8" }: { souffle?: boolean; className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`${className} ${souffle ? "btn-icone-souffle" : ""}`}
+    >
       <path d="M12 15a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 0 0-7 0v5.5A3.5 3.5 0 0 0 12 15Z" />
       <path d="M6.5 11.2V12a5.5 5.5 0 0 0 11 0v-.8" />
       <path d="M12 17.5V21" />
@@ -136,12 +153,13 @@ function ZoneEcoute({
   error: string;
 }) {
   const montrerTexte = ecrireForce || valeur.trim().length > 0;
+  const [invitation] = useState(() => INVITATIONS[Math.floor(Math.random() * INVITATIONS.length)]);
 
   return (
-    <div className="stage min-h-[58vh] flex items-center justify-center px-6 py-16">
+    <div className={`stage min-h-[58vh] flex items-center justify-center px-6 py-16 ${isRecording ? "stage--recording" : ""}`}>
       <div className="stage-photo" aria-hidden="true" />
       <div className="stage-photo-veil" aria-hidden="true" />
-      <div className="stage-inner max-w-xl w-full text-center space-y-8">
+      <div className="stage-inner max-w-xl w-full text-center space-y-10">
         <div>
           <p className="stage-fade-in font-sans text-xs font-medium text-grege uppercase tracking-widest">{eyebrow}</p>
           <div className="stage-fade-in mt-4" style={{ animationDelay: "0.08s" }}>
@@ -150,7 +168,7 @@ function ZoneEcoute({
         </div>
 
         {!montrerTexte ? (
-          <div className="stage-fade-in space-y-6" style={{ animationDelay: "0.18s" }}>
+          <div className="stage-fade-in mt-16 space-y-7" style={{ animationDelay: "0.18s" }}>
             <div
               className={`mic-ring w-20 h-20 mx-auto rounded-full bg-blanc border flex items-center justify-center shadow-[0_1px_2px_rgba(36,34,32,0.06),0_8px_24px_-12px_rgba(36,34,32,0.2)] ${
                 isRecording ? "mic-ring--recording border-petrole text-petrole" : "border-sauge text-petrole"
@@ -159,28 +177,32 @@ function ZoneEcoute({
               <IconeMicro />
             </div>
 
-            <div>
-              <p className="font-display italic text-xl text-petrole">
-                {isRecording ? "Je vous écoute." : transcribing ? "Un instant, je transcris…" : "Je vous écoute."}
-              </p>
-              {!isRecording && !transcribing && (
-                <p className="font-serif text-lg text-encre mt-1.5">Prenez votre temps.</p>
-              )}
-            </div>
-
-            {isRecording && <PanneauEnregistrement duree={dureeEnregistrement} />}
+            {isRecording ? (
+              <div className="space-y-5">
+                <p className="font-display italic text-xl text-petrole">Je vous écoute.</p>
+                <PanneauEnregistrement duree={dureeEnregistrement} />
+              </div>
+            ) : transcribing ? (
+              <p className="font-display italic text-xl text-petrole">Un instant, je transcris…</p>
+            ) : (
+              <p className="font-serif text-lg text-encre max-w-sm mx-auto">{invitation}</p>
+            )}
 
             <p className={`font-serif italic text-sm text-ambre min-h-[1.4em] silence-phrase ${silenceVisible ? "silence-phrase--visible" : ""}`}>
               {silencePhrase}
             </p>
 
-            <div className="flex flex-col items-center gap-3">
+            <div className="flex flex-col items-center gap-3 pt-2">
               <button
                 onClick={onToggleVoice}
                 disabled={transcribing}
-                className="inline-flex items-center gap-2.5 rounded-full bg-petrole text-blanc font-sans font-medium text-[15px] px-8 py-3.5 shadow-[0_1px_2px_rgba(36,34,32,0.06),0_8px_24px_-12px_rgba(36,34,32,0.2)] hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                className={`inline-flex items-center gap-3 rounded-full font-sans font-medium text-[15px] px-8 py-3.5 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                  isRecording
+                    ? "bg-petrole/10 border-petrole/40 text-petrole"
+                    : "bg-blanc border-sauge text-petrole shadow-[0_1px_2px_rgba(36,34,32,0.05),0_6px_18px_-10px_rgba(36,34,32,0.25)] hover:border-petrole/50"
+                }`}
               >
-                {isRecording && <span className="rec-dot" />}
+                {isRecording ? <span className="rec-dot" /> : <IconeMicro souffle className="w-4 h-4" />}
                 {isRecording ? "Terminer la séance" : transcribing ? "Transcription…" : "Commencer à parler"}
               </button>
               {!isRecording && (

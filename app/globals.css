@@ -70,9 +70,12 @@ body {
   }
 }
 
-/* Scène de séance (refonte du 24 juillet 2026) — photo d'ambiance dans la
-   zone d'enregistrement/d'écoute uniquement, jamais sur la page d'accueil
-   (déjà utilisée là en petit format dans "Objets de mémoire"). */
+/* Scène de séance (refonte du 24 juillet 2026, affinée le 24 juillet suite
+   au retour du Révélateur) — photo d'ambiance dans la zone d'enregistrement/
+   d'écoute uniquement, jamais sur la page d'accueil (déjà utilisée là en
+   petit format dans "Objets de mémoire"). Recadrée et zoomée pour que le
+   téléphone (bas-gauche de la photo source) sorte quasiment du cadre visible
+   — on garde la fenêtre et la silhouette, pas l'objet. */
 .stage {
   position: relative;
   overflow: hidden;
@@ -83,20 +86,34 @@ body {
   position: absolute;
   inset: 0;
   background-image: url(/objet-2-laseance.webp);
-  background-size: contain;
+  background-size: 190%;
   background-repeat: no-repeat;
-  background-position: 50% 42%;
-  filter: blur(12px) saturate(0.9);
-  opacity: 0.85;
+  background-position: 68% 12%;
+  filter: blur(5px) saturate(0.55);
+  opacity: 0.26;
   pointer-events: none;
+  transition: opacity 1s ease, filter 1s ease;
 }
 
 .stage-photo-veil {
   position: absolute;
   inset: 0;
   background: #FAF8F3;
-  opacity: 0.3;
+  opacity: 0.45;
   pointer-events: none;
+  transition: opacity 1s ease;
+}
+
+/* Pendant l'enregistrement, l'image doit s'effacer au profit du souvenir —
+   pas au profit de l'écran. Le fond devient presque blanc, l'interface
+   s'efface plutôt que de retenir l'attention. */
+.stage--recording .stage-photo {
+  opacity: 0.08;
+  filter: blur(26px) saturate(0.4);
+}
+
+.stage--recording .stage-photo-veil {
+  opacity: 0.8;
 }
 
 .stage-inner {
@@ -113,6 +130,14 @@ body {
   animation: stage-rise 0.6s ease-out forwards;
 }
 
+/* Souffle permanent, très lent, autour du micro — présent même au repos
+   (pas seulement en enregistrement) pour que l'interface paraisse vivante,
+   à la manière de Siri. */
+@keyframes mic-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.08); opacity: 0.9; }
+}
+
 .mic-ring {
   position: relative;
   transition: border-color 0.4s ease;
@@ -124,7 +149,8 @@ body {
   inset: -10px;
   border-radius: 9999px;
   border: 1px solid rgba(31, 75, 76, 0.16);
-  opacity: 0;
+  opacity: 0.5;
+  animation: mic-breathe 4.5s ease-in-out infinite;
 }
 
 .mic-ring--recording::before {
@@ -135,6 +161,18 @@ body {
 @keyframes mic-pulse-ring {
   0% { transform: scale(0.94); opacity: 0.55; }
   100% { transform: scale(1.35); opacity: 0; }
+}
+
+/* Icône micro discrètement animée dans le bouton principal — respire au
+   même rythme que l'anneau, pour donner l'impression que l'interface
+   "écoute" déjà avant même d'appuyer. */
+@keyframes mic-icon-breathe {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.btn-icone-souffle {
+  animation: mic-icon-breathe 3.2s ease-in-out infinite;
 }
 
 .rec-dot {
@@ -161,6 +199,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .stage-fade-in { animation: none; opacity: 1; }
+  .mic-ring::before { animation: none; }
   .mic-ring--recording::before { animation: none; }
+  .btn-icone-souffle { animation: none; }
   .rec-dot { animation: none; }
 }
