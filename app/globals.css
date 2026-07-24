@@ -215,10 +215,10 @@ body {
 .btn-ecoute::before {
   content: '';
   position: absolute;
-  inset: -18px;
+  inset: -26px;
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(31, 75, 76, 0.2), transparent 70%);
-  opacity: 0.55;
+  background: radial-gradient(circle, rgba(31, 75, 76, 0.34) 0%, rgba(31, 75, 76, 0.34) 38%, transparent 66%);
+  opacity: 0.8;
   animation: btn-halo-breathe 3.6s ease-in-out infinite;
   pointer-events: none;
   z-index: -1;
@@ -230,8 +230,8 @@ body {
 }
 
 @keyframes btn-halo-breathe {
-  0%, 100% { transform: scale(0.9); opacity: 0.4; }
-  50% { transform: scale(1.2); opacity: 0.75; }
+  0%, 100% { transform: scale(0.85); opacity: 0.55; }
+  50% { transform: scale(1.4); opacity: 1; }
 }
 
 @keyframes btn-halo-breathe-hover {
