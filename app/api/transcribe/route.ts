@@ -1,5 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 
+type SegmentGroq = {
+  start: number;
+  text: string;
+  no_speech_prob?: number;
+  compression_ratio?: number;
+};
+
+// Seuils empiriques usuels (whisper.cpp / faster-whisper) pour repérer les
+// segments hallucinés par Whisper sur du silence prolongé à l'intérieur d'un
+// même enregistrement continu (push-to-talk, pas de VAD en direct) : forte
+// probabilité de "pas de parole" (no_speech_prob) ou texte répétitif en
+// boucle (compression_ratio élevé). Filtrage volontairement conservateur —
+// mieux vaut garder un segment ambigu que couper un vrai bout de récit.
+const SEUIL_NO_SPEECH = 0.6;
+const SEUIL_COMPRESSION = 2.4;
+
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const audio = formData.get("audio") as Blob | null;
@@ -30,12 +46,25 @@ export async function POST(req: NextRequest) {
   }
 
   const data = await res.json();
+  const segments = data.segments as SegmentGroq[] | undefined;
 
   // Silence avant le premier mot prononcé — signal doux d'hésitation
   // (l'enregistrement est en push-to-talk : ce délai reflète le temps de
   // réflexion avant de répondre, pas du bruit ambiant).
-  const segments = data.segments as { start: number }[] | undefined;
   const dureeSilenceMs = segments?.length ? Math.round(segments[0].start * 1000) : null;
 
-  return NextResponse.json({ text: data.text, duree_silence_ms: dureeSilenceMs });
+  // Reconstruit le texte à partir des segments jugés fiables plutôt que du
+  // texte brut de Whisper — filtre les passages hallucinés sur un silence
+  // prolongé en cours d'enregistrement. Repli sur le texte brut si le
+  // filtrage viderait tout (mieux vaut un risque d'hallucination que de
+  // renvoyer un texte vide au narrateur).
+  const texteFiltre = segments?.length
+    ? segments
+        .filter((s) => (s.no_speech_prob ?? 0) < SEUIL_NO_SPEECH && (s.compression_ratio ?? 0) < SEUIL_COMPRESSION)
+        .map((s) => s.text.trim())
+        .filter(Boolean)
+        .join(" ")
+    : "";
+
+  return NextResponse.json({ text: texteFiltre || data.text, duree_silence_ms: dureeSilenceMs });
 }
