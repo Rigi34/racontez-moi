@@ -145,6 +145,7 @@ function ZoneEcoute({
   silenceVisible,
   pourcentageCouverture,
   error,
+  onPasser,
 }: {
   eyebrow: string;
   question: ReactNode;
@@ -165,6 +166,10 @@ function ZoneEcoute({
   silenceVisible: boolean;
   pourcentageCouverture: number;
   error: string;
+  // "Jamais forcer" — n'apparaît que sur la question d'ouverture (pas les
+  // relances, qui sont déjà des suites personnalisées de ce que la personne
+  // vient de dire, pas une question de la banque qu'on pourrait éviter).
+  onPasser?: () => void;
 }) {
   const montrerTexte = ecrireForce || valeur.trim().length > 0;
   const [invitation] = useState(() => INVITATIONS[Math.floor(Math.random() * INVITATIONS.length)]);
@@ -229,12 +234,20 @@ function ZoneEcoute({
                 {isRecording ? <span className="rec-dot" /> : <IconeMicro souffle className="w-4 h-4" />}
                 {isRecording ? "Terminer la séance" : transcribing ? "Transcription…" : "Commencer à parler"}
               </button>
-              {!isRecording && (
+              {!isRecording && !transcribing && (
                 <button
                   onClick={() => setEcrireForce(true)}
                   className="font-sans text-[15px] text-encre underline decoration-sauge underline-offset-4 hover:decoration-grege transition-colors"
                 >
                   ou écrire à la place
+                </button>
+              )}
+              {onPasser && !isRecording && !transcribing && (
+                <button
+                  onClick={onPasser}
+                  className="font-sans text-xs text-grege hover:text-encre transition-colors"
+                >
+                  Passer cette question
                 </button>
               )}
             </div>
@@ -441,6 +454,31 @@ export default function Seance() {
   const reprendreSeance = () => {
     setEcrireForce(false);
     setPhase(phaseApresReprise);
+  };
+
+  const passerQuestion = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/seance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ step: "passer", session_id: sessionId }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setSessionId(data.session_id);
+      setQuestion(data.question ?? QUESTION_INITIALE_REPLI);
+      setTitreSection(data.titre_section ?? TITRE_SECTION_REPLI);
+      setPagesEstimees(data.progression?.pagesEstimees ?? null);
+      setPourcentageCouverture(data.progression?.pourcentageCouverture ?? 0);
+      setReponse("");
+      setEcrireForce(false);
+    } catch {
+      setError("Une erreur s'est produite. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const recommencerSeance = async () => {
@@ -664,6 +702,7 @@ export default function Seance() {
             silenceVisible={silenceVisible}
             pourcentageCouverture={pourcentageCouverture}
             error={error}
+            onPasser={passerQuestion}
           />
         )}
 

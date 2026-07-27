@@ -9,17 +9,61 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const SECTIONS_APRES_OUVERTURE = ["B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"];
 
+// Nombre de questions visées par section avant de considérer une section
+// comme "faite" et de passer à la suivante (1 question nucléaire [N] + 3 de
+// contexte) — cf. étude de cadence du 26/07/2026. Valeur fixe et unique,
+// volontairement indépendante de toute durée de parcours choisie (aucune
+// durée n'est imposée à l'entrée) : dénominateur connu d'avance, sert aussi
+// au calcul de progression (lib/progression.ts).
+export const QUESTIONS_CIBLE_PAR_SECTION = 4;
+
 export type QuestionBanque = { numero: number; section: string; titre_section: string; texte: string };
+
+// Questions distinctes déjà posées par section, dérivées de l'historique
+// réel des séances (sessions.section_ouverture/question_ouverture) plutôt
+// que d'un compteur séparé à maintenir en double — une seule source de
+// vérité, réutilisée pour choisir la prochaine section ET pour la
+// progression affichée au narrateur.
+export async function questionsDistinctesParSection(
+  supabase: SupabaseClient,
+  userId: string,
+  options?: { statuts?: string[] }
+): Promise<Map<string, Set<string>>> {
+  let query = supabase
+    .from("sessions")
+    .select("section_ouverture, question_ouverture")
+    .eq("user_id", userId)
+    .not("section_ouverture", "is", null);
+  if (options?.statuts) query = query.in("status", options.statuts);
+  const { data } = await query;
+
+  const parSection = new Map<string, Set<string>>();
+  for (const s of data ?? []) {
+    if (!s.section_ouverture || !s.question_ouverture) continue;
+    const ensemble = parSection.get(s.section_ouverture) ?? new Set<string>();
+    ensemble.add(s.question_ouverture);
+    parSection.set(s.section_ouverture, ensemble);
+  }
+  return parSection;
+}
 
 export async function prochaineQuestionBanque(
   supabase: SupabaseClient,
-  sectionsCouvertes: string[]
+  userId: string
 ): Promise<QuestionBanque | null> {
+  // Toutes les séances (y compris passées/abandonnées) comptent ici, pour ne
+  // pas reproposer immédiatement la même question dans une section — mais
+  // pas pour la progression (cf. lib/progression.ts, qui ne garde que les
+  // séances "completed").
+  const parSection = await questionsDistinctesParSection(supabase, userId);
+
   const prochaineSection =
-    SECTIONS_APRES_OUVERTURE.find((s) => !sectionsCouvertes.includes(s)) ??
-    // Toutes les sections déjà couvertes au moins une fois (narrateur très
-    // engagé) : on recommence le cycle plutôt que de ne plus rien proposer.
+    SECTIONS_APRES_OUVERTURE.find((s) => (parSection.get(s)?.size ?? 0) < QUESTIONS_CIBLE_PAR_SECTION) ??
+    // Toutes les sections ont atteint leur quota (narrateur très engagé) :
+    // on repart pour un nouveau tour plutôt que de ne plus rien proposer.
     SECTIONS_APRES_OUVERTURE[0];
+
+  const dejaPosees = parSection.get(prochaineSection) ?? new Set<string>();
 
   const { data } = await supabase
     .from("banque_questions")
@@ -29,7 +73,12 @@ export async function prochaineQuestionBanque(
 
   if (!data?.length) return null;
 
-  const choisie = data[Math.floor(Math.random() * data.length)];
+  // Évite de reposer une question déjà posée dans cette section tant que
+  // toutes n'ont pas été utilisées au moins une fois.
+  const candidates = data.filter((q) => !dejaPosees.has(q.texte));
+  const pool = candidates.length ? candidates : data;
+
+  const choisie = pool[Math.floor(Math.random() * pool.length)];
   return { numero: choisie.numero, section: choisie.section, titre_section: choisie.titre_section, texte: choisie.texte };
 }
 

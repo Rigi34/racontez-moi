@@ -8,28 +8,35 @@
 // ne jamais la faire passer pour un décompte définitif.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { lireProfil } from "./profil-narrateur";
-import { SECTIONS_APRES_OUVERTURE } from "./banque-questions";
+import { SECTIONS_APRES_OUVERTURE, QUESTIONS_CIBLE_PAR_SECTION, questionsDistinctesParSection } from "./banque-questions";
 
 const MOTS_PAR_PAGE = 300;
 
 export type Progression = {
   pagesEstimees: number;
-  pourcentageCouverture: number; // 0-100, part du cycle de 16 sections déjà couverte
+  // 0-100 — moyenne, sur les 16 sections, de l'avancement fractionnel de
+  // chacune (questions distinctes posées / QUESTIONS_CIBLE_PAR_SECTION,
+  // plafonné à 1) plutôt qu'une couverture binaire section faite/pas faite
+  // (décision du 26/07/2026, suite à la revue de Claude Pro : avance à
+  // chaque séance plutôt que par paliers de 1/16).
+  pourcentageCouverture: number;
 };
 
 export async function calculerProgression(supabase: SupabaseClient, userId: string): Promise<Progression> {
-  const [{ data: fragments }, profil] = await Promise.all([
+  const [{ data: fragments }, parSection] = await Promise.all([
     supabase.from("fragments").select("texte").eq("user_id", userId).neq("statut", "a_revoir"),
-    lireProfil(supabase, userId),
+    questionsDistinctesParSection(supabase, userId, { statuts: ["completed"] }),
   ]);
 
   const nombreMots = (fragments ?? []).reduce((total, f) => total + f.texte.trim().split(/\s+/).filter(Boolean).length, 0);
   const pagesEstimees = Math.max(1, Math.round(nombreMots / MOTS_PAR_PAGE));
 
-  const pourcentageCouverture = Math.round(
-    (Math.min(profil.sections_couvertes.length, SECTIONS_APRES_OUVERTURE.length) / SECTIONS_APRES_OUVERTURE.length) * 100
-  );
+  const avancementTotal = SECTIONS_APRES_OUVERTURE.reduce((total, section) => {
+    const nombreQuestions = parSection.get(section)?.size ?? 0;
+    return total + Math.min(nombreQuestions, QUESTIONS_CIBLE_PAR_SECTION) / QUESTIONS_CIBLE_PAR_SECTION;
+  }, 0);
+
+  const pourcentageCouverture = Math.round((avancementTotal / SECTIONS_APRES_OUVERTURE.length) * 100);
 
   return { pagesEstimees, pourcentageCouverture };
 }

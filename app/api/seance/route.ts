@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { QUESTION_INITIALE, construireSystemRelance } from "@/lib/prompts";
 import { embedText } from "@/lib/embeddings";
 import { retrieverTechniques } from "@/lib/retrieval";
-import { lireProfil, resumerProfilPourPrompt, mettreAJourProfil, marquerSectionCouverte } from "@/lib/profil-narrateur";
+import { lireProfil, resumerProfilPourPrompt, mettreAJourProfil } from "@/lib/profil-narrateur";
 import { prochaineQuestionBanque, titreSection, TITRE_SECTION_A } from "@/lib/banque-questions";
 import { composerFragment, genererResumeSession } from "@/lib/redaction";
 import { calculerProgression } from "@/lib/progression";
@@ -12,6 +12,28 @@ import { calculerProgression } from "@/lib/progression";
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 type TranscriptEntry = { role: string; text: string };
+
+// Question fixe pour la toute première séance d'un narrateur (aucun
+// fragment produit jusqu'ici, thématiquement section A) ; au-delà,
+// sélection adaptative dans la banque de 205 questions (sections B à Q,
+// cf. lib/banque-questions.ts) — partagé entre "start" (nouvelle séance) et
+// "passer" (question actuelle abandonnée sans réponse).
+async function choisirQuestionOuverture(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
+  const { count: nombreFragments } = await supabase
+    .from("fragments")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
+
+  if ((nombreFragments ?? 0) === 0) {
+    return { question: QUESTION_INITIALE, sectionOuverture: null as string | null, titreSectionOuverture: TITRE_SECTION_A };
+  }
+
+  const pick = await prochaineQuestionBanque(supabase, userId);
+  if (!pick) {
+    return { question: QUESTION_INITIALE, sectionOuverture: null as string | null, titreSectionOuverture: TITRE_SECTION_A };
+  }
+  return { question: pick.texte, sectionOuverture: pick.section, titreSectionOuverture: pick.titre_section };
+}
 
 export async function GET() {
   const supabase = await createClient();
@@ -88,30 +110,7 @@ export async function POST(req: NextRequest) {
         .eq("id", existing.id);
     }
 
-    // La question fixe ne sert qu'à la toute première séance d'un narrateur
-    // (aucun fragment produit jusqu'ici, thématiquement section A de la
-    // banque). Au-delà, question d'ouverture sélectionnée dans la banque de
-    // 205 questions (chapitre 6, étude HÉRITAGE 2026) — sélection adaptative
-    // sur les sections B à Q selon ce qui a déjà été couvert, plutôt qu'une
-    // administration linéaire ou une génération 100% dynamique (décision du
-    // 22 juillet 2026).
-    const { count: nombreFragments } = await supabase
-      .from("fragments")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id);
-
-    let question = QUESTION_INITIALE;
-    let sectionOuverture: string | null = null;
-    let titreSectionOuverture: string = TITRE_SECTION_A;
-    if ((nombreFragments ?? 0) > 0) {
-      const profil = await lireProfil(supabase, user.id);
-      const pick = await prochaineQuestionBanque(supabase, profil.sections_couvertes);
-      if (pick) {
-        question = pick.texte;
-        sectionOuverture = pick.section;
-        titreSectionOuverture = pick.titre_section;
-      }
-    }
+    const { question, sectionOuverture, titreSectionOuverture } = await choisirQuestionOuverture(supabase, user.id);
 
     const { data: created, error } = await supabase
       .from("sessions")
@@ -121,6 +120,37 @@ export async function POST(req: NextRequest) {
 
     if (error || !created) {
       return NextResponse.json({ error: "Impossible de démarrer la séance." }, { status: 500 });
+    }
+    const progression = await calculerProgression(supabase, user.id);
+    return NextResponse.json({ session_id: created.id, question, titre_section: titreSectionOuverture, progression });
+  }
+
+  // "Jamais forcer" (cf. FAQ) : abandonne la question d'ouverture en cours
+  // sans relance ni fragment, et en propose aussitôt une autre. Marquée
+  // "passee" (pas "completed") pour ne jamais compter dans la progression,
+  // tout en restant connue de prochaineQuestionBanque pour ne pas la
+  // reproposer immédiatement dans la même section.
+  if (step === "passer") {
+    const { session_id } = body;
+    if (session_id) {
+      await supabase
+        .from("sessions")
+        .update({ status: "passee", ended_at: new Date().toISOString() })
+        .eq("id", session_id)
+        .eq("user_id", user.id)
+        .eq("status", "in_progress");
+    }
+
+    const { question, sectionOuverture, titreSectionOuverture } = await choisirQuestionOuverture(supabase, user.id);
+
+    const { data: created, error } = await supabase
+      .from("sessions")
+      .insert({ user_id: user.id, question_ouverture: question, section_ouverture: sectionOuverture })
+      .select("id")
+      .single();
+
+    if (error || !created) {
+      return NextResponse.json({ error: "Impossible de passer à une autre question." }, { status: 500 });
     }
     const progression = await calculerProgression(supabase, user.id);
     return NextResponse.json({ session_id: created.id, question, titre_section: titreSectionOuverture, progression });
@@ -375,11 +405,6 @@ export async function POST(req: NextRequest) {
       await mettreAJourProfil(supabase, user.id, `${reponse}\n${reponseRelance}\n${reponseRelance2}\n${fragment}`).catch((e) =>
         console.error("mise à jour profil narrateur échouée:", e)
       );
-      if (session.section_ouverture) {
-        await marquerSectionCouverte(supabase, user.id, session.section_ouverture).catch((e) =>
-          console.error("marquerSectionCouverte échouée:", e)
-        );
-      }
     });
 
     return NextResponse.json({ fragment, fragment_id: fragmentCree?.id ?? null });
