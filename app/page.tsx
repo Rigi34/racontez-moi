@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import PremièreQuestion from "./components/PremièreQuestion";
+import Seance from "./components/Seance";
 import FAQAccordion from "./components/FAQAccordion";
 
 // Niveau 1 (accueil) : uniquement les questions qui lèvent un frein direct à
@@ -317,14 +317,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── MODULE LA PREMIÈRE QUESTION ─────────────────────────────── */}
-      <section id="premiere-question" className="bg-papier py-20 px-6">
-        <div className="max-w-2xl mx-auto">
-          <p className="font-sans text-center text-grege text-sm tracking-widest uppercase mb-12">
-            Ne nous croyez pas sur parole. Répondez à une question.
-          </p>
-          <PremièreQuestion />
-        </div>
+      {/* ─── SÉANCE GRATUITE INTÉGRÉE ─────────────────────────────────── */}
+      <section id="premiere-question" className="bg-papier py-20">
+        <p className="font-sans text-center text-grege text-sm tracking-widest uppercase mb-8 px-6">
+          Ne nous croyez pas sur parole. Faites une vraie séance, gratuitement.
+        </p>
+        <Seance modeInvite />
       </section>
 
       {/* ─── FOOTER ───────────────────────────────────────────────────── */}

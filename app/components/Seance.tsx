@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect, Dispatch, SetStateAction, ReactNode } from "react";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/client";
 
 type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment";
 
@@ -92,19 +93,28 @@ function BarreProgression({
   titreSection,
   pagesEstimees,
   pourcentageCouverture,
+  modeInvite,
 }: {
   titreSection: string | null;
   pagesEstimees: number | null;
   pourcentageCouverture: number;
+  modeInvite?: boolean;
 }) {
   return (
-    <header className="sticky top-0 z-20 bg-papier/90 backdrop-blur-sm border-b border-sauge/50">
+    <header
+      className={`${modeInvite ? "" : "sticky top-0 z-20"} bg-papier/90 backdrop-blur-sm border-b border-sauge/50`}
+    >
       <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
         <div className="flex items-baseline gap-4">
           <span className="font-display italic text-petrole text-lg whitespace-nowrap">Racontez-moi</span>
-          <Link href="/tableau-de-bord" className="font-sans text-xs text-grege hover:text-encre transition-colors whitespace-nowrap">
-            Mon parcours
-          </Link>
+          {/* "Mon parcours" mène au vrai tableau de bord — pas montré avant
+              conversion, pour ne pas exposer une page pensée pour un compte
+              déjà engagé pendant l'essai gratuit. */}
+          {!modeInvite && (
+            <Link href="/tableau-de-bord" className="font-sans text-xs text-grege hover:text-encre transition-colors whitespace-nowrap">
+              Mon parcours
+            </Link>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right leading-tight">
@@ -146,6 +156,7 @@ function ZoneEcoute({
   pourcentageCouverture,
   error,
   onPasser,
+  modeInvite,
 }: {
   eyebrow: string;
   question: ReactNode;
@@ -170,6 +181,10 @@ function ZoneEcoute({
   // relances, qui sont déjà des suites personnalisées de ce que la personne
   // vient de dire, pas une question de la banque qu'on pourrait éviter).
   onPasser?: () => void;
+  // Séance gratuite intégrée en bas de l'accueil (décision du 26/07/2026) —
+  // ajoute la réassurance "sans carte" juste au-dessus du bouton, jamais
+  // affichée dans la vraie séance (déjà payée à ce stade).
+  modeInvite?: boolean;
 }) {
   const montrerTexte = ecrireForce || valeur.trim().length > 0;
   const [invitation] = useState(() => INVITATIONS[Math.floor(Math.random() * INVITATIONS.length)]);
@@ -220,6 +235,12 @@ function ZoneEcoute({
                   Parlez simplement comme vous parleriez à un proche.
                   <br />
                   Je m&apos;occupe du reste.
+                  {modeInvite && (
+                    <>
+                      <br />
+                      Sans carte, sans engagement.
+                    </>
+                  )}
                 </p>
               )}
               <button
@@ -294,7 +315,7 @@ function ZoneEcoute({
   );
 }
 
-export default function Seance() {
+export default function Seance({ modeInvite = false }: { modeInvite?: boolean } = {}) {
   const [phase, setPhase] = useState<Phase>("chargement");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [question, setQuestion] = useState(QUESTION_INITIALE_REPLI);
@@ -333,6 +354,23 @@ export default function Seance() {
 
   useEffect(() => {
     (async () => {
+      // Séance gratuite intégrée en bas de l'accueil (décision du
+      // 26/07/2026) : aucun compte requis avant de commencer — une session
+      // Supabase anonyme est ouverte en silence au premier chargement, avec
+      // le même user_id conservé si elle se convertit en compte réel au
+      // moment du paiement (cf. bouton "Continuer mon histoire" plus bas).
+      if (modeInvite) {
+        const supabase = createClient();
+        const { data: { session: sessionAuth } } = await supabase.auth.getSession();
+        if (!sessionAuth) {
+          const { error: erreurAnonyme } = await supabase.auth.signInAnonymously();
+          if (erreurAnonyme) {
+            setError("Impossible de démarrer la séance gratuite. Veuillez réessayer.");
+            setPhase("question");
+            return;
+          }
+        }
+      }
       try {
         const res = await fetch("/api/seance");
         const data = await res.json();
@@ -383,7 +421,7 @@ export default function Seance() {
         setPhase("question");
       }
     })();
-  }, []);
+  }, [modeInvite]);
 
   // Phrase de silence : purement décorative (minuteur, pas de vraie
   // détection audio) — apparaît une fois, ~6s après le début de
@@ -610,6 +648,27 @@ export default function Seance() {
     }
   };
 
+  const [redirectionPaiement, setRedirectionPaiement] = useState(false);
+
+  // Séance gratuite intégrée : "Continuer mon histoire" ouvre directement le
+  // paiement Stripe existant (client_reference_id = user.id, déjà en place
+  // pour les comptes réels) — le user_id anonyme créé au chargement de la
+  // séance devient le même user_id que celui de l'abonnement, sans rien à
+  // migrer.
+  const continuerVersPaiement = async () => {
+    setRedirectionPaiement(true);
+    setError("");
+    try {
+      const res = await fetch("/api/stripe/checkout", { method: "POST" });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      window.location.href = data.url;
+    } catch {
+      setError("Une erreur s'est produite. Veuillez réessayer.");
+      setRedirectionPaiement(false);
+    }
+  };
+
   const marquerFragment = async (statut: "valide" | "a_revoir") => {
     if (!fragmentId) return;
     try {
@@ -638,7 +697,12 @@ export default function Seance() {
   return (
     <div>
       {phase !== "chargement" && (
-        <BarreProgression titreSection={titreSection} pagesEstimees={pagesEstimees} pourcentageCouverture={pourcentageCouverture} />
+        <BarreProgression
+          titreSection={titreSection}
+          pagesEstimees={pagesEstimees}
+          pourcentageCouverture={pourcentageCouverture}
+          modeInvite={modeInvite}
+        />
       )}
 
       <div className="max-w-2xl mx-auto px-6 py-10 space-y-8">
@@ -703,6 +767,7 @@ export default function Seance() {
             pourcentageCouverture={pourcentageCouverture}
             error={error}
             onPasser={passerQuestion}
+            modeInvite={modeInvite}
           />
         )}
 
@@ -807,16 +872,28 @@ export default function Seance() {
                 >
                   {copie ? "Copié ✓" : "Copier le texte"}
                 </button>
-                <a
-                  href="/tableau-de-bord"
-                  className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-base px-8 py-3 hover:bg-[#3A3632] transition-colors"
-                >
-                  Retour à mon parcours →
-                </a>
+                {modeInvite ? (
+                  <button
+                    onClick={continuerVersPaiement}
+                    disabled={redirectionPaiement}
+                    className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-base px-8 py-3 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
+                  >
+                    {redirectionPaiement ? "Un instant…" : "Continuer mon histoire →"}
+                  </button>
+                ) : (
+                  <a
+                    href="/tableau-de-bord"
+                    className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-base px-8 py-3 hover:bg-[#3A3632] transition-colors"
+                  >
+                    Retour à mon parcours →
+                  </a>
+                )}
               </div>
 
               <p className="font-sans text-xs text-grege max-w-md mx-auto">
-                Cette séance est enregistrée dans votre parcours.
+                {modeInvite
+                  ? "Cette séance est déjà enregistrée. Continuez pour garder votre histoire et poursuivre le récit."
+                  : "Cette séance est enregistrée dans votre parcours."}
               </p>
               {error && <p className="font-sans text-sm text-red-700">{error}</p>}
             </div>
