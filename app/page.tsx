@@ -1,5 +1,40 @@
 import Image from "next/image";
+import Link from "next/link";
 import PremièreQuestion from "./components/PremièreQuestion";
+import FAQAccordion from "./components/FAQAccordion";
+
+// Niveau 1 (accueil) : uniquement les questions qui lèvent un frein direct à
+// l'essai gratuit — celles qu'un visiteur hésitant se pose avant de cliquer.
+// Le reste vit sur /fonctionnement (cf. décision du 26/07/2026, retour de
+// Claude Pro sur la structuration en deux niveaux).
+const FAQ_ACCUEIL = [
+  {
+    question: "Combien de temps dure une séance ?",
+    reponse:
+      "30 à 45 minutes environ. Ce n'est jamais chronométré strictement : une réponse en cours n'est jamais coupée pour respecter une limite de temps.",
+  },
+  {
+    question: "Quelle fréquence ?",
+    reponse: "Une à deux séances par semaine, à votre rythme — jamais imposée comme une obligation.",
+  },
+  {
+    question: "Suis-je vraiment écouté ?",
+    reponse:
+      "Chaque séance est transcrite puis composée en récit, jamais résumée en direct pendant que vous parlez. Rien ne vous évalue en temps réel.",
+  },
+  {
+    question: "Puis-je m'arrêter et reprendre plus tard sans tout perdre ?",
+    reponse: "Oui. Chaque réponse est enregistrée dès qu'elle est validée ; vous reprenez exactement là où vous vous étiez arrêté.",
+  },
+  {
+    question: "Dois-je savoir écrire ou avoir un ordinateur ?",
+    reponse: "Non. Tout se fait à la voix, depuis un téléphone. L'écrit reste une option, jamais une obligation.",
+  },
+  {
+    question: "Que se passe-t-il si je ne veux pas répondre à une question ?",
+    reponse: "Vous pouvez la passer simplement, sans justification — une autre vous sera proposée aussitôt.",
+  },
+];
 
 const objetsMemoire = [
   {
@@ -212,6 +247,25 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── FAQ COURTE ──────────────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-papier">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="font-display text-3xl text-encre mb-10 text-center">
+            Vous vous demandez sans doute...
+          </h2>
+          <FAQAccordion items={FAQ_ACCUEIL} />
+          <p className="text-center mt-8 font-sans text-sm text-grege">
+            D&apos;autres questions ?{" "}
+            <Link
+              href="/fonctionnement"
+              className="text-petrole underline decoration-sauge underline-offset-4 hover:decoration-petrole transition-colors"
+            >
+              Voir le fonctionnement en détail →
+            </Link>
+          </p>
+        </div>
+      </section>
+
       {/* ─── RIEN N'EST IMPROVISÉ ────────────────────────────────────── */}
       <section className="py-20 px-6 bg-blanc">
         <div className="max-w-2xl mx-auto">
@@ -285,6 +339,9 @@ export default function Home() {
             </a>
             <a href="/manifeste" className="hover:text-petrole transition-colors">
               Notre histoire
+            </a>
+            <a href="/fonctionnement" className="hover:text-petrole transition-colors">
+              Fonctionnement
             </a>
             <a href="/blog" className="hover:text-petrole transition-colors">
               Journal
