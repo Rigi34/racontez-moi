@@ -159,11 +159,13 @@ body {
 
 /* Souffle permanent, très lent, autour du micro — présent même au repos
    (pas seulement en enregistrement) pour que l'interface paraisse vivante,
-   à la manière de Siri. Halo doux (dégradé, pas de bord tranché), mais bien
-   visible et à l'ondulation ample avant même l'appui sur le bouton. */
+   à la manière de Siri : le halo ne fait pas que grossir/rétrécir, il tourne
+   très lentement sur lui-même (deux teintes de la charte, pétrole + ambre,
+   jamais un arc-en-ciel façon Siri d'origine — reste dans la palette). */
 @keyframes mic-breathe {
-  0%, 100% { transform: scale(1); opacity: 0.55; }
-  50% { transform: scale(1.32); opacity: 1; }
+  0% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+  50% { transform: scale(1.4) rotate(9deg); opacity: 1; }
+  100% { transform: scale(1) rotate(18deg); opacity: 0.7; }
 }
 
 .mic-ring {
@@ -174,10 +176,12 @@ body {
 .mic-ring::before {
   content: '';
   position: absolute;
-  inset: -20px;
+  inset: -24px;
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(31, 75, 76, 0.22), transparent 72%);
-  opacity: 0.55;
+  background:
+    radial-gradient(circle at 32% 38%, rgba(184, 130, 61, 0.32), transparent 58%),
+    radial-gradient(circle, rgba(31, 75, 76, 0.34), transparent 72%);
+  opacity: 0.7;
   animation: mic-breathe 4.5s ease-in-out infinite;
 }
 
@@ -194,8 +198,9 @@ body {
 /* "Comme si quelqu'un attendait tranquillement" — au survol/effleurement du
    bloc micro+bouton, le halo se marque davantage. */
 @keyframes mic-breathe-hover {
-  0%, 100% { transform: scale(1.02); opacity: 0.65; }
-  50% { transform: scale(1.22); opacity: 1; }
+  0% { transform: scale(1.05) rotate(0deg); opacity: 0.8; }
+  50% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+  100% { transform: scale(1.05) rotate(20deg); opacity: 0.8; }
 }
 
 .mic-cta:hover .mic-ring::before,
