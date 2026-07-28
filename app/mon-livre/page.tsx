@@ -5,6 +5,7 @@ import FormulaireAdresse from "./FormulaireAdresse";
 import BoutonCommande from "./BoutonCommande";
 import BoutonPayerLivre from "./BoutonPayerLivre";
 import { compilerInterieur } from "@/lib/manuscrit";
+import { chargerFragmentsAvecPhotos } from "@/lib/photos";
 import { PAGES_MINIMUM_RELIE } from "@/lib/lulu";
 
 export default async function MonLivrePage() {
@@ -12,15 +13,17 @@ export default async function MonLivrePage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in");
 
-  const [{ data: fragments }, { data: adresse }, { data: commande }, { data: abonnement }] = await Promise.all([
-    supabase.from("fragments").select("texte").eq("user_id", user.id).neq("statut", "a_revoir").order("created_at", { ascending: true }),
+  const [fragments, { data: adresse }, { data: commande }, { data: abonnement }] = await Promise.all([
+    chargerFragmentsAvecPhotos(supabase, user.id),
     supabase.from("adresses_livraison").select("nom").eq("user_id", user.id).maybeSingle(),
     supabase.from("commandes_livre").select("statut").eq("user_id", user.id).in("statut", ["en_cours", "confirmee"]).maybeSingle(),
     supabase.from("abonnements").select("livre_paye").eq("user_id", user.id).maybeSingle(),
   ]);
 
-  const nombreFragments = fragments?.length ?? 0;
-  const nombrePages = nombreFragments ? compilerInterieur(fragments!.map((f) => f.texte)).nombrePages : 0;
+  // Le nombre de pages inclut désormais les photos (elles occupent de la
+  // place réelle dans la mise en page) — plus une estimation texte seul.
+  const nombreFragments = fragments.length;
+  const nombrePages = nombreFragments ? compilerInterieur(fragments).nombrePages : 0;
   const assezDePages = nombrePages >= PAGES_MINIMUM_RELIE;
 
   return (

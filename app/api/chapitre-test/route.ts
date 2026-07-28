@@ -11,7 +11,7 @@ export async function GET() {
     const fragmentsAplatis = FRAGMENTS_TEST_CHAPITRE.flatMap((f) =>
       f.split(/\n\n—\n\n/)
     );
-    const corps = assemblerFragments(fragmentsAplatis);
+    const corps = assemblerFragments(fragmentsAplatis.map((texte) => ({ texte, cheminsShadowPhotos: [] })));
     const source = genererSourceTypst(corps, {
       titre: "Chapitre test — Le Parcours",
     });

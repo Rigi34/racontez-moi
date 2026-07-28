@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { compilerInterieur } from "@/lib/manuscrit";
+import { chargerFragmentsAvecPhotos } from "@/lib/photos";
 
 // Assemblage réel du manuscrit — première brique du pipeline complet du
 // livre, nécessaire pour vendre l'offre tout-compris (129€ + livre couleur
@@ -12,20 +13,16 @@ export async function GET() {
 
   // Un fragment marqué "à revoir" n'a pas sa place dans un aperçu
   // d'impression — brouillon/validé passent, seul le rejet explicite du
-  // narrateur exclut un fragment.
-  const { data: fragments } = await supabase
-    .from("fragments")
-    .select("texte")
-    .eq("user_id", user.id)
-    .neq("statut", "a_revoir")
-    .order("created_at", { ascending: true });
+  // narrateur exclut un fragment. chargerFragmentsAvecPhotos exclut déjà
+  // "à revoir" et télécharge les photos associées.
+  const fragments = await chargerFragmentsAvecPhotos(supabase, user.id);
 
-  if (!fragments?.length) {
+  if (!fragments.length) {
     return NextResponse.json({ error: "Aucun fragment à assembler pour l'instant." }, { status: 400 });
   }
 
   try {
-    const { buffer, nombrePages } = compilerInterieur(fragments.map((f) => f.texte));
+    const { buffer, nombrePages } = compilerInterieur(fragments);
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {

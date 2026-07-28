@@ -38,19 +38,41 @@ export function preparerTexte(texte: string): string {
   return typographierFrancais(echapperMarkupTypst(texte));
 }
 
+// Une photo par bloc centré plutôt qu'une grille : la mise en page reste
+// simple et prévisible quel que soit le nombre de photos (1 à 6 par
+// fragment, cf. lib/photos.ts), sans logique de grille à faire tenir dans
+// la largeur utile de la page. 8cm de large — la taille de placement
+// retenue lors de la conception de l'upload (cf. lib/photos.ts).
+function genererBlocPhotos(cheminsShadowPhotos: string[]): string {
+  if (!cheminsShadowPhotos.length) return "";
+  const images = cheminsShadowPhotos
+    .map((chemin) => `#align(center)[#image("${chemin}", width: 8cm)]`)
+    .join("\n#v(0.8em)\n");
+  return `\n#v(1em)\n${images}\n#v(1em)\n`;
+}
+
+export type FragmentPourAssemblage = {
+  texte: string;
+  // Chemins absolus déjà déposés dans le compilateur via mapShadow (cf.
+  // lib/manuscrit.ts) — pas les URLs Supabase Storage, qui ne sont pas
+  // accessibles depuis le compilateur Typst.
+  cheminsShadowPhotos: string[];
+};
+
 // Assemble plusieurs fragments avec un séparateur "—" entre chacun. Chaque séparateur
 // est groupé avec le fragment qui le suit dans un bloc non-sécable (breakable: false) :
 // sans ça, Typst peut laisser le "—" seul en bas de page et faire commencer le fragment
 // sur la page suivante — repéré visuellement dans le premier essai de pagination.
-export function assemblerFragments(fragmentsBruts: string[]): string {
-  return fragmentsBruts
+export function assemblerFragments(fragments: FragmentPourAssemblage[]): string {
+  return fragments
     .map((fragment, i) => {
-      const corpsFragment = fragment
+      const corpsFragment = fragment.texte
         .split("\n\n")
         .map(preparerTexte)
         .join("\n\n");
-      if (i === 0) return corpsFragment;
-      return `#block(above: 2em, below: 1.5em, breakable: false)[\n#align(center)[—]\n#v(1em)\n${corpsFragment}\n]`;
+      const corpsAvecPhotos = corpsFragment + genererBlocPhotos(fragment.cheminsShadowPhotos);
+      if (i === 0) return corpsAvecPhotos;
+      return `#block(above: 2em, below: 1.5em, breakable: false)[\n#align(center)[—]\n#v(1em)\n${corpsAvecPhotos}\n]`;
     })
     .join("\n\n");
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { compilerInterieur, compilerCouverture } from "@/lib/manuscrit";
+import { chargerFragmentsAvecPhotos } from "@/lib/photos";
 import { creerCommandeImpression, PAGES_MINIMUM_RELIE, type AdresseLivraison } from "@/lib/lulu";
 
 // Déclenchement de la vraie commande d'impression — dernière brique du
@@ -34,21 +35,16 @@ export async function POST() {
     return NextResponse.json({ error: "Une commande existe déjà pour ce livre." }, { status: 409 });
   }
 
-  const { data: fragments } = await supabase
-    .from("fragments")
-    .select("texte")
-    .eq("user_id", user.id)
-    .neq("statut", "a_revoir")
-    .order("created_at", { ascending: true });
+  const fragments = await chargerFragmentsAvecPhotos(supabase, user.id);
 
-  if (!fragments?.length) {
+  if (!fragments.length) {
     return NextResponse.json({ error: "Aucun fragment à assembler." }, { status: 400 });
   }
 
   // Contrainte physique du relié (vérifiée en direct auprès de l'API Lulu,
   // pas une supposition) : en dessous de ce seuil de pages, impossible de
   // relier le livre — à vérifier avant de créer une commande, pas après.
-  const { nombrePages: nombrePagesPrevu } = compilerInterieur(fragments.map((f) => f.texte));
+  const { nombrePages: nombrePagesPrevu } = compilerInterieur(fragments);
   if (nombrePagesPrevu < PAGES_MINIMUM_RELIE) {
     return NextResponse.json(
       {
@@ -71,7 +67,7 @@ export async function POST() {
   }
 
   try {
-    const { buffer: interieurBuffer, nombrePages } = compilerInterieur(fragments.map((f) => f.texte));
+    const { buffer: interieurBuffer, nombrePages } = compilerInterieur(fragments);
     const couvertureBuffer = await compilerCouverture(nombrePages);
 
     const dossier = `${user.id}/${commandeCreee.id}`;
