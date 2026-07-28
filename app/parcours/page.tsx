@@ -35,12 +35,12 @@ export default async function ParcoursPage() {
         </div>
 
         <div className="bg-blanc border border-sauge rounded-2xl px-8 py-10 space-y-2">
-          <p className="font-display text-4xl text-encre">129€</p>
-          <p className="font-sans text-sm text-grege">Un seul paiement, aucune mensualité.</p>
+          <p className="font-display text-4xl text-encre">155€</p>
+          <p className="font-sans text-sm text-grege">Un seul paiement, tout compris — aucune mensualité, aucun palier.</p>
         </div>
 
         <p className="font-sans text-sm text-grege">
-          Pas d&apos;engagement caché : vous payez une fois, rien d&apos;autre ne sera jamais prélevé.
+          Pas d&apos;engagement caché, pas de facture surprise selon la longueur de votre récit : vous payez une fois, rien d&apos;autre ne sera jamais prélevé.
         </p>
 
         <div className="text-left space-y-4">
@@ -50,10 +50,8 @@ export default async function ParcoursPage() {
             <li>Une mémoire qui vous suit d&apos;une séance à l&apos;autre — jamais deux fois la même question.</li>
             <li>Vous relisez, vous corrigez, vous validez : le livre reste fidèle à vos mots.</li>
             <li>Votre manuscrit complet en PDF et ebook, à la fin du Parcours.</li>
+            <li>Le livre imprimé et relié couleur, envoyé chez vous — inclus, quelle que soit la longueur de votre récit.</li>
           </ul>
-          <p className="font-sans text-sm text-grege pt-2">
-            Le livre imprimé et relié sera proposé en option séparée, une fois votre Parcours terminé.
-          </p>
         </div>
 
         <BoutonParcours />

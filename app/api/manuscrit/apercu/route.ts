@@ -4,8 +4,8 @@ import { compilerInterieur } from "@/lib/manuscrit";
 import { chargerFragmentsAvecPhotos } from "@/lib/photos";
 
 // Assemblage réel du manuscrit — première brique du pipeline complet du
-// livre, nécessaire pour vendre l'offre tout-compris (129€ + livre couleur
-// relié, ~179€, décidé le 23 juillet après vérification du coût réel Lulu).
+// livre, nécessaire pour l'offre tout-compris à 155€ (décision du 28
+// juillet 2026, prix fixe unique, livre relié couleur inclus).
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

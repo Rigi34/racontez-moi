@@ -174,13 +174,13 @@ export default function OffrirPage() {
               Le Parcours — 2 à 4 mois
             </p>
             <p className="font-sans text-grege text-base mb-6">
-              Entretiens illimités · Fragments enrichis · Manuscrit en PDF et ebook
+              Entretiens illimités · Manuscrit en PDF et ebook · Livre imprimé et relié couleur inclus
             </p>
             <p className="font-display text-4xl text-encre mb-1">
-              129€
+              155€
             </p>
             <p className="font-sans text-sm text-grege mb-6">
-              Un seul paiement, pas de mensualités
+              Un seul paiement, tout compris — même prix quelle que soit la longueur du récit
             </p>
             <a
               href="#"

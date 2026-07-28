@@ -3,7 +3,6 @@ import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import FormulaireAdresse from "./FormulaireAdresse";
 import BoutonCommande from "./BoutonCommande";
-import BoutonPayerLivre from "./BoutonPayerLivre";
 import { compilerInterieur } from "@/lib/manuscrit";
 import { chargerFragmentsAvecPhotos } from "@/lib/photos";
 import { PAGES_MINIMUM_RELIE } from "@/lib/lulu";
@@ -13,11 +12,10 @@ export default async function MonLivrePage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in");
 
-  const [fragments, { data: adresse }, { data: commande }, { data: abonnement }] = await Promise.all([
+  const [fragments, { data: adresse }, { data: commande }] = await Promise.all([
     chargerFragmentsAvecPhotos(supabase, user.id),
     supabase.from("adresses_livraison").select("nom").eq("user_id", user.id).maybeSingle(),
     supabase.from("commandes_livre").select("statut").eq("user_id", user.id).in("statut", ["en_cours", "confirmee"]).maybeSingle(),
-    supabase.from("abonnements").select("livre_paye").eq("user_id", user.id).maybeSingle(),
   ]);
 
   // Le nombre de pages inclut désormais les photos (elles occupent de la
@@ -95,8 +93,6 @@ export default async function MonLivrePage() {
                 <p className="font-sans text-sm text-grege">
                   Votre manuscrit fait {nombrePages} page{nombrePages > 1 ? "s" : ""} pour l&apos;instant — il en faut au moins {PAGES_MINIMUM_RELIE} pour un livre relié. Continuez vos séances, l&apos;impression sera possible dès que vous y serez.
                 </p>
-              ) : !abonnement?.livre_paye ? (
-                <BoutonPayerLivre />
               ) : (
                 <BoutonCommande adresseRemplie={!!adresse} />
               )}
