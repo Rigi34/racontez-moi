@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import FormulaireCadeau from "./FormulaireCadeau";
 
 export const metadata: Metadata = {
   title: "Cadeau Mémoire — Racontez-moi",
@@ -182,16 +183,11 @@ export default function OffrirPage() {
             <p className="font-sans text-sm text-grege mb-6">
               Un seul paiement, tout compris — même prix quelle que soit la longueur du récit
             </p>
-            <a
-              href="#"
-              className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-lg px-8 py-4 hover:bg-[#3A3632] transition-colors"
-            >
-              Offrir le Parcours →
-            </a>
+            <FormulaireCadeau />
           </div>
 
           <p className="font-sans text-sm text-grege">
-            Livré par courriel en quelques minutes — même un 24 décembre au soir.
+            Un certificat à imprimer ou à envoyer arrive aussitôt après le paiement — même un 24 décembre au soir.
           </p>
         </div>
       </section>
