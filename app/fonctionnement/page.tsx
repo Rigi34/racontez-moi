@@ -27,7 +27,12 @@ const FAQ_FONCTIONNEMENT = [
   },
   {
     question: "Puis-je payer en plusieurs fois ?",
-    reponse: "Pas aujourd'hui — un paiement unique, sans palier. C'est une question ouverte, pas encore tranchée.",
+    reponse: "Pas aujourd'hui — un paiement unique de 155€. C'est une question ouverte, pas encore tranchée.",
+  },
+  {
+    question: "Le prix dépend-il du nombre de pages ou de photos de mon livre ?",
+    reponse:
+      "Non, jamais. 155€ couvre les séances illimitées, le manuscrit en PDF et ebook, et le livre imprimé relié couleur — quelle que soit la longueur finale de votre récit. C'est un choix délibéré : beaucoup de services équivalents révèlent un supplément après coup selon le nombre de pages, ce qui pose particulièrement problème pour un achat-cadeau (l'offrant ne connaît pas le prix final). Ici, le prix annoncé au départ est le seul que vous paierez.",
   },
   {
     question: "Pourquoi des séances courtes et fréquentes plutôt que de longues séances espacées ?",
