@@ -337,6 +337,12 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
   const [transcribing, setTranscribing] = useState(false);
   const [dureeEnregistrement, setDureeEnregistrement] = useState(0);
   const [ecrireForce, setEcrireForce] = useState(false);
+  // "Pour qui racontez-vous ?" — question posée une seule fois avant la
+  // toute première vraie question d'un nouveau narrateur (29/07/2026), sans
+  // séance associée : sa réponse suit le circuit normal d'enregistrement/
+  // transcription de la phase "question", mais est envoyée à un step API
+  // dédié plutôt qu'à "relance" (cf. submitReponse).
+  const [estQuestionPourQui, setEstQuestionPourQui] = useState(false);
   const [silencePhrase, setSilencePhrase] = useState("");
   const [silenceVisible, setSilenceVisible] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -405,9 +411,11 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
             });
             if (!startRes.ok) throw new Error();
             const startData = await startRes.json();
+            const estPourQui = startData.type === "pour_qui";
+            setEstQuestionPourQui(estPourQui);
             setSessionId(startData.session_id);
             setQuestion(startData.question ?? QUESTION_INITIALE_REPLI);
-            setTitreSection(startData.titre_section ?? TITRE_SECTION_REPLI);
+            setTitreSection(estPourQui ? null : startData.titre_section ?? TITRE_SECTION_REPLI);
             setPagesEstimees(startData.progression?.pagesEstimees ?? null);
             setPourcentageCouverture(startData.progression?.pourcentageCouverture ?? 0);
           } catch {
@@ -505,6 +513,7 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
+      setEstQuestionPourQui(false);
       setSessionId(data.session_id);
       setQuestion(data.question ?? QUESTION_INITIALE_REPLI);
       setTitreSection(data.titre_section ?? TITRE_SECTION_REPLI);
@@ -554,6 +563,28 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
     setLoading(true);
     setError("");
     try {
+      if (estQuestionPourQui) {
+        // Pas de relance IA pour cette question — juste l'enregistrement de
+        // la réponse, puis enchaînement direct sur la vraie première
+        // question (cf. step "pour_qui", app/api/seance/route.ts).
+        const res = await fetch("/api/seance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ step: "pour_qui", reponse }),
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setEstQuestionPourQui(false);
+        setSessionId(data.session_id);
+        setQuestion(data.question ?? QUESTION_INITIALE_REPLI);
+        setTitreSection(data.titre_section ?? TITRE_SECTION_REPLI);
+        setPagesEstimees(data.progression?.pagesEstimees ?? null);
+        setPourcentageCouverture(data.progression?.pourcentageCouverture ?? 0);
+        setReponse("");
+        setEcrireForce(false);
+        return;
+      }
+
       let currentSessionId = sessionId;
       if (!currentSessionId) {
         const startRes = await fetch("/api/seance", {

@@ -22,6 +22,25 @@ const PROFIL_DEFAUT: ProfilNarrateur = {
   sujets_esquives: [],
 };
 
+// "Pour qui racontez-vous ?" — posée une seule fois, avant la toute première
+// question d'un nouveau narrateur (cf. app/api/seance/route.ts). null tant
+// que la question n'a pas encore été posée, distinct d'une chaîne vide.
+export async function lirePourQui(supabase: SupabaseClient, userId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("profil_narrateur")
+    .select("pour_qui")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return data?.pour_qui ?? null;
+}
+
+export async function enregistrerPourQui(supabase: SupabaseClient, userId: string, reponse: string): Promise<void> {
+  await supabase.from("profil_narrateur").upsert(
+    { user_id: userId, pour_qui: reponse, updated_at: new Date().toISOString() },
+    { onConflict: "user_id" }
+  );
+}
+
 export async function lireProfil(supabase: SupabaseClient, userId: string): Promise<ProfilNarrateur> {
   const { data } = await supabase
     .from("profil_narrateur")

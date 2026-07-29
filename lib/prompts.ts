@@ -1,5 +1,11 @@
 export const QUESTION_INITIALE = "Quelle est la première maison dont vous vous souvenez ?";
 
+// Posée une seule fois, avant la toute première question d'un nouveau
+// narrateur (cf. app/api/seance/route.ts, lib/profil-narrateur.ts) — ajout
+// du 29/07/2026 suite à l'audit des 14 ouvrages (Lamott, Ledoux : identifier
+// un destinataire précis dès le départ améliore la motivation à raconter).
+export const QUESTION_POUR_QUI = "Avant de commencer : pour qui racontez-vous votre histoire ?";
+
 // Construit dynamiquement pour pouvoir y injecter des extraits de la
 // bibliothèque de référence (14 ouvrages, cf. lib/retrieval.ts) et un résumé
 // du profil narrateur (cf. lib/profil-narrateur.ts) — périodes déjà

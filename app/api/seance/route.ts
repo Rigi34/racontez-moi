@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/utils/supabase/server";
-import { QUESTION_INITIALE, construireSystemRelance } from "@/lib/prompts";
+import { QUESTION_INITIALE, QUESTION_POUR_QUI, construireSystemRelance } from "@/lib/prompts";
 import { embedText } from "@/lib/embeddings";
 import { retrieverTechniques } from "@/lib/retrieval";
-import { lireProfil, resumerProfilPourPrompt, mettreAJourProfil } from "@/lib/profil-narrateur";
+import { lireProfil, resumerProfilPourPrompt, mettreAJourProfil, lirePourQui, enregistrerPourQui } from "@/lib/profil-narrateur";
 import { prochaineQuestionBanque, titreSection, TITRE_SECTION_A } from "@/lib/banque-questions";
 import { composerFragment, genererResumeSession } from "@/lib/redaction";
 import { calculerProgression } from "@/lib/progression";
@@ -25,14 +25,46 @@ async function choisirQuestionOuverture(supabase: Awaited<ReturnType<typeof crea
     .eq("user_id", userId);
 
   if ((nombreFragments ?? 0) === 0) {
-    return { question: QUESTION_INITIALE, sectionOuverture: null as string | null, titreSectionOuverture: TITRE_SECTION_A, estNucleaire: false };
+    // "Pour qui racontez-vous ?" — posée une seule fois, avant même
+    // QUESTION_INITIALE (ajout du 29/07/2026, cf. lib/profil-narrateur.ts).
+    // Type "pour_qui" signale au frontend de ne créer aucune séance tant
+    // qu'elle n'a pas été répondue (cf. step "pour_qui" ci-dessous).
+    const pourQui = await lirePourQui(supabase, userId);
+    if (pourQui === null) {
+      return {
+        question: QUESTION_POUR_QUI,
+        sectionOuverture: null as string | null,
+        titreSectionOuverture: null as string | null,
+        estNucleaire: false,
+        type: "pour_qui" as const,
+      };
+    }
+    return {
+      question: QUESTION_INITIALE,
+      sectionOuverture: null as string | null,
+      titreSectionOuverture: TITRE_SECTION_A,
+      estNucleaire: false,
+      type: "normale" as const,
+    };
   }
 
   const pick = await prochaineQuestionBanque(supabase, userId);
   if (!pick) {
-    return { question: QUESTION_INITIALE, sectionOuverture: null as string | null, titreSectionOuverture: TITRE_SECTION_A, estNucleaire: false };
+    return {
+      question: QUESTION_INITIALE,
+      sectionOuverture: null as string | null,
+      titreSectionOuverture: TITRE_SECTION_A,
+      estNucleaire: false,
+      type: "normale" as const,
+    };
   }
-  return { question: pick.texte, sectionOuverture: pick.section, titreSectionOuverture: pick.titre_section, estNucleaire: pick.est_nucleaire };
+  return {
+    question: pick.texte,
+    sectionOuverture: pick.section,
+    titreSectionOuverture: pick.titre_section,
+    estNucleaire: pick.est_nucleaire,
+    type: "normale" as const,
+  };
 }
 
 export async function GET() {
@@ -110,6 +142,41 @@ export async function POST(req: NextRequest) {
         .eq("id", existing.id);
     }
 
+    const { question, sectionOuverture, titreSectionOuverture, estNucleaire, type } = await choisirQuestionOuverture(supabase, user.id);
+
+    // "Pour qui racontez-vous ?" n'est jamais une vraie séance — aucune
+    // ligne sessions n'est créée tant qu'elle n'a pas été répondue (cf. step
+    // "pour_qui" ci-dessous, qui enchaîne directement sur la vraie première
+    // question une fois la réponse enregistrée).
+    if (type === "pour_qui") {
+      const progression = await calculerProgression(supabase, user.id);
+      return NextResponse.json({ session_id: null, question, titre_section: null, progression, type: "pour_qui" });
+    }
+
+    const { data: created, error } = await supabase
+      .from("sessions")
+      .insert({ user_id: user.id, question_ouverture: question, section_ouverture: sectionOuverture, question_est_nucleaire: estNucleaire })
+      .select("id")
+      .single();
+
+    if (error || !created) {
+      return NextResponse.json({ error: "Impossible de démarrer la séance." }, { status: 500 });
+    }
+    const progression = await calculerProgression(supabase, user.id);
+    return NextResponse.json({ session_id: created.id, question, titre_section: titreSectionOuverture, progression });
+  }
+
+  // Réponse à "pour qui racontez-vous ?" — enregistrée dans le profil
+  // narrateur, jamais dans une séance ; enchaîne directement sur la vraie
+  // première question (QUESTION_INITIALE, puisque pour_qui est maintenant
+  // renseigné) pour ne pas demander un second aller-retour au narrateur.
+  if (step === "pour_qui") {
+    const { reponse } = body;
+    if (!reponse?.trim()) {
+      return NextResponse.json({ error: "Réponse manquante." }, { status: 400 });
+    }
+    await enregistrerPourQui(supabase, user.id, reponse.trim());
+
     const { question, sectionOuverture, titreSectionOuverture, estNucleaire } = await choisirQuestionOuverture(supabase, user.id);
 
     const { data: created, error } = await supabase
@@ -139,6 +206,12 @@ export async function POST(req: NextRequest) {
         .eq("id", session_id)
         .eq("user_id", user.id)
         .eq("status", "in_progress");
+    } else {
+      // Pas de session_id : c'est "pour qui racontez-vous ?" qu'on passe
+      // (jamais de séance créée pour cette pseudo-question, cf. step
+      // "start"). Enregistrer une réponse vide satisfait le garde-fou de
+      // choisirQuestionOuverture (pourQui === null) sans forcer de réponse.
+      await enregistrerPourQui(supabase, user.id, "");
     }
 
     const { question, sectionOuverture, titreSectionOuverture, estNucleaire } = await choisirQuestionOuverture(supabase, user.id);
