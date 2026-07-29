@@ -32,7 +32,7 @@ const caveat = Caveat({
 export const metadata: Metadata = {
   title: "Racontez-moi — Le livre de votre vie",
   description:
-    "Des conversations de vingt minutes, à la voix. Un interlocuteur qui écoute, questionne, se souvient — et compose le livre de votre vie.",
+    "Des conversations de vingt minutes au moins, à la voix. Un interlocuteur qui écoute, questionne, se souvient — et compose le livre de votre vie.",
   openGraph: {
     title: "Racontez-moi — Le livre de votre vie",
     description: "Votre histoire n'attend pas l'inspiration. Elle attend un interlocuteur.",

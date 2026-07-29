@@ -64,7 +64,7 @@ export default function OffrirPage() {
             </p>
             <p>
               Notre interlocuteur, lui, ne se fatigue jamais. Il pose les bonnes
-              questions, vingt minutes par semaine, à la voix — pas de clavier, pas
+              questions, vingt minutes au moins par séance, à la voix — pas de clavier, pas
               d&apos;application à apprendre. Et de séance en séance, il compose leurs
               mots en chapitres. Leurs mots à eux&nbsp;: l&apos;intelligence artificielle
               questionne, elle n&apos;écrit pas leur vie à leur place.
@@ -96,7 +96,7 @@ export default function OffrirPage() {
                 Ils racontent.
               </h3>
               <p className="font-sans text-base text-grege leading-relaxed">
-                Chez eux, à la voix, vingt minutes une à deux fois par semaine. La
+                Chez eux, à la voix, vingt minutes au moins, une à deux fois par semaine. La
                 première séance se fait ensemble&nbsp;: c&apos;est vous qui poserez
                 la première question.
               </p>
