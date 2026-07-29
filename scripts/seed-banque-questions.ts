@@ -1,6 +1,7 @@
-// Ingestion ponctuelle de la banque de 205 questions (chapitre 6, étude
-// HÉRITAGE 2026) dans banque_questions. Source : scripts/data/banque-205-questions.md,
-// extraction verbatim depuis l'étude — aucune question n'est inventée ici.
+// Ingestion ponctuelle de la banque de questions (chapitre 6, étude
+// HÉRITAGE 2026, 205 questions verbatim + 7 questions ajoutées suite à l'audit
+// 14 ouvrages, soit 212 au total) dans banque_questions.
+// Source : scripts/data/banque-205-questions.md.
 // Exécution : npx tsx scripts/seed-banque-questions.ts
 
 import { readFileSync } from "node:fs";
@@ -49,8 +50,8 @@ async function main() {
   const contenu = readFileSync(join(__dirname, "data", "banque-205-questions.md"), "utf-8");
   const questions = parser(contenu);
 
-  console.log(`Questions parsées : ${questions.length} (attendu : 205)`);
-  if (questions.length !== 205) {
+  console.log(`Questions parsées : ${questions.length} (attendu : 212)`);
+  if (questions.length !== 212) {
     console.error("ÉCART détecté avec le total attendu — vérifier le fichier source avant d'insérer.");
     process.exit(1);
   }

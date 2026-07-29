@@ -1,6 +1,8 @@
-# Banque des 205 questions — extraction verbatim (Chapitre 6, étude HÉRITAGE 2026)
+# Banque des questions — extraction verbatim (Chapitre 6, étude HÉRITAGE 2026) + ajustements audit 14 ouvrages
 
-Source : Google Doc étude professionnelle (196 743 caractères), section 6.x, banque de 205 questions primaires classées en 17 sections (A à Q), incluant 17 questions d'extraction nucléaire marquées [N] en clôture de chaque section.
+Source : Google Doc étude professionnelle (196 743 caractères), section 6.x, banque initiale de 205 questions primaires classées en 17 sections (A à Q), incluant 17 questions d'extraction nucléaire marquées [N] en clôture de chaque section.
+
+Depuis, 7 questions supplémentaires (206 à 212) ont été ajoutées suite à l'audit comparant la banque aux 14 ouvrages de référence (rééquilibrage des sections E, M, D) — total actuel : 212 questions. Ces ajouts sont numérotés à la suite, sans lien avec l'ordre thématique des sections (voir `section` pour le classement réel).
 
 Format : N. [Section] (marqueur [N] si applicable) texte exact de la question.
 
@@ -35,19 +37,19 @@ Format : N. [Section] (marqueur [N] si applicable) texte exact de la question.
 27. [B. Enfance (6-12 ans)] Quel était votre meilleur ami à cette époque ? Que lui est-il arrivé ?
 28. [B. Enfance (6-12 ans)] Quelle punition ou récompense vous a le plus marqué ?
 29. [B. Enfance (6-12 ans)] [N] Quel est le moment le plus difficile que vous ayez traversé avant l'adolescence ?
-30. [C. Adolescence] Comment décririez-vous l'adolescent ou l'adolescente que vous étiez, en trois mots ?
+30. [C. Adolescence] Comment décririez-vous l'adolescent ou l'adolescente que vous étiez, en trois mots ? Choisiriez-vous les mêmes mots aujourd'hui ?
 31. [C. Adolescence] Quelle musique, quel groupe ou quel chanteur définissait cette période pour vous ?
-32. [C. Adolescence] Racontez votre premier amour, ou votre premier chagrin d'amour.
+32. [C. Adolescence] Racontez votre premier amour, ou votre premier chagrin d'amour, et comment vous regardez cette histoire avec le recul des années.
 33. [C. Adolescence] Aviez-vous une bande d'amis ? Que représentait-elle pour vous ?
 34. [C. Adolescence] Quel adulte, hors de votre famille, a compté pour vous à cette période ?
-35. [C. Adolescence] Contre quoi ou contre qui vous rebelliez-vous ?
+35. [C. Adolescence] Contre quoi ou contre qui vous rebelliez-vous, et cette rébellion vous semble-t-elle toujours aussi justifiée, avec ce que vous savez maintenant ?
 36. [C. Adolescence] Quel a été votre premier job, premier argent gagné, ou première grande dépense ?
 37. [C. Adolescence] Comment votre corps a-t-il changé, et comment avez-vous vécu ce changement ?
 38. [C. Adolescence] Quelle a été la plus grande liberté que vous avez conquise à cette période ?
 39. [C. Adolescence] Quel vêtement, coiffure ou style vous tenait à cœur à cette époque ?
 40. [C. Adolescence] Quelle décision d'orientation (études, filière, apprentissage) avez-vous prise, et comment ?
 41. [C. Adolescence] Quel événement du monde extérieur (politique, culturel, sportif) a marqué votre adolescence ?
-42. [C. Adolescence] Y a-t-il eu un conflit avec vos parents dont vous vous souvenez particulièrement ?
+42. [C. Adolescence] Y a-t-il eu un conflit avec vos parents dont vous vous souvenez particulièrement, et comment le jugez-vous maintenant, avec l'âge que vous avez ?
 43. [C. Adolescence] Quelle règle ou croyance familiale avez-vous commencé à remettre en question ?
 44. [C. Adolescence] [N] Quel est le moment où vous avez senti, pour la première fois, que vous deveniez adulte ?
 45. [D. Entrée dans la vie adulte, études, indépendance] Comment avez-vous choisi vos études ou votre premier métier ?
@@ -61,9 +63,9 @@ Format : N. [Section] (marqueur [N] si applicable) texte exact de la question.
 53. [D. Entrée dans la vie adulte, études, indépendance] Comment avez-vous vécu vos premiers pas dans le monde du travail ?
 54. [D. Entrée dans la vie adulte, études, indépendance] Quelle erreur de jeunesse regrettez-vous, ou au contraire ne regrettez-vous pas du tout ?
 55. [D. Entrée dans la vie adulte, études, indépendance] [N] Quel a été le tournant qui a le plus déterminé la suite de votre vie, à cette période ?
-56. [E. Amour, couple, mariage] Comment avez-vous rencontré la personne qui a le plus compté dans votre vie amoureuse ?
-57. [E. Amour, couple, mariage] Qu'est-ce qui vous a séduit chez cette personne, au tout début ?
-58. [E. Amour, couple, mariage] Racontez votre premier rendez-vous, ou un moment fondateur de cette relation.
+56. [E. Amour, couple, mariage] Comment avez-vous rencontré la personne qui a le plus compté dans votre vie amoureuse, et que retenez-vous de cette rencontre avec le recul ?
+57. [E. Amour, couple, mariage] Qu'est-ce qui vous a séduit chez cette personne, au tout début, et est-ce toujours ce qui compte le plus à vos yeux aujourd'hui ?
+58. [E. Amour, couple, mariage] Racontez votre premier rendez-vous, ou un moment fondateur de cette relation, et ce que cela vous fait d'y repenser maintenant.
 59. [E. Amour, couple, mariage] Comment s'est passée la demande en mariage, ou la décision de vous engager ?
 60. [E. Amour, couple, mariage] Décrivez le jour de votre mariage, ou de votre engagement, tel que vous vous en souvenez.
 61. [E. Amour, couple, mariage] Quelle a été la période la plus heureuse de votre vie de couple ?
@@ -72,7 +74,7 @@ Format : N. [Section] (marqueur [N] si applicable) texte exact de la question.
 64. [E. Amour, couple, mariage] Avez-vous connu une rupture ou un divorce ? Comment l'avez-vous vécu et surmonté ?
 65. [E. Amour, couple, mariage] Qu'avez-vous appris sur l'amour au fil de votre vie, que vous ne saviez pas au début ?
 66. [E. Amour, couple, mariage] Quel petit rituel de couple vous tient ou vous tenait le plus à cœur ?
-67. [E. Amour, couple, mariage] Comment décririez-vous votre partenaire à quelqu'un qui ne l'a jamais rencontré ?
+67. [E. Amour, couple, mariage] Comment décririez-vous votre partenaire à quelqu'un qui ne l'a jamais rencontré, et diriez-vous la même chose qu'il y a vingt ans ?
 68. [E. Amour, couple, mariage] [N] Quel est le moment où vous avez su, avec certitude, que c'était la bonne personne ?
 69. [F. Vie professionnelle et vocation] Quel a été votre tout premier emploi rémunéré ?
 70. [F. Vie professionnelle et vocation] Comment avez-vous trouvé, ou par quel hasard êtes-vous arrivé à, le métier que vous avez exercé le plus longtemps ?
@@ -106,20 +108,20 @@ Format : N. [Section] (marqueur [N] si applicable) texte exact de la question.
 98. [H. Lieux et déplacements] Quel endroit du monde vous a le plus marqué lors d'un voyage ?
 99. [H. Lieux et déplacements] Comment votre quartier ou votre village a-t-il changé au fil des années ?
 100. [H. Lieux et déplacements] Quel trajet du quotidien (travail, école) revenait le plus souvent dans votre vie ?
-101. [H. Lieux et déplacements] Y a-t-il un lieu aujourd'hui disparu ou transformé dont vous gardez la mémoire précise ?
+101. [H. Lieux et déplacements] Y a-t-il un lieu aujourd'hui disparu ou transformé dont vous gardez la mémoire précise ? Décrivez-le comme si vous y étiez encore.
 102. [H. Lieux et déplacements] Quelle maison, parmi toutes celles que vous avez habitées, regrettez-vous le plus ?
 103. [H. Lieux et déplacements] Quel a été votre plus grand dépaysement ?
 104. [H. Lieux et déplacements] Quel paysage vous apaise le plus, encore aujourd'hui ?
 105. [H. Lieux et déplacements] [N] Quel est le lieu associé à votre souvenir le plus fort, toutes périodes confondues ?
-106. [I. Épreuves, pertes et résilience] Quelle a été l'épreuve la plus difficile de votre vie ?
-107. [I. Épreuves, pertes et résilience] Comment avez-vous traversé un deuil marquant ? Qui ou qu'est-ce qui vous a aidé ?
+106. [I. Épreuves, pertes et résilience] Quelle a été l'épreuve la plus difficile de votre vie, et comment la regardez-vous à présent ?
+107. [I. Épreuves, pertes et résilience] Comment avez-vous traversé un deuil marquant, qui ou qu'est-ce qui vous a aidé, et qu'est-ce que ce deuil vous a enseigné avec le temps ?
 108. [I. Épreuves, pertes et résilience] Avez-vous connu une maladie grave, la vôtre ou celle d'un proche ? Comment l'avez-vous vécue ?
-109. [I. Épreuves, pertes et résilience] Quel a été le moment où vous vous êtes senti le plus seul ?
+109. [I. Épreuves, pertes et résilience] Quel a été le moment où vous vous êtes senti le plus seul, et qu'en pensez-vous quand vous y repensez maintenant ?
 110. [I. Épreuves, pertes et résilience] Qui, ou qu'est-ce qui, vous a permis de tenir dans les moments difficiles ?
 111. [I. Épreuves, pertes et résilience] Avez-vous déjà eu l'impression de tout recommencer à zéro ? Racontez.
 112. [I. Épreuves, pertes et résilience] Quelle épreuve, avec le recul, vous a rendu plus fort ou vous a transformé positivement ?
-113. [I. Épreuves, pertes et résilience] Y a-t-il une épreuve dont vous ne vous êtes jamais vraiment relevé, et que vous voulez néanmoins mentionner ?
-114. [I. Épreuves, pertes et résilience] Quelle a été la décision la plus difficile que vous ayez eu à prendre ?
+113. [I. Épreuves, pertes et résilience] Y a-t-il une épreuve dont vous ne vous êtes jamais vraiment relevé, et que vous voulez néanmoins mentionner ? Racontez-la, même par bribes, avec les mots qui vous viennent.
+114. [I. Épreuves, pertes et résilience] Quelle a été la décision la plus difficile que vous ayez eu à prendre, et la referiez-vous aujourd'hui, avec ce que vous savez maintenant ?
 115. [I. Épreuves, pertes et résilience] Comment définiriez-vous le courage, à la lumière de ce que vous avez traversé ?
 116. [I. Épreuves, pertes et résilience] [N] Quel a été le moment le plus bas de votre vie, celui dont vous parlez le moins souvent ?
 117. [J. Croyances, valeurs et spiritualité] Dans quelles croyances ou quelle religion avez-vous été élevé, et qu'en avez-vous gardé ?
@@ -137,7 +139,7 @@ Format : N. [Section] (marqueur [N] si applicable) texte exact de la question.
 129. [K. Événements historiques et société] Comment votre vie quotidienne a-t-elle été affectée par un changement politique ou économique majeur ?
 130. [K. Événements historiques et société] Quelle évolution technologique vous a le plus impressionné ou bouleversé de votre vivant ?
 131. [K. Événements historiques et société] Comment la société a-t-elle changé, en bien ou en mal, entre votre jeunesse et aujourd'hui ?
-132. [K. Événements historiques et société] Avez-vous participé à un mouvement social, une manifestation, un engagement collectif ?
+132. [K. Événements historiques et société] Avez-vous participé à un mouvement social, une manifestation, un engagement collectif ? Racontez ce qui vous y a poussé et ce que vous en avez retenu.
 133. [K. Événements historiques et société] Quel métier ou mode de vie que vous avez connu a aujourd'hui disparu ?
 134. [K. Événements historiques et société] Quelle génération pensez-vous avoir eu la vie la plus difficile : la vôtre, celle de vos parents, ou celle de vos enfants ?
 135. [K. Événements historiques et société] [N] Quel événement du monde extérieur a le plus directement changé le cours de votre propre vie ?
@@ -147,7 +149,7 @@ Format : N. [Section] (marqueur [N] si applicable) texte exact de la question.
 139. [L. Passions, créativité et temps libre] Quel est le projet personnel dont vous êtes le plus fier, en dehors du travail et de la famille ?
 140. [L. Passions, créativité et temps libre] Quel livre, film ou œuvre a changé votre regard sur les choses ?
 141. [L. Passions, créativité et temps libre] Comment aimiez-vous passer un dimanche libre, à différentes périodes de votre vie ?
-142. [L. Passions, créativité et temps libre] Avez-vous un talent que peu de gens connaissent chez vous ?
+142. [L. Passions, créativité et temps libre] Avez-vous un talent que peu de gens connaissent chez vous ? Racontez comment vous l'avez découvert et ce qu'il représente pour vous.
 143. [L. Passions, créativité et temps libre] Quel voyage ou quelle escapade reste le plus vivant dans votre mémoire ?
 144. [L. Passions, créativité et temps libre] Quelle table, quel plat ou quelle recette est associé à vos meilleurs souvenirs ?
 145. [L. Passions, créativité et temps libre] [N] Quel moment de pur plaisir, sans lien avec le travail ou la famille, vous revient immédiatement ?
@@ -160,7 +162,7 @@ Format : N. [Section] (marqueur [N] si applicable) texte exact de la question.
 152. [M. Amitiés] [N] Quelle amitié, plus que toute autre, a compté dans votre vie ?
 153. [N. Corps, santé et vieillir] Comment votre rapport à votre corps a-t-il évolué au fil des décennies ?
 154. [N. Corps, santé et vieillir] Quel a été le plus grand défi lié à votre santé, le vôtre ou celui d'un proche ?
-155. [N. Corps, santé et vieillir] Qu'est-ce qui vous surprend le plus dans le fait de vieillir ?
+155. [N. Corps, santé et vieillir] Qu'est-ce qui vous surprend le plus dans le fait de vieillir, comparé à ce que vous imaginiez, plus jeune, que serait cette étape ?
 156. [N. Corps, santé et vieillir] Quelle habitude de santé ou de bien-être avez-vous adoptée, et pourquoi ?
 157. [N. Corps, santé et vieillir] Comment prenez-vous soin de vous aujourd'hui ?
 158. [N. Corps, santé et vieillir] Quel plaisir physique simple appréciez-vous le plus aujourd'hui ?
@@ -168,15 +170,15 @@ Format : N. [Section] (marqueur [N] si applicable) texte exact de la question.
 160. [N. Corps, santé et vieillir] [N] Quel a été le moment où vous avez pris conscience, pour la première fois, de votre propre mortalité ?
 161. [O. Bilan de vie, sagesse et transmission] Si vous deviez résumer votre vie en une phrase, laquelle choisiriez-vous ?
 162. [O. Bilan de vie, sagesse et transmission] Quelle est la leçon la plus importante que la vie vous ait apprise ?
-163. [O. Bilan de vie, sagesse et transmission] De quoi êtes-vous le plus fier, toutes périodes confondues ?
+163. [O. Bilan de vie, sagesse et transmission] De quoi êtes-vous le plus fier, toutes périodes confondues, et cette fierté a-t-elle changé de nature avec les années ?
 164. [O. Bilan de vie, sagesse et transmission] Quel regret portez-vous encore aujourd'hui, si vous en avez un ?
 165. [O. Bilan de vie, sagesse et transmission] Que diriez-vous à la personne que vous étiez à vingt ans, si vous pouviez lui parler ?
 166. [O. Bilan de vie, sagesse et transmission] Quelles valeurs souhaitez-vous voir transmises à ceux qui viendront après vous ?
 167. [O. Bilan de vie, sagesse et transmission] Quel conseil donneriez-vous à vos petits-enfants, ou aux générations futures de votre famille ?
 168. [O. Bilan de vie, sagesse et transmission] Qu'est-ce qui vous a rendu le plus heureux, avec le recul de toute une vie ?
-169. [O. Bilan de vie, sagesse et transmission] Quelle personne aimeriez-vous remercier, et pour quoi précisément ?
-170. [O. Bilan de vie, sagesse et transmission] Y a-t-il quelque chose que vous n'avez jamais dit à quelqu'un et que vous aimeriez dire ici ?
-171. [O. Bilan de vie, sagesse et transmission] Comment aimeriez-vous que l'on se souvienne de vous ?
+169. [O. Bilan de vie, sagesse et transmission] Quelle personne aimeriez-vous remercier, et pour quoi précisément ? Que lui diriez-vous aujourd'hui si l'occasion se présentait ?
+170. [O. Bilan de vie, sagesse et transmission] Y a-t-il quelque chose que vous n'avez jamais dit à quelqu'un et que vous aimeriez dire ici ? Prenez le temps de le formuler, à votre façon.
+171. [O. Bilan de vie, sagesse et transmission] Comment aimeriez-vous que l'on se souvienne de vous, et est-ce la même réponse qu'il y a dix ans ?
 172. [O. Bilan de vie, sagesse et transmission] Quelle histoire de votre vie tenez-vous le plus à voir racontée à vos descendants ?
 173. [O. Bilan de vie, sagesse et transmission] Si votre vie était un livre, quel en serait le titre ?
 174. [O. Bilan de vie, sagesse et transmission] Quelle question auriez-vous aimé que l'on vous pose, et que personne ne vous a jamais posée ?
@@ -211,3 +213,11 @@ Format : N. [Section] (marqueur [N] si applicable) texte exact de la question.
 203. [Q. Argent, maison et vie matérielle] Comment décririez-vous votre rapport actuel à la possession et au matériel ?
 204. [Q. Argent, maison et vie matérielle] Quel bien immatériel — un savoir-faire, une réputation, un réseau — considérez-vous comme votre véritable héritage ?
 205. [Q. Argent, maison et vie matérielle] [N] Quel achat ou quelle acquisition reste associé à votre souvenir le plus fort de fierté ou de soulagement ?
+
+206. [E. Amour, couple, mariage] Si aucune relation amoureuse ne s'impose comme celle qui a le plus compté, ou si vous en avez vécu plusieurs sans qu'une seule domine les autres, quelle histoire d'amour — même brève, même restée sans suite — avez-vous envie de raconter ici ?
+207. [M. Amitiés] Y a-t-il un ami ou une amie qui vous a aidé à tenir debout dans une période difficile, d'une manière que personne d'autre n'aurait pu ? Racontez ce que cette personne a fait, ou simplement dit.
+208. [M. Amitiés] Comment vos amitiés ont-elles changé de forme selon les périodes de votre vie — celles de l'enfance, des études, du travail, de la retraite ?
+209. [M. Amitiés] Y a-t-il un ami que vous considérez, avec le recul, comme une deuxième famille ? Qu'est-ce qui a fait de cette relation quelque chose d'aussi fort ?
+210. [D. Entrée dans la vie adulte, études, indépendance] Comment avez-vous géré, pour la première fois, votre propre argent au quotidien — payer un loyer, faire les courses, boucler une fin de mois ?
+211. [D. Entrée dans la vie adulte, études, indépendance] Quels amis vous êtes-vous faits pendant vos études ou vos débuts professionnels, et lesquels sont restés dans votre vie ?
+212. [D. Entrée dans la vie adulte, études, indépendance] Comment avez-vous vécu la solitude, ou au contraire la liberté, d'être enfin responsable de vous-même ?

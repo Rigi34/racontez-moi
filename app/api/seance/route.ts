@@ -23,7 +23,7 @@ type TranscriptEntry = { role: string; text: string };
 
 // Question fixe pour la toute première séance d'un narrateur (aucun
 // fragment produit jusqu'ici, thématiquement section A) ; au-delà,
-// sélection adaptative dans la banque de 205 questions (sections B à Q,
+// sélection adaptative dans la banque de 212 questions (sections B à Q,
 // cf. lib/banque-questions.ts) — partagé entre "start" (nouvelle séance) et
 // "passer" (question actuelle abandonnée sans réponse).
 async function choisirQuestionOuverture(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {

@@ -1,4 +1,4 @@
-// Sélection adaptative dans la banque de 205 questions (chapitre 6, étude
+// Sélection adaptative dans la banque de 212 questions (chapitre 6, étude
 // HÉRITAGE 2026) — remplace la génération 100% dynamique de la question
 // d'ouverture des séances suivantes (décision du 22 juillet 2026). La toute
 // première séance d'un narrateur reste QUESTION_INITIALE (cf. lib/prompts.ts,
