@@ -7,7 +7,13 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export const SECTIONS_APRES_OUVERTURE = ["B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"];
+// P (lignée/transmission) placée en dernier plutôt que Q (argent/matériel) —
+// correction du 29/07/2026 suite à l'audit des 14 ouvrages de référence :
+// terminer un cycle sur l'inventaire matériel juste après le bilan de vie
+// (section O) est un anticlimax narratif documenté par la littérature
+// (Rainer, Gornick, Zinsser, Erikson) ; la transmission intergénérationnelle
+// referme mieux le cycle.
+export const SECTIONS_APRES_OUVERTURE = ["B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "Q", "P"];
 
 // Nombre de questions visées par section avant de considérer une section
 // comme "faite" et de passer à la suivante (1 question nucléaire [N] + 3 de
@@ -17,7 +23,7 @@ export const SECTIONS_APRES_OUVERTURE = ["B", "C", "D", "E", "F", "G", "H", "I",
 // au calcul de progression (lib/progression.ts).
 export const QUESTIONS_CIBLE_PAR_SECTION = 4;
 
-export type QuestionBanque = { numero: number; section: string; titre_section: string; texte: string };
+export type QuestionBanque = { numero: number; section: string; titre_section: string; texte: string; est_nucleaire: boolean };
 
 // Questions distinctes déjà posées par section, dérivées de l'historique
 // réel des séances (sessions.section_ouverture/question_ouverture) plutôt
@@ -68,18 +74,43 @@ export async function prochaineQuestionBanque(
   const { data } = await supabase
     .from("banque_questions")
     .select("numero, section, titre_section, texte, est_nucleaire")
-    .eq("section", prochaineSection)
-    .eq("est_nucleaire", false);
+    .eq("section", prochaineSection);
 
   if (!data?.length) return null;
 
-  // Évite de reposer une question déjà posée dans cette section tant que
-  // toutes n'ont pas été utilisées au moins une fois.
-  const candidates = data.filter((q) => !dejaPosees.has(q.texte));
-  const pool = candidates.length ? candidates : data;
+  const contexte = data.filter((q) => !q.est_nucleaire);
+  const nucleaire = data.filter((q) => q.est_nucleaire);
+  const contextePosesCount = contexte.filter((q) => dejaPosees.has(q.texte)).length;
+  const nucleaireDejaPosee = nucleaire.some((q) => dejaPosees.has(q.texte));
+
+  // La question [N] est réservée à la dernière place du quota de section (1
+  // nucléaire + 3 de contexte, QUESTIONS_CIBLE_PAR_SECTION) — jamais
+  // proposée avant que les questions de contexte n'aient été posées, pour
+  // rester le point d'ancrage émotionnel de clôture voulu (décision du
+  // 26/07/2026). Bug corrigé le 29/07/2026 : un filtre est_nucleaire=false
+  // l'excluait purement et simplement de toute sélection, quel que soit
+  // l'avancement dans la section.
+  let pool: typeof data;
+  if (contextePosesCount < QUESTIONS_CIBLE_PAR_SECTION - 1 && contexte.some((q) => !dejaPosees.has(q.texte))) {
+    pool = contexte.filter((q) => !dejaPosees.has(q.texte));
+  } else if (!nucleaireDejaPosee && nucleaire.length) {
+    pool = nucleaire;
+  } else {
+    // Quota déjà atteint ou section épuisée dans les deux catégories (tour
+    // suivant du cycle) : on retombe sur les questions non encore posées,
+    // puis sur l'ensemble si tout a déjà été utilisé.
+    const nonPosees = data.filter((q) => !dejaPosees.has(q.texte));
+    pool = nonPosees.length ? nonPosees : data;
+  }
 
   const choisie = pool[Math.floor(Math.random() * pool.length)];
-  return { numero: choisie.numero, section: choisie.section, titre_section: choisie.titre_section, texte: choisie.texte };
+  return {
+    numero: choisie.numero,
+    section: choisie.section,
+    titre_section: choisie.titre_section,
+    texte: choisie.texte,
+    est_nucleaire: choisie.est_nucleaire,
+  };
 }
 
 // Titre lisible pour la toute première séance (section A, thématiquement

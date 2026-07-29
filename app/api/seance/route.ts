@@ -25,14 +25,14 @@ async function choisirQuestionOuverture(supabase: Awaited<ReturnType<typeof crea
     .eq("user_id", userId);
 
   if ((nombreFragments ?? 0) === 0) {
-    return { question: QUESTION_INITIALE, sectionOuverture: null as string | null, titreSectionOuverture: TITRE_SECTION_A };
+    return { question: QUESTION_INITIALE, sectionOuverture: null as string | null, titreSectionOuverture: TITRE_SECTION_A, estNucleaire: false };
   }
 
   const pick = await prochaineQuestionBanque(supabase, userId);
   if (!pick) {
-    return { question: QUESTION_INITIALE, sectionOuverture: null as string | null, titreSectionOuverture: TITRE_SECTION_A };
+    return { question: QUESTION_INITIALE, sectionOuverture: null as string | null, titreSectionOuverture: TITRE_SECTION_A, estNucleaire: false };
   }
-  return { question: pick.texte, sectionOuverture: pick.section, titreSectionOuverture: pick.titre_section };
+  return { question: pick.texte, sectionOuverture: pick.section, titreSectionOuverture: pick.titre_section, estNucleaire: pick.est_nucleaire };
 }
 
 export async function GET() {
@@ -110,11 +110,11 @@ export async function POST(req: NextRequest) {
         .eq("id", existing.id);
     }
 
-    const { question, sectionOuverture, titreSectionOuverture } = await choisirQuestionOuverture(supabase, user.id);
+    const { question, sectionOuverture, titreSectionOuverture, estNucleaire } = await choisirQuestionOuverture(supabase, user.id);
 
     const { data: created, error } = await supabase
       .from("sessions")
-      .insert({ user_id: user.id, question_ouverture: question, section_ouverture: sectionOuverture })
+      .insert({ user_id: user.id, question_ouverture: question, section_ouverture: sectionOuverture, question_est_nucleaire: estNucleaire })
       .select("id")
       .single();
 
@@ -141,11 +141,11 @@ export async function POST(req: NextRequest) {
         .eq("status", "in_progress");
     }
 
-    const { question, sectionOuverture, titreSectionOuverture } = await choisirQuestionOuverture(supabase, user.id);
+    const { question, sectionOuverture, titreSectionOuverture, estNucleaire } = await choisirQuestionOuverture(supabase, user.id);
 
     const { data: created, error } = await supabase
       .from("sessions")
-      .insert({ user_id: user.id, question_ouverture: question, section_ouverture: sectionOuverture })
+      .insert({ user_id: user.id, question_ouverture: question, section_ouverture: sectionOuverture, question_est_nucleaire: estNucleaire })
       .select("id")
       .single();
 
@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
 
     const { data: session } = await supabase
       .from("sessions")
-      .select("id, transcript, status, question_ouverture")
+      .select("id, transcript, status, question_ouverture, question_est_nucleaire")
       .eq("id", session_id)
       .eq("user_id", user.id)
       .maybeSingle();
@@ -194,7 +194,8 @@ export async function POST(req: NextRequest) {
       system: construireSystemRelance(
         techniques.map((t) => t.texte),
         resumerProfilPourPrompt(profil),
-        derniereSession?.resume_session ?? ""
+        derniereSession?.resume_session ?? "",
+        session.question_est_nucleaire ?? false
       ),
       messages: [{ role: "user", content: reponse }],
     });
@@ -237,7 +238,7 @@ export async function POST(req: NextRequest) {
 
     const { data: session } = await supabase
       .from("sessions")
-      .select("id, transcript, status")
+      .select("id, transcript, status, question_est_nucleaire")
       .eq("id", session_id)
       .eq("user_id", user.id)
       .maybeSingle();
@@ -269,7 +270,8 @@ export async function POST(req: NextRequest) {
       system: construireSystemRelance(
         techniques.map((t) => t.texte),
         resumerProfilPourPrompt(profil),
-        derniereSession?.resume_session ?? ""
+        derniereSession?.resume_session ?? "",
+        session.question_est_nucleaire ?? false
       ),
       messages: [{ role: "user", content: reponseRelance }],
     });
