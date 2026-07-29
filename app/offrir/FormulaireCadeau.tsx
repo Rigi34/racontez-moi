@@ -8,6 +8,12 @@ export default function FormulaireCadeau() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [apercuUrl, setApercuUrl] = useState("");
+
+  const voirApercu = () => {
+    const params = new URLSearchParams({ destinataire, offrant, message });
+    setApercuUrl(`/api/cadeau/certificat/apercu?${params.toString()}`);
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +71,22 @@ export default function FormulaireCadeau() {
           placeholder="Ce cadeau me tient à cœur parce que..."
         />
       </div>
+      <button
+        type="button"
+        onClick={voirApercu}
+        disabled={!destinataire.trim() || !offrant.trim()}
+        className="w-full font-sans text-sm border border-grege bg-blanc text-encre rounded-full px-6 py-2.5 hover:border-encre transition-colors disabled:opacity-40"
+      >
+        Voir l&apos;aperçu du certificat
+      </button>
+
+      {apercuUrl && (
+        <div className="border border-grege p-3 bg-papier">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={apercuUrl} alt="Aperçu du certificat cadeau" className="w-full h-auto" />
+        </div>
+      )}
+
       <button
         type="submit"
         disabled={loading}
