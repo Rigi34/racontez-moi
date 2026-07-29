@@ -73,6 +73,17 @@ export default function Confidentialite() {
             </p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
+              Sujets sensibles abordés pendant l&apos;entretien
+            </h2>
+            <p>
+              Certaines questions posées au fil des séances touchent délibérément à des sujets
+              personnels&nbsp;: votre santé, vos convictions religieuses ou philosophiques, votre vie
+              affective. C&apos;est le prix d&apos;un récit de vie honnête&nbsp;— nous préférons vous le dire
+              clairement plutôt que de le passer sous silence. Votre accord explicite est demandé à la
+              création de votre compte avant toute séance.
+            </p>
+
+            <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
               Ce que nous ne faisons jamais
             </h2>
             <p>

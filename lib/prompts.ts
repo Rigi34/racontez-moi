@@ -6,6 +6,11 @@ export const QUESTION_INITIALE = "Quelle est la première maison dont vous vous 
 // un destinataire précis dès le départ améliore la motivation à raconter).
 export const QUESTION_POUR_QUI = "Avant de commencer : pour qui racontez-vous votre histoire ?";
 
+// Posée juste après QUESTION_POUR_QUI, toujours avant QUESTION_INITIALE —
+// ajout du 29/07/2026 (Régis) : utilisé pour personnaliser l'interface
+// ("Bonjour Monique"), jamais injecté dans les relances IA elles-mêmes.
+export const QUESTION_PRENOM = "Comment aimeriez-vous qu'on vous appelle ?";
+
 // Construit dynamiquement pour pouvoir y injecter des extraits de la
 // bibliothèque de référence (14 ouvrages, cf. lib/retrieval.ts) et un résumé
 // du profil narrateur (cf. lib/profil-narrateur.ts) — périodes déjà

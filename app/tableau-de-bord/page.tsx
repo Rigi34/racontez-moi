@@ -10,13 +10,19 @@ export default async function TableauDeBord() {
 
   if (!user) redirect("/sign-in")
 
-  const { data: fragments } = await supabase
-    .from("fragments")
-    .select("id, texte, statut, created_at, session:sessions(question_ouverture)")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
+  const [{ data: fragments }, { data: profil }] = await Promise.all([
+    supabase
+      .from("fragments")
+      .select("id, texte, statut, created_at, session:sessions(question_ouverture)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase.from("profil_narrateur").select("prenom_choisi").eq("user_id", user.id).maybeSingle(),
+  ])
 
   const nombreSeances = fragments?.length ?? 0
+  // Jamais utilisé dans les relances IA (choix de Régis, 29/07/2026) —
+  // uniquement pour personnaliser l'interface.
+  const prenom = profil?.prenom_choisi?.trim() || null
 
   return (
     <div className="min-h-screen bg-papier flex flex-col">
@@ -37,7 +43,7 @@ export default async function TableauDeBord() {
       <main className="flex-1 max-w-3xl mx-auto w-full px-8 py-16 space-y-12">
         <div>
           <h1 className="font-display text-3xl text-encre">
-            Votre parcours
+            {prenom ? `Bonjour ${prenom}` : "Votre parcours"}
           </h1>
           <p className="font-sans text-base text-grege mt-2">
             {user.email}

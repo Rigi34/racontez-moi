@@ -41,6 +41,24 @@ export async function enregistrerPourQui(supabase: SupabaseClient, userId: strin
   );
 }
 
+// Prénom (ou surnom choisi) — posé juste après "pour qui racontez-vous ?",
+// utilisé uniquement pour personnaliser l'interface (jamais les relances IA).
+export async function lirePrenom(supabase: SupabaseClient, userId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("profil_narrateur")
+    .select("prenom_choisi")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return data?.prenom_choisi ?? null;
+}
+
+export async function enregistrerPrenom(supabase: SupabaseClient, userId: string, reponse: string): Promise<void> {
+  await supabase.from("profil_narrateur").upsert(
+    { user_id: userId, prenom_choisi: reponse, updated_at: new Date().toISOString() },
+    { onConflict: "user_id" }
+  );
+}
+
 export async function lireProfil(supabase: SupabaseClient, userId: string): Promise<ProfilNarrateur> {
   const { data } = await supabase
     .from("profil_narrateur")

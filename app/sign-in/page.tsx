@@ -20,6 +20,12 @@ function SignInInner() {
   const [mode, setMode] = useState<"login" | "signup">("login")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  // Consentement explicite (RGPD art. 9) : les entretiens abordent
+  // délibérément des catégories de données sensibles (santé, convictions,
+  // vie affective) — cf. sections J/N/E de la banque de questions. Ajouté
+  // le 29/07/2026 ; formulation provisoire, à faire valider par un juriste
+  // avant de considérer le mécanisme définitif.
+  const [consentDonneesSensibles, setConsentDonneesSensibles] = useState(false)
   const [error, setError] = useState<string | null>(
     confirmError ? "Le lien de confirmation a expiré ou a déjà été utilisé. Réessayez de vous inscrire." : null
   )
@@ -35,7 +41,13 @@ function SignInInner() {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+          data: {
+            consentement_donnees_sensibles: true,
+            consentement_donnees_sensibles_le: new Date().toISOString(),
+          },
+        },
       })
       setLoading(false)
       if (error) { setError(messageErreur(error.message)); return }
@@ -53,9 +65,15 @@ function SignInInner() {
   async function connexionGoogle() {
     setLoading(true)
     setError(null)
+    // Le consentement ne peut pas être passé en options.data comme pour
+    // signUp (Supabase ne le propage pas pour l'OAuth) — il transite donc
+    // par le callback, qui l'écrit dans user_metadata après coup (cf.
+    // app/auth/callback/route.ts) si la case a été cochée.
+    const callbackParams = new URLSearchParams({ next })
+    if (mode === "signup" && consentDonneesSensibles) callbackParams.set("consent", "1")
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
+      options: { redirectTo: `${window.location.origin}/auth/callback?${callbackParams.toString()}` },
     })
     if (error) { setLoading(false); setError(messageErreur(error.message)) }
   }
@@ -125,6 +143,26 @@ function SignInInner() {
             />
           </div>
 
+          {mode === "signup" && (
+            <label className="flex items-start gap-2.5 font-sans text-xs text-grege leading-relaxed">
+              <input
+                type="checkbox"
+                checked={consentDonneesSensibles}
+                onChange={(e) => setConsentDonneesSensibles(e.target.checked)}
+                className="mt-0.5"
+                required
+              />
+              <span>
+                J&apos;ai lu et j&apos;accepte que mon histoire, y compris des sujets sensibles que je choisis
+                d&apos;aborder (santé, convictions, vie affective), soit traitée pour composer mon livre — voir{" "}
+                <a href="/confidentialite" target="_blank" className="text-petrole underline hover:text-encre">
+                  la page confidentialité
+                </a>
+                .
+              </span>
+            </label>
+          )}
+
           {error && (
             <p role="alert" className="font-sans text-sm text-red-600">
               {error}
@@ -133,7 +171,7 @@ function SignInInner() {
 
           <button
             type="submit"
-            disabled={loading || !email || password.length < 8}
+            disabled={loading || !email || password.length < 8 || (mode === "signup" && !consentDonneesSensibles)}
             className="w-full bg-encre text-blanc rounded-full font-sans text-base py-3.5 tracking-wide hover:opacity-90 transition-opacity disabled:opacity-40"
           >
             {loading
@@ -153,7 +191,7 @@ function SignInInner() {
         <button
           type="button"
           onClick={connexionGoogle}
-          disabled={loading}
+          disabled={loading || (mode === "signup" && !consentDonneesSensibles)}
           className="w-full border border-grege bg-white text-encre font-sans text-base py-3.5 tracking-wide hover:bg-grege/20 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
