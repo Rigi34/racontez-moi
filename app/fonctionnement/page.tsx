@@ -84,6 +84,68 @@ export default function Fonctionnement() {
             </p>
           </div>
 
+          {/* ─── LE FIL DE VOTRE RÉCIT (timeline sobre, 4 phases) ─────── */}
+          <h2 className="font-display text-2xl text-encre mb-8">Le fil de votre récit</h2>
+          <div className="mb-16 space-y-8 border-l-2 border-sauge pl-6">
+            <div>
+              <p className="font-display italic text-lg text-petrole mb-1">Les racines</p>
+              <p className="font-sans text-base text-grege leading-relaxed">
+                L&apos;enfance, la famille, les premiers repères — ce qui vous a construit avant même que vous
+                le choisissiez.
+              </p>
+            </div>
+            <div>
+              <p className="font-display italic text-lg text-petrole mb-1">Se construire</p>
+              <p className="font-sans text-base text-grege leading-relaxed">
+                L&apos;amour, le travail, devenir parent — les choix qui ont dessiné le reste de votre vie.
+              </p>
+            </div>
+            <div>
+              <p className="font-display italic text-lg text-petrole mb-1">Traverser</p>
+              <p className="font-sans text-base text-grege leading-relaxed">
+                Les lieux, les épreuves, les convictions, les passions — tout ce qui donne du relief à une
+                vie, dans le désordre où la mémoire les ramène.
+              </p>
+            </div>
+            <div>
+              <p className="font-display italic text-lg text-petrole mb-1">Transmettre</p>
+              <p className="font-sans text-base text-grege leading-relaxed">
+                Le bilan, ce que vous voulez laisser — le mot de la fin, celui qui compte le plus.
+              </p>
+            </div>
+          </div>
+
+          {/* ─── SE PRÉPARER À UNE SÉANCE ──────────────────────────────── */}
+          <h2 className="font-display text-2xl text-encre mb-6">Se préparer à une séance</h2>
+          <div className="space-y-7 font-serif text-lg leading-[1.85] text-encre mb-16">
+            <p>
+              Rien de compliqué&nbsp;: parlez simplement, sans vous soucier de bien dire les choses. Ce
+              n&apos;est ni un examen ni une dictée&nbsp;— dites-le de travers si besoin, personne ne
+              corrigera sur le moment.
+            </p>
+            <p>
+              Choisissez un moment où vous vous sentez tranquille, pas juste après une contrariété. Le matin
+              ou le soir&nbsp;: les deux ont leurs partisans (la mémoire se consolide pendant le sommeil,
+              mais l&apos;esprit est aussi plus disponible au réveil)&nbsp;— à vous de voir ce qui vous
+              convient, il n&apos;y a pas de bon moment universel.
+            </p>
+            <p>
+              Une astuce qui aide beaucoup&nbsp;: gardez à portée de main une photo, un objet ou une musique
+              du souvenir que vous comptez raconter. Ce genre de détail fait souvent remonter bien plus que
+              prévu.
+            </p>
+            <p>
+              Enfin, une question simple peut tout changer&nbsp;: pour qui racontez-vous cette histoire&nbsp;?
+              Vos enfants, vos petits-enfants, ou simplement vous-même&nbsp;— y penser avant de commencer
+              donne souvent un sens plus clair à ce qui suit. C&apos;est d&apos;ailleurs la première chose que
+              nous vous demandons.
+            </p>
+            <p>
+              Et si une émotion plus forte que prévu remonte pendant une séance&nbsp;: c&apos;est normal, et
+              même bon signe&nbsp;— c&apos;est souvent que ce moment méritait d&apos;être raconté.
+            </p>
+          </div>
+
           <h2 className="font-display text-2xl text-encre mb-6">Questions fréquentes</h2>
           <FAQAccordion items={FAQ_FONCTIONNEMENT} />
         </div>
