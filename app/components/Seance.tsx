@@ -12,6 +12,39 @@ type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "f
 const QUESTION_INITIALE_REPLI = "Quelle est la première maison dont vous vous souvenez ?";
 const TITRE_SECTION_REPLI = "Racines et petite enfance";
 
+// Petits carillons de démarrage/arrêt d'enregistrement (demande de Régis,
+// 29/07/2026) — synthétisés au vol (deux notes sinusoïdales, enveloppe
+// douce) plutôt qu'un fichier audio à héberger, pour rester léger et
+// cohérent avec le reste de l'interface (jamais un bip strident).
+function jouerCarillon(frequences: [number, number]) {
+  try {
+    const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new Ctx();
+    frequences.forEach((freq, i) => {
+      const debut = ctx.currentTime + i * 0.09;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, debut);
+      gain.gain.linearRampToValueAtTime(0.12, debut + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, debut + 0.35);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(debut);
+      osc.stop(debut + 0.4);
+    });
+    setTimeout(() => ctx.close(), 700);
+  } catch {
+    // Web Audio indisponible (navigateur ancien, contexte bloqué) — silence,
+    // jamais bloquant pour l'enregistrement lui-même.
+  }
+}
+
+// Do (C5) → Mi (E5) à l'ouverture de l'écoute, Mi → Do à la fermeture —
+// même intervalle, sens inversé, pour que les deux se répondent.
+const CARILLON_DEBUT: [number, number] = [523.25, 659.25];
+const CARILLON_FIN: [number, number] = [659.25, 523.25];
+
 // Phrases affichées après quelques secondes sans reprise de parole —
 // purement décoratif à ce stade (basé sur un minuteur, pas sur une vraie
 // détection audio du silence). La vraie détection de silence reste un
@@ -488,6 +521,7 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
       setIsRecording(true);
       setDureeEnregistrement(0);
       chronoRef.current = setInterval(() => setDureeEnregistrement((d) => d + 1), 1000);
+      jouerCarillon(CARILLON_DEBUT);
     } catch {
       setError("Accès au microphone refusé. Vérifiez les permissions du navigateur.");
     }
@@ -496,6 +530,7 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
   const stopVoice = useCallback(() => {
     mediaRecorderRef.current?.stop();
     setIsRecording(false);
+    jouerCarillon(CARILLON_FIN);
   }, []);
 
   const reprendreSeance = () => {
