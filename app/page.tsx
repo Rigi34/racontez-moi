@@ -62,6 +62,36 @@ const objetsMemoire = [
   },
 ];
 
+const troisFormats = [
+  {
+    src: "/triptyque-pdf.webp",
+    alt: "Tablette posée sur une table en bois affichant une page du manuscrit, entourée de plantes et de livres",
+    titre: "PDF",
+    legende: "Le format idéal pour lire, imprimer ou partager facilement.",
+    icone: (
+      <path d="M7 2h7l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z M14 2v5h5" />
+    ),
+  },
+  {
+    src: "/triptyque-epub.webp",
+    alt: "Téléphone posé sur une table affichant une page du manuscrit, entouré d'un plaid et d'une plante",
+    titre: "ePub",
+    legende: "Le format pour votre liseuse et toutes vos lectures numériques.",
+    icone: (
+      <path d="M12 4c-2-1.3-4.5-1.5-6.5-1V17c2 -.5 4.5-.3 6.5 1 2-1.3 4.5-1.5 6.5-1V3c-2-.5-4.5-.3-6.5 1Z M12 4v14" />
+    ),
+  },
+  {
+    src: "/triptyque-livre.webp",
+    alt: "Mains tenant un livre relié ouvert, avec une photo de famille en noir et blanc insérée dans la page",
+    titre: "Livre relié",
+    legende: "Un livre imprimé et relié avec soin, pour transmettre et garder précieusement.",
+    icone: (
+      <path d="M5 3h11a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2V3Z M18 17H7a2 2 0 0 0-2 2" />
+    ),
+  },
+];
+
 export default function Home() {
   return (
     <main className="min-h-screen">
@@ -269,6 +299,41 @@ export default function Home() {
               L&apos;offrir en cadeau →
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* ─── TROIS FORMATS ───────────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-sauge">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-display text-3xl text-encre text-center mb-3">
+            Tout compris. Votre histoire, partout avec vous.
+          </h2>
+          <p className="font-serif text-lg text-grege text-center mb-14">
+            Chaque récit inclut les trois formats, sans supplément.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            {troisFormats.map((format) => (
+              <div key={format.titre} className="bg-papier border border-grege/30 overflow-hidden">
+                <div className="flex flex-col items-center pt-8 pb-5">
+                  <div className="w-14 h-14 rounded-full bg-ambre/15 flex items-center justify-center mb-3">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#B8823D" strokeWidth="1.5" className="w-6 h-6">
+                      {format.icone}
+                    </svg>
+                  </div>
+                  <p className="font-display text-xl text-encre">{format.titre}</p>
+                </div>
+                <div className="relative aspect-[4/3] shadow-[5px_5px_0px_#DAD4C5]">
+                  <Image src={format.src} alt={format.alt} fill className="object-cover" sizes="(max-width: 640px) 90vw, 30vw" />
+                </div>
+                <p className="font-sans text-sm text-grege text-center px-6 py-6 leading-relaxed">
+                  {format.legende}
+                </p>
+              </div>
+            ))}
+          </div>
+          <p className="font-sans text-sm text-encre text-center mt-10 tracking-wide">
+            🌿 Un seul prix. Trois formats inclus. Zéro souci.
+          </p>
         </div>
       </section>
 
