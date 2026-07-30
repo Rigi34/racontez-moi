@@ -6,6 +6,19 @@ export const metadata: Metadata = {
   description: "Identité de l'éditeur, hébergement, propriété intellectuelle et conditions générales de vente.",
 };
 
+// CGV finalisées le 30/07/2026 suite à la demande de Régis (les inscriptions
+// payantes sont réellement ouvertes depuis le 28/07, le texte disait encore
+// le contraire). Deux points restent provisoires, à traiter avec le même
+// juriste que pour le document RGPD :
+// - Section 5 (droit de rétractation) : position retenue = exception
+//   L221-28 3° (bien personnalisé) une fois la composition commencée —
+//   raisonnable mais jamais validée juridiquement, contrairement au texte
+//   RGPD qui l'a été.
+// - Section "Médiation de la consommation" : aucun médiateur de la
+//   consommation n'est actuellement désigné par CohérenceLab — obligatoire
+//   pour toute entreprise vendant à des consommateurs (art. L616-1 Code de
+//   la consommation). Régis doit s'inscrire auprès d'un médiateur (ex.
+//   CNPM, médiateur du e-commerce/FEVAD) et communiquer ses coordonnées.
 export default function MentionsLegales() {
   return (
     <main className="min-h-screen bg-blanc">
@@ -79,7 +92,7 @@ export default function MentionsLegales() {
               l&apos;adresse privacy@vercel.com.
             </p>
 
-            <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
+            <h2 id="propriete-intellectuelle" className="font-display font-normal text-2xl text-encre mt-12 mb-4">
               Propriété intellectuelle
             </h2>
             <p>
@@ -136,9 +149,14 @@ export default function MentionsLegales() {
               Conformément aux articles L.616-1 et R.616-1 du Code de la consommation,
               tout consommateur a le droit de recourir gratuitement à un service de
               médiation de la consommation en vue de la résolution amiable d&apos;un litige
-              relatif à l&apos;exécution d&apos;un contrat conclu avec l&apos;éditeur du Site. Les
-              coordonnées du médiateur compétent seront communiquées avant l&apos;ouverture
-              des inscriptions payantes.
+              relatif à l&apos;exécution d&apos;un contrat conclu avec l&apos;éditeur du Site.
+              Avant toute saisine du médiateur, le consommateur s&apos;engage à tenter de
+              résoudre le litige directement auprès de l&apos;éditeur, via la page{" "}
+              <Link href="/contact" className="text-petrole hover:text-encre transition-colors">
+                Contact
+              </Link>
+              . Les coordonnées du médiateur de la consommation compétent seront
+              communiquées à cet emplacement dès sa désignation.
             </p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
@@ -164,17 +182,86 @@ export default function MentionsLegales() {
             <h1 id="cgv" className="font-display font-normal text-4xl md:text-5xl text-encre mt-20 mb-10 leading-[1.2]">
               Conditions générales de vente
             </h1>
+
+            <h2 className="font-display font-normal text-2xl text-encre mt-4 mb-4">
+              1. Objet et champ d&apos;application
+            </h2>
             <p>
-              Cette section sera complétée avant l&apos;ouverture des inscriptions payantes
-              du Parcours. À ce jour, le Site propose uniquement une première séance
-              d&apos;essai, gratuite et sans engagement, sans collecte de moyen de paiement.
-              Aucune vente n&apos;est effectuée sur le Site en l&apos;état.
+              Les présentes conditions générales de vente régissent la vente de « Le
+              Parcours », prestation proposée par CohérenceLab consistant à recueillir,
+              par entretiens vocaux assistés, le récit de vie du client (le « narrateur »),
+              puis à le composer et à le fabriquer sous forme de manuscrit numérique et de
+              livre imprimé relié.
             </p>
+
+            <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
+              2. Prix
+            </h2>
             <p>
-              Les conditions générales de vente applicables au Parcours (tarifs,
-              modalités de paiement, durée d&apos;engagement, droit de rétractation,
-              modalités de résiliation) seront publiées à cet emplacement avant toute
-              mise en place d&apos;un paiement réel.
+              Le Parcours est proposé au prix unique de 155€ TTC, incluant des séances
+              illimitées, le manuscrit au format PDF et ebook, ainsi que le livre imprimé
+              et relié en couleur — quels que soient le nombre de pages ou de photos du
+              récit final. Ce prix ne varie jamais après l&apos;achat, y compris dans le
+              cadre d&apos;un achat-cadeau.
+            </p>
+
+            <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
+              3. Paiement
+            </h2>
+            <p>
+              Le paiement s&apos;effectue en une seule fois, par carte bancaire, au moment
+              de la commande, via le prestataire de paiement Stripe. Aucun abonnement ni
+              prélèvement récurrent n&apos;est mis en place.
+            </p>
+
+            <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
+              4. Durée et modalités d&apos;exécution
+            </h2>
+            <p>
+              Aucune durée fixe n&apos;est imposée au narrateur&nbsp;: le rythme des
+              séances s&apos;ajuste librement à son avancement réel. Le livre imprimé est
+              commandé auprès de l&apos;imprimeur une fois le manuscrit finalisé et validé
+              par le narrateur, et la pagination minimale requise pour la reliure atteinte.
+            </p>
+
+            <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
+              5. Droit de rétractation
+            </h2>
+            <p>
+              Conformément à l&apos;article L221-28 3° du Code de la consommation, le
+              droit de rétractation ne s&apos;applique pas aux biens confectionnés selon
+              les spécifications du client ou nettement personnalisés&nbsp;: le manuscrit
+              et le livre imprimé, composés à partir du récit propre à chaque narrateur,
+              relèvent de cette exception dès lors que la composition du manuscrit a
+              débuté. Le narrateur qui souhaite interrompre son parcours avant toute
+              composition de fragment peut demander l&apos;annulation de sa commande et
+              le remboursement intégral, en écrivant via la page{" "}
+              <Link href="/contact" className="text-petrole hover:text-encre transition-colors">
+                Contact
+              </Link>
+              .
+            </p>
+
+            <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
+              6. Impression et livraison
+            </h2>
+            <p>
+              Le livre imprimé est fabriqué et expédié par un prestataire d&apos;impression
+              à la demande. Les délais de fabrication et d&apos;expédition dépendent de ce
+              prestataire et sont communiqués au narrateur au moment de la commande
+              d&apos;impression, une fois son adresse de livraison renseignée.
+            </p>
+
+            <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
+              7. Propriété du récit
+            </h2>
+            <p>
+              Conformément à la section{" "}
+              <Link href="#propriete-intellectuelle" className="text-petrole hover:text-encre transition-colors">
+                Propriété intellectuelle
+              </Link>{" "}
+              ci-dessus, le récit, les fragments et le manuscrit produits demeurent la
+              propriété exclusive du narrateur.
             </p>
           </div>
         </div>

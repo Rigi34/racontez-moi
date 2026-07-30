@@ -238,12 +238,15 @@ export default function OffrirPage() {
           <a href="/" className="font-display italic text-papier text-xl hover:text-petrole transition-colors">
             Racontez-moi
           </a>
-          <div className="flex gap-8 font-sans text-sm text-papier/70">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-sans text-sm text-papier/70">
             <a href="/" className="hover:text-petrole transition-colors">
               Accueil
             </a>
             <a href="/confidentialite" className="hover:text-petrole transition-colors">
-              Confidentialité
+              Confidentialité (RGPD)
+            </a>
+            <a href="/mentions-legales" className="hover:text-petrole transition-colors">
+              Mentions légales
             </a>
             <a href="/contact" className="hover:text-petrole transition-colors">
               Contact

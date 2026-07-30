@@ -417,32 +417,36 @@ export default function Home() {
 
       {/* ─── FOOTER ───────────────────────────────────────────────────── */}
       <footer className="py-12 px-6 bg-encre">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
           <p className="font-display italic text-papier text-xl">
             Racontez-moi
           </p>
-          <div className="flex gap-8 font-sans text-sm text-papier/70">
-            <a href="/offrir" className="hover:text-petrole transition-colors">
-              Offrir en cadeau
-            </a>
-            <a href="/manifeste" className="hover:text-petrole transition-colors">
-              Notre histoire
-            </a>
-            <a href="/fonctionnement" className="hover:text-petrole transition-colors">
-              Fonctionnement
-            </a>
-            <a href="/blog" className="hover:text-petrole transition-colors">
-              Journal
-            </a>
-            <a href="/confidentialite" className="hover:text-petrole transition-colors">
-              Confidentialité
-            </a>
-            <a href="/mentions-legales" className="hover:text-petrole transition-colors">
-              Mentions légales
-            </a>
-            <a href="/contact" className="hover:text-petrole transition-colors">
-              Contact
-            </a>
+          <div className="flex flex-col items-center md:items-end gap-3">
+            <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2 font-sans text-sm text-papier/70">
+              <a href="/offrir" className="hover:text-petrole transition-colors">
+                Offrir en cadeau
+              </a>
+              <a href="/manifeste" className="hover:text-petrole transition-colors">
+                Notre histoire
+              </a>
+              <a href="/fonctionnement" className="hover:text-petrole transition-colors">
+                Fonctionnement
+              </a>
+              <a href="/blog" className="hover:text-petrole transition-colors">
+                Journal
+              </a>
+            </div>
+            <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2 font-sans text-xs text-papier/50">
+              <a href="/confidentialite" className="hover:text-petrole transition-colors">
+                Confidentialité (RGPD)
+              </a>
+              <a href="/mentions-legales" className="hover:text-petrole transition-colors">
+                Mentions légales
+              </a>
+              <a href="/contact" className="hover:text-petrole transition-colors">
+                Contact
+              </a>
+            </div>
           </div>
         </div>
       </footer>
