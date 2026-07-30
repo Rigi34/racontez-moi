@@ -162,7 +162,7 @@ export default function Home() {
             <div className="relative overflow-hidden shadow-[6px_6px_0px_#DAD4C5]">
               <Image
                 src="/hero-livre.webp"
-                alt="Une personne tenant le livre Racontez-moi, avec l'application ouverte sur son téléphone à côté"
+                alt="Une personne tenant le livre Racontez-moi ouvert, avec une photo de famille en noir et blanc insérée dans la page"
                 width={420}
                 height={525}
                 className="object-cover w-full"
