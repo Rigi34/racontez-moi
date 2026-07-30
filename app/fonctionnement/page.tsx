@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import FAQAccordion from "../components/FAQAccordion";
 
@@ -86,7 +87,19 @@ export default function Fonctionnement() {
 
           {/* ─── LE FIL DE VOTRE RÉCIT (timeline sobre, 4 phases) ─────── */}
           <h2 className="font-display text-2xl text-encre mb-8">Le fil de votre récit</h2>
-          <div className="mb-16 space-y-8 border-l-2 border-sauge pl-6">
+          <div className="relative md:pr-36">
+            {/* Accent photo — discret, un seul emplacement testé sur le site
+                (décision du 29/07/2026 : mieux vaut peu que trop, cf. mémoire) */}
+            <div className="hidden md:block absolute top-0 right-0 w-32 rotate-[4deg] shadow-[3px_3px_10px_rgba(36,34,32,0.18)]">
+              <Image
+                src="/polaroid-grand-pere.webp"
+                alt="Photo façon polaroïd d'un grand-père et de son petit-fils à table"
+                width={400}
+                height={484}
+                className="w-full h-auto"
+              />
+            </div>
+            <div className="mb-16 space-y-8 border-l-2 border-sauge pl-6">
             <div>
               <p className="font-display italic text-lg text-petrole mb-1">Les racines</p>
               <p className="font-sans text-base text-grege leading-relaxed">
@@ -112,6 +125,7 @@ export default function Fonctionnement() {
               <p className="font-sans text-base text-grege leading-relaxed">
                 Le bilan, ce que vous voulez laisser — le mot de la fin, celui qui compte le plus.
               </p>
+            </div>
             </div>
           </div>
 
