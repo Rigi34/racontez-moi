@@ -3,6 +3,11 @@ import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
 
+// Identifiant de version du texte de consentement (annexe du document
+// juridique du 30/07/2026) — à incrémenter si le texte de la case à cocher
+// change, pour pouvoir prouver quelle version exacte a été acceptée.
+const VERSION_CONSENTEMENT = "v1.0 — 30/07/2026"
+
 function messageErreur(raw: string): string {
   if (/invalid login credentials/i.test(raw)) return "Email ou mot de passe incorrect."
   if (/user already registered/i.test(raw)) return "Un compte existe déjà avec cet email. Connectez-vous."
@@ -46,6 +51,7 @@ function SignInInner() {
           data: {
             consentement_donnees_sensibles: true,
             consentement_donnees_sensibles_le: new Date().toISOString(),
+            consentement_donnees_sensibles_version: VERSION_CONSENTEMENT,
           },
         },
       })
@@ -153,10 +159,13 @@ function SignInInner() {
                 required
               />
               <span>
-                J&apos;ai lu et j&apos;accepte que mon histoire, y compris des sujets sensibles que je choisis
-                d&apos;aborder (santé, convictions, vie affective), soit traitée pour composer mon livre — voir{" "}
-                <a href="/confidentialite" target="_blank" className="text-petrole underline hover:text-encre">
-                  la page confidentialité
+                Je consens expressément à ce que mon récit, y compris les informations sensibles que je choisis
+                d&apos;aborder — ma santé, mes convictions religieuses ou philosophiques, ma vie affective et
+                intime — soit traité pour composer mon livre, y compris par des prestataires situés hors de
+                l&apos;Union européenne. Je peux refuser toute question et retirer ce consentement à tout
+                moment.{" "}
+                <a href="/confidentialite/sujets-sensibles" target="_blank" className="text-petrole underline hover:text-encre">
+                  Sujets sensibles et données de santé
                 </a>
                 .
               </span>

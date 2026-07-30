@@ -19,6 +19,10 @@ export async function GET(request: Request) {
           data: {
             consentement_donnees_sensibles: true,
             consentement_donnees_sensibles_le: new Date().toISOString(),
+            // Identifiant de version du texte accepté (annexe du document
+            // juridique du 30/07/2026) — garder synchronisé avec
+            // VERSION_CONSENTEMENT dans app/sign-in/page.tsx.
+            consentement_donnees_sensibles_version: "v1.0 — 30/07/2026",
           },
         })
       }
