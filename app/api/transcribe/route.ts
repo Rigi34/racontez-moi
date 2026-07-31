@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/utils/supabase/server";
 
 type SegmentGroq = {
   start: number;
@@ -17,6 +18,10 @@ const SEUIL_NO_SPEECH = 0.6;
 const SEUIL_COMPRESSION = 2.4;
 
 export async function POST(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+
   const formData = await req.formData();
   const audio = formData.get("audio") as Blob | null;
 
