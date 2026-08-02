@@ -96,7 +96,17 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       {/* ─── HEADER ───────────────────────────────────────────────────── */}
-      <header className="px-6 pt-6 flex justify-end">
+      <header className="px-6 pt-6 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-3">
+          <Image
+            src="/brand/logo-R-petrole-1024.png"
+            alt="Racontez-moi"
+            width={36}
+            height={36}
+            className="rounded-lg"
+          />
+          <span className="font-display text-xl text-encre">Racontez-moi</span>
+        </Link>
         <a
           href="/sign-in"
           className="font-sans text-sm text-encre hover:text-petrole transition-colors"
@@ -418,9 +428,17 @@ export default function Home() {
       {/* ─── FOOTER ───────────────────────────────────────────────────── */}
       <footer className="py-12 px-6 bg-encre">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
-          <p className="font-display italic text-papier text-xl">
-            Racontez-moi
-          </p>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/brand/logo-R-papier-transparent-1024.png"
+              alt=""
+              width={28}
+              height={28}
+            />
+            <p className="font-display italic text-papier text-xl">
+              Racontez-moi
+            </p>
+          </div>
           <div className="flex flex-col items-center md:items-end gap-3">
             <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2 font-sans text-sm text-papier/70">
               <a href="/offrir" className="hover:text-petrole transition-colors">
