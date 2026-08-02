@@ -99,7 +99,7 @@ export default function Home() {
       <header className="px-6 pt-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/brand/logo-R-petrole-1024.png"
+            src="/brand/logo-R-encre-2048.png"
             alt="Racontez-moi"
             width={36}
             height={36}
