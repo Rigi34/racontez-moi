@@ -35,6 +35,11 @@ const FAQ_ACCUEIL = [
     reponse: "Vous pouvez la passer simplement, sans justification — une autre vous sera proposée aussitôt.",
   },
   {
+    question: "Ils n'ont pas eu une vie si intéressante à raconter.",
+    reponse:
+      "Presque personne ne se sent digne d'être raconté avant qu'on lui pose les bonnes questions — c'est presque toujours faux une fois qu'on gratte. Une vie ordinaire déborde de matière ; il ne manque jamais l'histoire, seulement les bonnes questions pour la faire remonter.",
+  },
+  {
     question: "Le prix change-t-il selon la longueur de mon récit ?",
     reponse:
       "Non. 155€, une seule fois, quelle que soit la longueur finale de votre histoire — livre imprimé et relié inclus. Jamais de palier, jamais de supplément découvert après coup.",

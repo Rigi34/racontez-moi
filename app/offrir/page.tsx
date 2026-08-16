@@ -55,19 +55,26 @@ export default function OffrirPage() {
           </h2>
           <div className="space-y-6 font-serif text-lg leading-[1.85] text-encre">
             <p>
-              Personne ne se raconte seul&nbsp;: il faut un interlocuteur qui écoute,
-              questionne, relance — et se souvient. Vous ne pouvez pas être cet
-              interlocuteur, et vous le savez&nbsp;: des heures d&apos;enregistrement,
-              de notes, de relances, personne ne tient la distance. Eux le savent aussi.
-              C&apos;est précisément pour ça qu&apos;ils ne vous l&apos;ont jamais
-              demandé&nbsp;: ils ne veulent rien vous imposer.
+              Vos parents ne racontent pas spontanément, non pas parce qu&apos;ils
+              n&apos;ont rien à dire — mais parce que personne, jamais, ne le leur a
+              vraiment demandé. Demander à voix haute passerait presque pour de la
+              curiosité déplacée, ou pire, pour annoncer une mauvaise nouvelle. Alors
+              chacun attend que l&apos;autre fasse le premier pas, et personne ne le
+              fait.
             </p>
             <p>
-              Notre interlocuteur, lui, ne se fatigue jamais. Il pose les bonnes
-              questions, vingt minutes au moins par séance, à la voix — pas de clavier, pas
-              d&apos;application à apprendre. Et de séance en séance, il compose leurs
-              mots en chapitres. Leurs mots à eux&nbsp;: l&apos;intelligence artificielle
-              questionne, elle n&apos;écrit pas leur vie à leur place.
+              Et même si vous le tentiez — vous l&apos;avez peut-être déjà fait, un
+              dimanche, téléphone posé sur la table — ça ne prend pas vraiment. Ce
+              n&apos;est pas un manque de confiance envers vous&nbsp;: face à son
+              propre enfant, un parent filtre, atténue, protège. Il ne veut ni
+              inquiéter, ni décevoir, ni cesser d&apos;être «&nbsp;le parent&nbsp;» le
+              temps d&apos;un souvenir. Le même parent se livre souvent plus librement
+              à quelqu&apos;un qui ne l&apos;a jamais vu autrement qu&apos;adulte.
+            </p>
+            <p>
+              C&apos;est exactement ce que ce cadeau change&nbsp;: un déclencheur
+              autorisé, offert plutôt que demandé — et un interlocuteur neutre, qui
+              n&apos;a jamais eu de raison de les protéger de quoi que ce soit.
             </p>
           </div>
         </div>
