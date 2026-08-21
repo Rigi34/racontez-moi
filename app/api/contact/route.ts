@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/utils/supabase/server";
+import { verifierQuotaAnonyme, extraireIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   let body: { nom?: string; email?: string; message?: string };
@@ -11,6 +13,19 @@ export async function POST(req: NextRequest) {
   const { nom, email, message } = body;
   if (!nom?.trim() || !email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !message?.trim()) {
     return NextResponse.json({ error: "Merci de remplir tous les champs avec une adresse email valide." }, { status: 400 });
+  }
+
+  // Quota quotidien par IP avant tout envoi Brevo (A5, 21/08/2026) — route
+  // anonyme, même fail-closed que sur /api/seance et /api/transcribe (A4).
+  const supabase = await createClient();
+  const ip = extraireIp(req);
+  try {
+    if (!(await verifierQuotaAnonyme(supabase, ip, "contact"))) {
+      return NextResponse.json({ error: "Trop de tentatives. Réessayez plus tard." }, { status: 429 });
+    }
+  } catch (e) {
+    console.error("verifierQuotaAnonyme (contact) échouée:", e);
+    return NextResponse.json({ error: "Vérification impossible. Réessayez plus tard." }, { status: 500 });
   }
 
   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
