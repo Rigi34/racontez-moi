@@ -16,6 +16,7 @@ import {
 import { prochaineQuestionBanque, titreSection, TITRE_SECTION_A } from "@/lib/banque-questions";
 import { composerFragment, genererResumeSession } from "@/lib/redaction";
 import { calculerProgression } from "@/lib/progression";
+import { verifierQuota } from "@/lib/rate-limit";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -253,6 +254,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Réponse manquante." }, { status: 400 });
     }
 
+    // Quota quotidien avant tout appel Anthropic (A4, 21/08/2026) — vérifié
+    // avant même la lecture de la séance pour échouer au plus tôt.
+    // verifierQuota lève une exception si la vérification elle-même échoue
+    // (réseau, base) : fail-closed délibéré, l'appel facturé n'a pas lieu
+    // tant que le quota n'a pas pu être garanti (cf. lib/rate-limit.ts).
+    try {
+      if (!(await verifierQuota(supabase, user.id, "seance"))) {
+        return NextResponse.json({ error: "Quota quotidien atteint. Réessayez demain." }, { status: 429 });
+      }
+    } catch (e) {
+      console.error("verifierQuota (seance/relance) échouée:", e);
+      return NextResponse.json({ error: "Vérification du quota impossible. Réessayez plus tard." }, { status: 500 });
+    }
+
     const { data: session } = await supabase
       .from("sessions")
       .select("id, transcript, status, question_ouverture, question_est_nucleaire")
@@ -327,6 +342,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Réponse manquante." }, { status: 400 });
     }
 
+    // Quota quotidien avant appel Anthropic — même compteur "seance" que
+    // "relance"/"fragment" (cf. lib/rate-limit.ts).
+    try {
+      if (!(await verifierQuota(supabase, user.id, "seance"))) {
+        return NextResponse.json({ error: "Quota quotidien atteint. Réessayez demain." }, { status: 429 });
+      }
+    } catch (e) {
+      console.error("verifierQuota (seance/relance2) échouée:", e);
+      return NextResponse.json({ error: "Vérification du quota impossible. Réessayez plus tard." }, { status: 500 });
+    }
+
     const { data: session } = await supabase
       .from("sessions")
       .select("id, transcript, status, question_est_nucleaire")
@@ -396,6 +422,19 @@ export async function POST(req: NextRequest) {
     const { session_id, reponseRelance2, chunks_rag_utilises } = body;
     if (!session_id || !reponseRelance2?.trim()) {
       return NextResponse.json({ error: "Réponse manquante." }, { status: 400 });
+    }
+
+    // Quota quotidien avant appel Anthropic — cette étape déclenche en
+    // réalité 2 appels Anthropic (composerFragment + genererResumeSession,
+    // cf. lib/redaction.ts) mais ne consomme qu'1 unité de quota,
+    // simplification assumée (cf. lib/rate-limit.ts).
+    try {
+      if (!(await verifierQuota(supabase, user.id, "seance"))) {
+        return NextResponse.json({ error: "Quota quotidien atteint. Réessayez demain." }, { status: 429 });
+      }
+    } catch (e) {
+      console.error("verifierQuota (seance/fragment) échouée:", e);
+      return NextResponse.json({ error: "Vérification du quota impossible. Réessayez plus tard." }, { status: 500 });
     }
 
     const { data: session } = await supabase

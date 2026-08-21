@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { verifierQuota } from "@/lib/rate-limit";
 
 type SegmentGroq = {
   start: number;
@@ -27,6 +28,18 @@ export async function POST(req: NextRequest) {
 
   if (!audio) {
     return NextResponse.json({ error: "No audio" }, { status: 400 });
+  }
+
+  // Quota quotidien avant tout appel Groq (A4, 21/08/2026) — même
+  // fail-closed que sur /api/seance (cf. lib/rate-limit.ts) : si la
+  // vérification échoue, l'appel facturé n'a pas lieu.
+  try {
+    if (!(await verifierQuota(supabase, user.id, "transcribe"))) {
+      return NextResponse.json({ error: "Quota quotidien atteint. Réessayez demain." }, { status: 429 });
+    }
+  } catch (e) {
+    console.error("verifierQuota (transcribe) échouée:", e);
+    return NextResponse.json({ error: "Vérification du quota impossible. Réessayez plus tard." }, { status: 500 });
   }
 
   const groqForm = new FormData();
