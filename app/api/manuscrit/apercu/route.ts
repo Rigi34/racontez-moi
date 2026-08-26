@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { compilerInterieur } from "@/lib/manuscrit";
 import { chargerFragmentsAvecPhotos } from "@/lib/photos";
+import { lirePersonnalisationLivre } from "@/lib/profil-narrateur";
 
 // Assemblage réel du manuscrit — première brique du pipeline complet du
 // livre, nécessaire pour l'offre tout-compris à 155€ (décision du 28
@@ -22,7 +23,8 @@ export async function GET() {
   }
 
   try {
-    const { buffer, nombrePages } = compilerInterieur(fragments);
+    const { titre } = await lirePersonnalisationLivre(supabase, user.id);
+    const { buffer, nombrePages } = compilerInterieur(fragments, { titre });
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {

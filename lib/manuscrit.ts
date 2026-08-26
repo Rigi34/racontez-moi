@@ -5,7 +5,7 @@
 
 import { NodeCompiler } from "@myriaddreamin/typst-ts-node-compiler";
 import { genererSourceTypst, assemblerFragments } from "./typst";
-import { genererSourceCouverture } from "./couverture";
+import { genererSourceCouverture, PALETTE_COUVERTURE, COULEUR_COUVERTURE_DEFAUT } from "./couverture";
 import { dimensionsCouverture } from "./lulu";
 
 export type ManuscritCompile = { buffer: Buffer; nombrePages: number };
@@ -33,8 +33,9 @@ function cheminTypstPhoto(photoId: string, extension: string): string {
   return `/__shadow_photos__/${photoId}.${extension}`;
 }
 
-export function compilerInterieur(fragments: FragmentAvecPhotos[]): ManuscritCompile {
+export function compilerInterieur(fragments: FragmentAvecPhotos[], opts?: { titre?: string }): ManuscritCompile {
   const compiler = NodeCompiler.create();
+  const titre = opts?.titre ?? "Mes Mémoires";
 
   for (const fragment of fragments) {
     for (const photo of fragment.photos) {
@@ -52,7 +53,7 @@ export function compilerInterieur(fragments: FragmentAvecPhotos[]): ManuscritCom
   // Deux passes : la première donne la pagination réelle, nécessaire pour
   // choisir la bonne gouttière (lib/typst.ts, gouttiereMm) avant la
   // compilation finale.
-  const premiereSource = genererSourceTypst(corps, { titre: "Mes Mémoires" });
+  const premiereSource = genererSourceTypst(corps, { titre });
   const premierResultat = compiler.compile({ mainFileContent: premiereSource });
   if (premierResultat.hasError()) {
     const diags = compiler.fetchDiagnostics(premierResultat.takeError()!);
@@ -60,7 +61,7 @@ export function compilerInterieur(fragments: FragmentAvecPhotos[]): ManuscritCom
   }
   const nombrePages = premierResultat.result!.numOfPages;
 
-  const sourceFinale = genererSourceTypst(corps, { titre: "Mes Mémoires", nombrePagesLivreEstime: nombrePages });
+  const sourceFinale = genererSourceTypst(corps, { titre, nombrePagesLivreEstime: nombrePages });
   const resultatFinal = compiler.compile({ mainFileContent: sourceFinale });
   if (resultatFinal.hasError()) {
     const diags = compiler.fetchDiagnostics(resultatFinal.takeError()!);
@@ -70,10 +71,18 @@ export function compilerInterieur(fragments: FragmentAvecPhotos[]): ManuscritCom
   return { buffer: Buffer.from(compiler.pdf(resultatFinal.result!)), nombrePages };
 }
 
-export async function compilerCouverture(nombrePages: number): Promise<Buffer> {
+export async function compilerCouverture(
+  nombrePages: number,
+  opts: { titre: string; sousTitre: string; couleurCle: string }
+): Promise<Buffer> {
   const dims = await dimensionsCouverture(nombrePages);
   const compiler = NodeCompiler.create();
-  const source = genererSourceCouverture("Mes Mémoires", "Racontez-moi", dims);
+  // Repli défensif sur la couleur par défaut si la clé stockée ne correspond
+  // plus à la palette (ex. valeur historique avant l'ajout d'une couleur).
+  const couleurHex =
+    PALETTE_COUVERTURE.find((c) => c.cle === opts.couleurCle)?.hex ??
+    PALETTE_COUVERTURE.find((c) => c.cle === COULEUR_COUVERTURE_DEFAUT)!.hex;
+  const source = genererSourceCouverture(opts.titre, opts.sousTitre, dims, couleurHex);
   const resultat = compiler.compile({ mainFileContent: source });
   if (resultat.hasError()) {
     const diags = compiler.fetchDiagnostics(resultat.takeError()!);

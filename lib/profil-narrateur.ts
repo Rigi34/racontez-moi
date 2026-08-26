@@ -5,6 +5,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import Anthropic from "@anthropic-ai/sdk";
+import { COULEUR_COUVERTURE_DEFAUT } from "./couverture";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -55,6 +56,49 @@ export async function lirePrenom(supabase: SupabaseClient, userId: string): Prom
 export async function enregistrerPrenom(supabase: SupabaseClient, userId: string, reponse: string): Promise<void> {
   await supabase.from("profil_narrateur").upsert(
     { user_id: userId, prenom_choisi: reponse, updated_at: new Date().toISOString() },
+    { onConflict: "user_id" }
+  );
+}
+
+// Personnalisation de base du livre — titre, sous-titre, couleur de
+// couverture (migration 0022, 26/08/2026). Défauts appliqués ici plutôt
+// qu'en base : les colonnes restent nullables, les valeurs par défaut
+// correspondent à l'ancien comportement figé en dur.
+export type PersonnalisationLivre = { titre: string; sousTitre: string; couleurCle: string };
+
+const PERSONNALISATION_DEFAUT: PersonnalisationLivre = {
+  titre: "Mes Mémoires",
+  sousTitre: "Racontez-moi",
+  couleurCle: COULEUR_COUVERTURE_DEFAUT,
+};
+
+export async function lirePersonnalisationLivre(supabase: SupabaseClient, userId: string): Promise<PersonnalisationLivre> {
+  const { data } = await supabase
+    .from("profil_narrateur")
+    .select("titre_livre, sous_titre_livre, couleur_couverture")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  return {
+    titre: data?.titre_livre ?? PERSONNALISATION_DEFAUT.titre,
+    sousTitre: data?.sous_titre_livre ?? PERSONNALISATION_DEFAUT.sousTitre,
+    couleurCle: data?.couleur_couverture ?? PERSONNALISATION_DEFAUT.couleurCle,
+  };
+}
+
+export async function enregistrerPersonnalisationLivre(
+  supabase: SupabaseClient,
+  userId: string,
+  personnalisation: PersonnalisationLivre
+): Promise<void> {
+  await supabase.from("profil_narrateur").upsert(
+    {
+      user_id: userId,
+      titre_livre: personnalisation.titre,
+      sous_titre_livre: personnalisation.sousTitre,
+      couleur_couverture: personnalisation.couleurCle,
+      updated_at: new Date().toISOString(),
+    },
     { onConflict: "user_id" }
   );
 }

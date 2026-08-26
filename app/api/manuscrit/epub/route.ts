@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import epubGenMemory from "epub-gen-memory";
 import { createClient } from "@/utils/supabase/server";
+import { lirePersonnalisationLivre } from "@/lib/profil-narrateur";
 
 // Interop CJS/ESM du package vérifié explicitement en Node pur (pas
 // seulement via la coquille esModuleInterop de tsc) : le module exporte à
@@ -51,7 +52,8 @@ export async function GET() {
       content: fragmentVersHtml(f.texte),
     }));
 
-    const buffer = await epub({ title: "Mes Mémoires", lang: "fr" }, chapitres);
+    const { titre } = await lirePersonnalisationLivre(supabase, user.id);
+    const buffer = await epub({ title: titre, lang: "fr" }, chapitres);
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,

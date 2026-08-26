@@ -18,7 +18,25 @@ function echapperMarkupTypst(texte: string): string {
 
 export type DimensionsCouverture = { largeurPt: number; hauteurPt: number };
 
-export function genererSourceCouverture(titre: string, sousTitre: string, dims: DimensionsCouverture): string {
+// Couleurs de marque déjà définies dans app/globals.css (@theme) — seules
+// celles assez sombres pour un texte blanc lisible dessus sont proposées ici
+// (pas de logique de contraste dynamique à construire pour cette première
+// version, cf. décision du 26/08/2026, migration 0022).
+export const PALETTE_COUVERTURE: { cle: string; label: string; hex: string }[] = [
+  { cle: "petrole", label: "Pétrole", hex: "#1F4B4C" },
+  { cle: "petrole_fonce", label: "Pétrole foncé", hex: "#17393A" },
+  { cle: "encre", label: "Encre", hex: "#242220" },
+  { cle: "grege", label: "Grège", hex: "#6B6660" },
+];
+
+export const COULEUR_COUVERTURE_DEFAUT = "petrole";
+
+export function genererSourceCouverture(
+  titre: string,
+  sousTitre: string,
+  dims: DimensionsCouverture,
+  couleurHex: string
+): string {
   const margeSecuritePt = 36; // 12,7mm, cohérent avec la marge de sécurité de l'intérieur (lib/typst.ts)
   const largeurRectoPt = dims.largeurPt * 0.35;
   const decalageGauchePt = dims.largeurPt - largeurRectoPt - margeSecuritePt;
@@ -27,7 +45,7 @@ export function genererSourceCouverture(titre: string, sousTitre: string, dims: 
   width: ${dims.largeurPt.toFixed(2)}pt,
   height: ${dims.hauteurPt.toFixed(2)}pt,
   margin: 0pt,
-  fill: rgb("#1F4B4C"),
+  fill: rgb("${couleurHex}"),
 )
 #set text(lang: "fr", fill: white)
 

@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { compilerInterieur, compilerCouverture } from "@/lib/manuscrit";
 import { chargerFragmentsAvecPhotos } from "@/lib/photos";
 import { creerCommandeImpression, PAGES_MINIMUM_RELIE, type AdresseLivraison } from "@/lib/lulu";
+import { lirePersonnalisationLivre } from "@/lib/profil-narrateur";
 
 // Déclenchement de la vraie commande d'impression — dernière brique du
 // pipeline (toujours sandbox Lulu tant que Régis n'a pas de compte
@@ -62,8 +63,13 @@ export async function POST() {
   }
 
   try {
-    const { buffer: interieurBuffer, nombrePages } = compilerInterieur(fragments);
-    const couvertureBuffer = await compilerCouverture(nombrePages);
+    // Mêmes valeurs que le BAT prévisualisé par le narrateur (cf.
+    // app/api/manuscrit/apercu, couverture) — jamais recalculées ni
+    // redemandées ici, cohérent avec le principe déjà en place pour la
+    // compilation Typst elle-même (manifeste §6.3).
+    const { titre, sousTitre, couleurCle } = await lirePersonnalisationLivre(supabase, user.id);
+    const { buffer: interieurBuffer, nombrePages } = compilerInterieur(fragments, { titre });
+    const couvertureBuffer = await compilerCouverture(nombrePages, { titre, sousTitre, couleurCle });
 
     const dossier = `${user.id}/${commandeCreee.id}`;
     const [{ error: erreurUploadInterieur }, { error: erreurUploadCouverture }] = await Promise.all([

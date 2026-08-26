@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import FormulaireAdresse from "./FormulaireAdresse";
+import FormulaireCouverture from "./FormulaireCouverture";
 import BoutonCommande from "./BoutonCommande";
 import { compilerInterieur } from "@/lib/manuscrit";
 import { chargerFragmentsAvecPhotos } from "@/lib/photos";
@@ -54,6 +55,14 @@ export default async function MonLivrePage() {
           </div>
         ) : (
           <div className="space-y-6">
+            <div className="space-y-3">
+              <h2 className="font-display text-lg text-encre">Personnaliser mon livre</h2>
+              <p className="font-sans text-sm text-grege">
+                Titre, sous-titre et couleur de couverture — modifiables à tout moment avant l&apos;impression.
+              </p>
+              <FormulaireCouverture />
+            </div>
+
             <div className="bg-sauge border border-grege p-6 space-y-3">
               <h2 className="font-display text-lg text-encre">Aperçu de votre manuscrit</h2>
               <div className="flex gap-3 flex-wrap">

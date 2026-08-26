@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { compilerInterieur, compilerCouverture } from "@/lib/manuscrit";
+import { lirePersonnalisationLivre } from "@/lib/profil-narrateur";
 
 // Génère la couverture (recto + dos + quatrième) aux dimensions exactes
 // attendues par Lulu pour la pagination réelle de ce narrateur.
@@ -21,8 +22,9 @@ export async function GET() {
   }
 
   try {
-    const { nombrePages } = compilerInterieur(fragments.map((f) => f.texte));
-    const pdfBuffer = await compilerCouverture(nombrePages);
+    const { titre, sousTitre, couleurCle } = await lirePersonnalisationLivre(supabase, user.id);
+    const { nombrePages } = compilerInterieur(fragments.map((f) => f.texte), { titre });
+    const pdfBuffer = await compilerCouverture(nombrePages, { titre, sousTitre, couleurCle });
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
