@@ -111,11 +111,11 @@ Repris et mis à jour depuis `docs/PLAN-ACTION-TECHNIQUE-2026-08-21.md`. Priorit
 
 | # | Chantier | Statut au 21/08/2026 |
 |---|---|---|
-| A2 (🟡 moyenne) | Échapper le HTML injecté (`nom`, `message`) dans l'email de contact (`app/api/contact/route.ts`) | **Non fait** — vérifié : toujours aucune fonction d'échappement, `htmlContent` construit par interpolation directe |
+| A2 (🟡 moyenne) | Échapper le HTML injecté (`nom`, `message`) dans l'email de contact (`app/api/contact/route.ts`) | **Fait** — commit `681d4e8` (26/08/2026). Fonction `echapperHtml` ajoutée, appliquée à `nom`, `email` et `message` (le champ `email` a aussi été inclus par cohérence : le regex de validation n'exclut pas `<`/`>`/`"`) |
 | A3 (🟠 haute) | Vérifier/mettre en place une protection plateforme Vercel (Deployment Protection, Firewall) | **Non fait** — aucun `vercel.json` dans le dépôt ; configuration hors dépôt non vérifiable depuis le code |
 | A6 (🟡 moyenne) | Alerting sur dépassement de coût / usage anormal (budgets natifs Anthropic/Groq/Lulu ou dashboard agrégé) | **Non fait** |
 | A7 (🟠 haute) | Comportement en cas de panne transitoire d'une API tierce pendant une séance (retry/backoff, sauvegarde de la transcription brute avant tout traitement IA) | **Non fait** — recherche `retry`/`backoff` toujours négative dans `app/api/seance`, `app/api/transcribe`, `lib/embeddings.ts`, `lib/redaction.ts` |
-| A8 (🟠 haute) | CI minimale (lint + typecheck, puis tests) | **Non fait** — aucun `.github/workflows`, aucune exécution automatique de `npm run lint` / `tsc --noEmit` / `npm run test` à chaque push |
+| A8 (🟠 haute) | CI minimale (lint + typecheck, puis tests) | **Fait** — commit `aa430c1` (26/08/2026), `.github/workflows/ci.yml`. Sur push/PR vers `main` : `npm ci`, `npm run lint`, `tsc --noEmit`, `npm test` (vitest — pas de secrets requis, tests basés sur PGlite). `next build` volontairement exclu du périmètre (nécessiterait des secrets Anthropic/Supabase/Stripe non gérés ici). A précédé de trois corrections de lint préexistantes sans lien avec A8 (commit `1b19d76`) pour que la CI parte au vert dès son activation |
 | A9 (🟠 haute) | Audit RLS exhaustif, policy par policy, en particulier `photos`, `adresses_livraison`, `commandes_livre`, `fragments_historique` | **Non fait** — RLS globalement présent, exhaustivité non vérifiée |
 | A10 (🟡 moyenne) | Revue exhaustive des usages `service role` (contournement RLS volontaire) sur l'ensemble du dépôt | **Non fait** — 3 usages inspectés et jugés correctement scopés (webhook Stripe, suppression de compte, activation cadeau), le reste du dépôt non passé en revue |
 | A11 (🟠 haute) | Couverture de test étendue au-delà du rate limiting — `lib/redaction.ts`, `lib/codes-cadeau.ts`, idempotence webhook Stripe, `lib/typst.ts` | **Partiellement fait** — Vitest est désormais en place (`vitest.config.mts`, ajouté commit `8adbb12`) et couvre le rate limiting (`lib/rate-limit.test.ts`, `tests/usage-api-rpc.test.ts`, `tests/usage-anonyme-rpc.test.ts`) ; les chemins financiers/critiques listés restent sans test |
@@ -144,5 +144,6 @@ Ni confirmés ni infirmés par la seule lecture du dépôt — dépendent d'une 
 | Date | Changement |
 |---|---|
 | 21/08/2026 | Création initiale, à partir de l'état du dépôt au commit `1eb7473` et de la synthèse des trois documents datés existants dans `docs/` |
+| 26/08/2026 | A2 et A8 passés à **Fait** (commits `681d4e8`, `1b19d76`, `aa430c1`) — reprise du travail après l'interruption du 22/08 |
 
 *Prochaine mise à jour attendue : dès qu'un point de la section 7 change de statut, ou qu'une hypothèse de la section 8 est tranchée.*
