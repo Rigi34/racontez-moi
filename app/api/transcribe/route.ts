@@ -18,6 +18,35 @@ type SegmentGroq = {
 const SEUIL_NO_SPEECH = 0.6;
 const SEUIL_COMPRESSION = 2.4;
 
+// Groq est appelé en fetch() brut, sans retry intégré (contrairement au SDK
+// Anthropic, qui retry déjà 2 fois par défaut) — une panne transitoire y
+// perdait jusqu'ici tout l'enregistrement vocal du narrateur (A7, 26/08/2026).
+// Retry borné sur erreur réseau ou 5xx/429 uniquement ; un 4xx applicatif
+// (ex. 401, fichier invalide) ne bénéficierait de toute façon pas d'un retry.
+async function transcrireAvecRetry(
+  groqForm: FormData,
+  tentativesRestantes = 2,
+  delaiMs = 400
+): Promise<Response> {
+  let res: Response;
+  try {
+    res = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+      body: groqForm,
+    });
+  } catch (e) {
+    if (tentativesRestantes <= 0) throw e;
+    await new Promise((r) => setTimeout(r, delaiMs));
+    return transcrireAvecRetry(groqForm, tentativesRestantes - 1, delaiMs * 3);
+  }
+  if (!res.ok && (res.status >= 500 || res.status === 429) && tentativesRestantes > 0) {
+    await new Promise((r) => setTimeout(r, delaiMs));
+    return transcrireAvecRetry(groqForm, tentativesRestantes - 1, delaiMs * 3);
+  }
+  return res;
+}
+
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -48,14 +77,13 @@ export async function POST(req: NextRequest) {
   groqForm.append("language", "fr");
   groqForm.append("response_format", "verbose_json");
 
-  const res = await fetch(
-    "https://api.groq.com/openai/v1/audio/transcriptions",
-    {
-      method: "POST",
-      headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
-      body: groqForm,
-    }
-  );
+  let res: Response;
+  try {
+    res = await transcrireAvecRetry(groqForm);
+  } catch (e) {
+    console.error("Groq transcription error (réseau, après retries):", e);
+    return NextResponse.json({ error: "Transcription failed" }, { status: 500 });
+  }
 
   if (!res.ok) {
     const err = await res.text();

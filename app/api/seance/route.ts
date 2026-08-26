@@ -279,6 +279,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Séance introuvable." }, { status: 404 });
     }
 
+    // Sauvegarde la réponse brute avant l'appel Anthropic (A7, 26/08/2026) :
+    // si l'appel échoue même après les retries du SDK, ce que le narrateur
+    // vient de dire n'est plus jamais perdu. Garde d'idempotence sur le
+    // dernier élément pour ne pas dupliquer l'entrée si le client retente la
+    // même requête après un échec précédent.
+    const transcriptBase = session.transcript ?? [];
+    const dernierePriseEnCompte = transcriptBase[transcriptBase.length - 1];
+    const reponseDejaSauvegardee = dernierePriseEnCompte?.role === "narrateur" && dernierePriseEnCompte.text === reponse;
+    const transcriptAvecReponse: TranscriptEntry[] = reponseDejaSauvegardee
+      ? transcriptBase
+      : [...transcriptBase, { role: "narrateur", text: reponse }];
+    if (!reponseDejaSauvegardee) {
+      await supabase.from("sessions").update({ transcript: transcriptAvecReponse }).eq("id", session_id);
+    }
+
     const [techniques, profil, derniereSession] = await Promise.all([
       retrieverTechniques(supabase, reponse, "type_question", 3),
       lireProfil(supabase, user.id),
@@ -308,11 +323,7 @@ export async function POST(req: NextRequest) {
 
     const relance = (message.content[0] as { type: string; text: string }).text.trim();
 
-    const transcript: TranscriptEntry[] = [
-      ...(session.transcript ?? []),
-      { role: "narrateur", text: reponse },
-      { role: "relance", text: relance },
-    ];
+    const transcript: TranscriptEntry[] = [...transcriptAvecReponse, { role: "relance", text: relance }];
 
     await supabase.from("sessions").update({ transcript }).eq("id", session_id);
 
@@ -366,6 +377,18 @@ export async function POST(req: NextRequest) {
 
     const relance1 = session.transcript?.find((e: TranscriptEntry) => e.role === "relance")?.text ?? "";
 
+    // Même garde qu'à l'étape "relance" (A7, 26/08/2026) : sauvegarde avant
+    // l'appel Anthropic, idempotente si le client retente la requête.
+    const transcriptBase = session.transcript ?? [];
+    const dernierePriseEnCompte = transcriptBase[transcriptBase.length - 1];
+    const reponseDejaSauvegardee = dernierePriseEnCompte?.role === "narrateur" && dernierePriseEnCompte.text === reponseRelance;
+    const transcriptAvecReponse: TranscriptEntry[] = reponseDejaSauvegardee
+      ? transcriptBase
+      : [...transcriptBase, { role: "narrateur", text: reponseRelance }];
+    if (!reponseDejaSauvegardee) {
+      await supabase.from("sessions").update({ transcript: transcriptAvecReponse }).eq("id", session_id);
+    }
+
     const [techniques, profil, derniereSession] = await Promise.all([
       retrieverTechniques(supabase, reponseRelance, "type_question", 3),
       lireProfil(supabase, user.id),
@@ -395,11 +418,7 @@ export async function POST(req: NextRequest) {
 
     const relance2 = (message.content[0] as { type: string; text: string }).text.trim();
 
-    const transcript: TranscriptEntry[] = [
-      ...(session.transcript ?? []),
-      { role: "narrateur", text: reponseRelance },
-      { role: "relance", text: relance2 },
-    ];
+    const transcript: TranscriptEntry[] = [...transcriptAvecReponse, { role: "relance", text: relance2 }];
 
     await supabase.from("sessions").update({ transcript }).eq("id", session_id);
 
@@ -457,6 +476,18 @@ export async function POST(req: NextRequest) {
     const reponseRelance = t[2]?.text ?? "";
     const relance2 = t[3]?.text ?? "";
 
+    // Même garde qu'aux étapes "relance"/"relance2" (A7, 26/08/2026) :
+    // sauvegarde la réponse à relance2 avant les appels Anthropic
+    // (composerFragment/genererResumeSession), idempotente sur retry. Les
+    // index t[0..3] ci-dessus restent valides même après un ajout en fin de
+    // tableau.
+    const dernierePriseEnCompte = t[t.length - 1];
+    const reponseDejaSauvegardee = dernierePriseEnCompte?.role === "narrateur" && dernierePriseEnCompte.text === reponseRelance2;
+    const tAvecReponse: TranscriptEntry[] = reponseDejaSauvegardee ? t : [...t, { role: "narrateur", text: reponseRelance2 }];
+    if (!reponseDejaSauvegardee) {
+      await supabase.from("sessions").update({ transcript: tAvecReponse }).eq("id", session_id);
+    }
+
     const tours = [
       { question: session.question_ouverture ?? QUESTION_INITIALE, reponse },
       { question: relance1, reponse: reponseRelance },
@@ -487,11 +518,7 @@ export async function POST(req: NextRequest) {
       return null;
     });
 
-    const transcript: TranscriptEntry[] = [
-      ...t,
-      { role: "narrateur", text: reponseRelance2 },
-      { role: "fragment", text: fragment },
-    ];
+    const transcript: TranscriptEntry[] = [...tAvecReponse, { role: "fragment", text: fragment }];
 
     const { data: fragmentCree } = await supabase
       .from("fragments")
