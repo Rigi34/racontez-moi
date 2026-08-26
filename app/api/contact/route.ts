@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { verifierQuotaAnonyme, extraireIp } from "@/lib/rate-limit";
 
+function echapperHtml(texte: string): string {
+  return texte
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function POST(req: NextRequest) {
   let body: { nom?: string; email?: string; message?: string };
   try {
@@ -41,9 +50,9 @@ export async function POST(req: NextRequest) {
       subject: `Contact racontez-moi.com — ${nom}`,
       htmlContent: `
         <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #242220; line-height: 1.75;">
-          <p><strong>Nom :</strong> ${nom}</p>
-          <p><strong>Email :</strong> ${email}</p>
-          <p style="margin-top: 1.5em; white-space: pre-line;">${message}</p>
+          <p><strong>Nom :</strong> ${echapperHtml(nom)}</p>
+          <p><strong>Email :</strong> ${echapperHtml(email)}</p>
+          <p style="margin-top: 1.5em; white-space: pre-line;">${echapperHtml(message)}</p>
         </div>
       `,
     }),
