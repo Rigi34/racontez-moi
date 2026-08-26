@@ -1,6 +1,6 @@
 "use client"
 import { Suspense, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
 
 // Identifiant de version du texte de consentement (annexe du document

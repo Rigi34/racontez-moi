@@ -455,9 +455,9 @@ export default function Home() {
               <a href="/fonctionnement" className="hover:text-petrole transition-colors">
                 Fonctionnement
               </a>
-              <a href="/blog" className="hover:text-petrole transition-colors">
+              <Link href="/blog" className="hover:text-petrole transition-colors">
                 Journal
-              </a>
+              </Link>
             </div>
             <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2 font-sans text-xs text-papier/50">
               <a href="/confidentialite" className="hover:text-petrole transition-colors">

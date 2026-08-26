@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import FormulaireCadeau from "./FormulaireCadeau";
 
 export const metadata: Metadata = {
@@ -242,13 +243,13 @@ export default function OffrirPage() {
       {/* ─── FOOTER ────────────────────────────────────────────────── */}
       <footer className="py-12 px-6 bg-encre">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <a href="/" className="font-display italic text-papier text-xl hover:text-petrole transition-colors">
+          <Link href="/" className="font-display italic text-papier text-xl hover:text-petrole transition-colors">
             Racontez-moi
-          </a>
+          </Link>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-sans text-sm text-papier/70">
-            <a href="/" className="hover:text-petrole transition-colors">
+            <Link href="/" className="hover:text-petrole transition-colors">
               Accueil
-            </a>
+            </Link>
             <a href="/confidentialite" className="hover:text-petrole transition-colors">
               Confidentialité (RGPD)
             </a>
