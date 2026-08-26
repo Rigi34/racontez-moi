@@ -46,7 +46,7 @@ Un export ebook (EPUB) et un parcours cadeau (code d'activation à 8 caractères
 ```
 app/            pages (App Router) + 22 routes API (route.ts)
 lib/            logique métier pure (18 fichiers) — cœur du produit
-supabase/migrations/   21 migrations SQL séquentielles, documentées
+supabase/migrations/   22 migrations SQL séquentielles, documentées
 scripts/        ingestion bibliothèque de référence (14 ouvrages) + banque de 205 questions
 utils/supabase/ clients Supabase (browser/server)
 content/blog/   articles Markdown (1 à ce jour)
@@ -60,7 +60,7 @@ Pages produit notables : `tableau-de-bord`, `seance`, `mon-livre`, `offrir`, `pa
 
 ## 4. Modèle de données (état actuel)
 
-21 migrations SQL séquentielles. Tables clés : `sessions`, `fragments` (+ `fragments_historique`), `tours_conversation`, `profil_narrateur`, `banque_questions`, `livres_reference` (RAG), `abonnements`, `codes_cadeau`, `commandes_livre`, `adresses_livraison`, `photos`, et depuis le 21/08/2026 `usage_api` (migration `0019`) et `usage_anonyme` (migration `0020`) pour le rate limiting (§6.2). Migration `0021` (26/08/2026) : correctif RLS sur `commandes_livre` (§7, A9).
+22 migrations SQL séquentielles. Tables clés : `sessions`, `fragments` (+ `fragments_historique`), `tours_conversation`, `profil_narrateur`, `banque_questions`, `livres_reference` (RAG), `abonnements`, `codes_cadeau`, `commandes_livre`, `adresses_livraison`, `photos`, et depuis le 21/08/2026 `usage_api` (migration `0019`) et `usage_anonyme` (migration `0020`) pour le rate limiting (§6.2). Migration `0021` (26/08/2026) : correctif RLS sur `commandes_livre` (§7, A9). Migration `0022` (26/08/2026) : personnalisation du livre (titre/sous-titre/couleur) sur `profil_narrateur` (§6.1).
 
 RLS activé, policies `auth.uid() = user_id` — l'exhaustivité table par table de cette couverture reste un point à vérifier (§7).
 
@@ -86,6 +86,7 @@ Choix explicites retrouvés dans le code, les migrations ou les documents datés
 - **Parcours cadeau séparé du parcours narrateur** — code d'activation à 8 caractères, alphabet volontairement sans caractères ambigus (`ABCDEFGHJKMNPQRSTUVWXYZ23456789`, ni `0/O` ni `1/I/L`) car destiné à être recopié à la main depuis un certificat imprimé. Espace de recherche : 32⁸ ≈ 1,1 × 10¹² combinaisons.
 - **Activation cadeau exige un compte authentifié**, même si l'achat lui-même n'en nécessite pas — confirmé par relecture de code lors de l'audit du 21/08 (corrige une lecture initiale erronée du premier audit).
 - **Aucune question n'est jamais forcée** — bouton « passer » systématique, et protocole de report explicite sur les questions à charge émotionnelle forte (« nucléaires »). Choix produit assumé, pas une omission technique.
+- **Personnalisation du livre limitée à titre, sous-titre et couleur de couverture** — décision du 26/08/2026. La photo de couverture a été écartée délibérément (pas une limite technique : `NodeCompiler.mapShadow` la rendrait possible, déjà utilisé pour les photos de fragments) car disproportionnée face au risque produit réel (résolution des photos narrateur non garantie pour un agrandissement en couverture, lisibilité du texte blanc variable selon la photo) — « le contenu qui compte est dedans, pas sur la jaquette ». Implémenté migration `0022` : `titre_livre`/`sous_titre_livre`/`couleur_couverture` sur `profil_narrateur`, couleur restreinte à 4 teintes de marque déjà définies dans `app/globals.css` assez sombres pour un texte blanc lisible (pas de logique de contraste dynamique). Le titre se propage à 3 endroits qui étaient codés en dur séparément (couverture, page de garde intérieure, métadonnées EPUB) pour éviter un livre incohérent.
 
 ### 6.2 Sécurité et coûts (issues du plan d'action du 21/08/2026)
 
@@ -147,5 +148,6 @@ Ni confirmés ni infirmés par la seule lecture du dépôt — dépendent d'une 
 | 26/08/2026 | A2 et A8 passés à **Fait** (commits `681d4e8`, `1b19d76`, `aa430c1`) — reprise du travail après l'interruption du 22/08 |
 | 26/08/2026 | A3 vérifié et classé "hors de portée outillée" (site en ligne, mais mauvais compte Vercel connecté aux outils Claude). A7 passé à **Fait**, avec correction : le retry Anthropic était déjà natif au SDK, seuls Groq (transcription) et la persistance de la réponse brute avant appel IA (`app/api/seance`) présentaient un vrai trou |
 | 26/08/2026 | A9 passé à **Fait** — audit RLS complet des 21 migrations. Trou réel trouvé sur `commandes_livre` (policy SELECT seule, alors que le code y écrit via le client RLS) : commande réelle de livre probablement cassée en production. Migration `0021` écrite pour corriger, mais pas encore appliquée à la base en ligne (hors de portée outillée depuis cette session) — **à exécuter par Régis**. A10 passé à **Fait** — 6 usages `service role` du dépôt revus, tous correctement scopés, aucune correction nécessaire |
+| 26/08/2026 | Personnalisation du livre (titre/sous-titre/couleur) implémentée — migration `0022` (§6.1), également pas encore appliquée à la base en ligne — **à exécuter par Régis** en même temps que `0021` |
 
 *Prochaine mise à jour attendue : dès qu'un point de la section 7 change de statut, ou qu'une hypothèse de la section 8 est tranchée.*
