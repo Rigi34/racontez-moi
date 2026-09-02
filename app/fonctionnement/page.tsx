@@ -83,6 +83,11 @@ export default function Fonctionnement() {
               combler au plus vite. C&apos;est la même méthode que pour tout le reste&nbsp;— rien
               d&apos;improvisé, jamais au prix de la conversation elle-même.
             </p>
+            <p>
+              La structure des questions elle-même s&apos;appuie sur le protocole Life Story Interview du
+              psychologue Dan McAdams (Northwestern University)&nbsp;— un instrument de recherche publié, pas
+              une improvisation.
+            </p>
           </div>
 
           {/* ─── LE FIL DE VOTRE RÉCIT (timeline sobre, 4 phases) ─────── */}
@@ -127,6 +132,16 @@ export default function Fonctionnement() {
               </p>
             </div>
             </div>
+          </div>
+
+          {/* ─── LE LIVRE, EN VRAI ─────────────────────────────────────── */}
+          <div className="space-y-7 font-serif text-lg leading-[1.85] text-encre mb-16">
+            <p>
+              Le papier est certifié FSC et sans acide&nbsp;— pensé pour durer, pas seulement pour être
+              imprimé. Et parce que chaque livre n&apos;est fabriqué qu&apos;au moment où il est commandé, il
+              n&apos;y a ni stock ni gaspillage&nbsp;: votre livre existe parce que vous l&apos;avez voulu, pas
+              parce qu&apos;il fallait écouler un tirage.
+            </p>
           </div>
 
           {/* ─── SE PRÉPARER À UNE SÉANCE ──────────────────────────────── */}

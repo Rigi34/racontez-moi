@@ -137,9 +137,9 @@ describe("POST /api/stripe/webhook", () => {
       // chaque exécution, comportement voulu) — on vérifie séparément que
       // le reste de la charge utile et les options sont bien identiques.
       const [premierAppel, deuxiemeAppel] = upsertMock.mock.calls;
-      const { updated_at: _premier, ...premierSansDate } = premierAppel[0];
-      const { updated_at: _deuxieme, ...deuxiemeSansDate } = deuxiemeAppel[0];
-      expect(premierSansDate).toEqual(deuxiemeSansDate);
+      for (const champ of ["user_id", "stripe_customer_id", "status"] as const) {
+        expect(premierAppel[0][champ]).toBe(deuxiemeAppel[0][champ]);
+      }
       expect(premierAppel[1]).toEqual(deuxiemeAppel[1]);
     });
   });

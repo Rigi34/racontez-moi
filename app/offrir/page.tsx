@@ -104,7 +104,7 @@ export default function OffrirPage() {
                 Ils racontent.
               </h3>
               <p className="font-sans text-base text-grege leading-relaxed">
-                Chez eux, à la voix, vingt minutes au moins, une à deux fois par semaine. La
+                Chez eux, à la voix, trente à quarante-cinq minutes, une à deux fois par semaine. La
                 première séance se fait ensemble&nbsp;: c&apos;est vous qui poserez
                 la première question.
               </p>

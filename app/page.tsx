@@ -148,7 +148,7 @@ export default function Home() {
 
             {/* Sous-titre */}
             <p className="font-sans text-lg md:text-xl text-grege max-w-2xl mb-10 leading-relaxed">
-              Des conversations de vingt minutes au moins, chez vous, à la voix. Un interlocuteur
+              Des conversations de trente à quarante-cinq minutes, chez vous, à la voix. Un interlocuteur
               attentif qui écoute, questionne, se souvient — et compose au fil des séances
               le livre de votre vie. Un vrai livre. Imprimé.
             </p>
@@ -283,7 +283,7 @@ export default function Home() {
               <p className="font-display text-7xl text-encre/15 leading-none mb-2">02</p>
               <p className="font-display text-2xl text-encre mb-3">Vous racontez.</p>
               <p className="font-sans text-base text-encre/80 leading-relaxed">
-                Vingt minutes, une à deux fois par semaine, à votre rythme, pendant deux à quatre mois.
+                Trente à quarante-cinq minutes, une à deux fois par semaine, à votre rythme, pendant deux à quatre mois.
               </p>
             </div>
             <div className="relative px-2">
