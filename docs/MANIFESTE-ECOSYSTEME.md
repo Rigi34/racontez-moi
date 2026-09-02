@@ -51,7 +51,7 @@ supabase/migrations/   22 migrations SQL séquentielles, documentées
 scripts/        ingestion bibliothèque de référence (14 ouvrages) + banque de 205 questions
 utils/supabase/ clients Supabase (browser/server)
 content/blog/   articles Markdown (1 à ce jour)
-docs/           documents de gouvernance technique (ce fichier + 3 photographies datées)
+docs/           documents de gouvernance technique (ce fichier + 4 photographies datées) et documents stratégiques de Le Révélateur (fondations produit, application Big Ideas Cadeau)
 tests/          tests d'intégration RPC (usage_api, usage_anonyme)
 ```
 
@@ -84,6 +84,7 @@ Choix explicites retrouvés dans le code, les migrations ou les documents datés
 ### 6.1 Produit / commerce
 
 - **Prix fixe unique de 155€, tout compris** — décision datée du 28/07/2026 (mentionnée dans `docs/ETAT-DES-LIEUX-2026-08-20.md`), livre imprimé inclus. Pas de palier ni d'abonnement récurrent malgré la table `abonnements`.
+- **Paiement en plusieurs fois (Stripe Installments) — tranché par Régis le 02/09/2026 : oui.** Le FAQ `/fonctionnement` affiche encore "pas encore tranchée" — texte à mettre à jour une fois l'implémentation livrée, pas avant (pour ne pas promettre une fonctionnalité pas encore disponible). Voir `docs/FICHE-FONDATIONS-2026-07-31.md` §4 pour l'historique de la recommandation.
 - **Parcours cadeau séparé du parcours narrateur** — code d'activation à 8 caractères, alphabet volontairement sans caractères ambigus (`ABCDEFGHJKMNPQRSTUVWXYZ23456789`, ni `0/O` ni `1/I/L`) car destiné à être recopié à la main depuis un certificat imprimé. Espace de recherche : 32⁸ ≈ 1,1 × 10¹² combinaisons.
 - **Activation cadeau exige un compte authentifié**, même si l'achat lui-même n'en nécessite pas — confirmé par relecture de code lors de l'audit du 21/08 (corrige une lecture initiale erronée du premier audit).
 - **Aucune question n'est jamais forcée** — bouton « passer » systématique, et protocole de report explicite sur les questions à charge émotionnelle forte (« nucléaires »). Choix produit assumé, pas une omission technique.
@@ -155,5 +156,6 @@ Ni confirmés ni infirmés par la seule lecture du dépôt — dépendent d'une 
 | 29/08/2026 | A12 passé à **Fait** — Sentry (`@sentry/nextjs`) intégré et vérifié en réel (erreur de test remontée dans le dashboard). Commit `159d0c9`. Reste une action manuelle : ajouter le DSN dans les variables d'environnement Vercel pour la production |
 | 31/08/2026 | Connexion MCP Supabase (`.mcp.json`) confirmée opérationnelle sur le bon projet (`fasvqpokgdvzahqmjlxz`) — vérifiée par lecture des 12 tables attendues du schéma (`sessions`, `fragments`, `commandes_livre`, etc., aucune trace de `book_chunks`, la table de l'ancien ref `zxlagkkujufmhwprwued` connecté par erreur). Authentification à refaire physiquement sur le mini-PC (le flux OAuth redirige vers `localhost`, donc échoue si ouvert depuis un autre appareil comme un téléphone) |
 | 01/09/2026 | A11 passé à **Fait** — dernier trou de couverture comblé : `app/api/stripe/webhook/route.test.ts` (6 tests, signature invalide, paiement non confirmé, idempotence des deux parcours cadeau/abonnement sur événement rejoué). Suite complète : 69 tests, tous verts |
+| 02/09/2026 | Deux documents stratégiques de Le Révélateur reçus et sauvegardés : `docs/FICHE-FONDATIONS-2026-07-31.md` et `docs/BIG-IDEAS-CADEAU-APPLICATION-2026-07-31.md`. Vérification croisée avec le code réel : les deux révisions "prêtes à coder immédiatement" (FAQ homepage, section `/offrir`) sont déjà en ligne mot pour mot — un correctif antérieur (document du 01/08/2026) affirmait à tort que la révision `/offrir` n'était pas déployée. **Paiement en plusieurs fois tranché par Régis : oui** — reste à implémenter (§6.1) |
 
 *Prochaine mise à jour attendue : dès qu'un point de la section 7 change de statut, ou qu'une hypothèse de la section 8 est tranchée.*
