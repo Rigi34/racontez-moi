@@ -51,7 +51,7 @@ supabase/migrations/   22 migrations SQL séquentielles, documentées
 scripts/        ingestion bibliothèque de référence (14 ouvrages) + banque de 205 questions
 utils/supabase/ clients Supabase (browser/server)
 content/blog/   articles Markdown (1 à ce jour)
-docs/           documents de gouvernance technique (ce fichier + 4 photographies datées) et documents stratégiques de Le Révélateur (fondations produit, application Big Ideas Cadeau)
+docs/           documents de gouvernance technique (ce fichier + 4 photographies datées) et documents stratégiques de Le Révélateur (fondations produit, application Big Ideas Cadeau, dossier Search IA/AI Overviews)
 tests/          tests d'intégration RPC (usage_api, usage_anonyme)
 ```
 
@@ -155,6 +155,7 @@ Ni confirmés ni infirmés par la seule lecture du dépôt — dépendent d'une 
 | 26/08/2026 | A11 bien avancé — tests ajoutés pour `lib/typst.ts`, `lib/codes-cadeau.ts`, `lib/redaction.ts` (32 nouveaux tests). Ne reste sans test que l'idempotence du webhook Stripe |
 | 29/08/2026 | A12 passé à **Fait** — Sentry (`@sentry/nextjs`) intégré et vérifié en réel (erreur de test remontée dans le dashboard). Commit `159d0c9`. Reste une action manuelle : ajouter le DSN dans les variables d'environnement Vercel pour la production |
 | 31/08/2026 | Connexion MCP Supabase (`.mcp.json`) confirmée opérationnelle sur le bon projet (`fasvqpokgdvzahqmjlxz`) — vérifiée par lecture des 12 tables attendues du schéma (`sessions`, `fragments`, `commandes_livre`, etc., aucune trace de `book_chunks`, la table de l'ancien ref `zxlagkkujufmhwprwued` connecté par erreur). Authentification à refaire physiquement sur le mini-PC (le flux OAuth redirige vers `localhost`, donc échoue si ouvert depuis un autre appareil comme un téléphone) |
+| 07/09/2026 | Nouveau document stratégique de Le Révélateur sauvegardé : `docs/DOSSIER-SEARCH-IA-GOOGLE-AI-OVERVIEWS-2026-09-07.md` — première fiche de la rubrique "Search IA / veille" (SEO classique + visibilité dans les réponses génératives Google). Recommande explicitement, en dernière ligne, un audit technique réel du site à partir du code actuel, comparé point par point à la fiche |
 | 01/09/2026 | A11 passé à **Fait** — dernier trou de couverture comblé : `app/api/stripe/webhook/route.test.ts` (6 tests, signature invalide, paiement non confirmé, idempotence des deux parcours cadeau/abonnement sur événement rejoué). Suite complète : 69 tests, tous verts |
 | 02/09/2026 | Deux documents stratégiques de Le Révélateur reçus et sauvegardés : `docs/FICHE-FONDATIONS-2026-07-31.md` et `docs/BIG-IDEAS-CADEAU-APPLICATION-2026-07-31.md`. Vérification croisée avec le code réel : les deux révisions "prêtes à coder immédiatement" (FAQ homepage, section `/offrir`) sont déjà en ligne mot pour mot — un correctif antérieur (document du 01/08/2026) affirmait à tort que la révision `/offrir` n'était pas déployée. **Paiement en plusieurs fois tranché par Régis : oui** — reste à implémenter (§6.1) |
 
