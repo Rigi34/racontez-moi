@@ -50,6 +50,16 @@ function sessionCompletedEvent(session: Partial<Stripe.Checkout.Session>): Strip
   } as unknown as Stripe.Event;
 }
 
+function sessionAsyncEvent(
+  type: "checkout.session.async_payment_succeeded" | "checkout.session.async_payment_failed",
+  session: Partial<Stripe.Checkout.Session>
+): Stripe.Event {
+  return {
+    type,
+    data: { object: { payment_status: type === "checkout.session.async_payment_succeeded" ? "paid" : "unpaid", ...session } },
+  } as unknown as Stripe.Event;
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   upsertMock.mockResolvedValue({ error: null });
@@ -142,5 +152,30 @@ describe("POST /api/stripe/webhook", () => {
       }
       expect(premierAppel[1]).toEqual(deuxiemeAppel[1]);
     });
+
+    it("active aussi l'abonnement sur un paiement Klarna confirmé de façon asynchrone", async () => {
+      constructEventMock.mockReturnValue(sessionAsyncEvent("checkout.session.async_payment_succeeded", session));
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(200);
+      expect(upsertMock).toHaveBeenCalledTimes(1);
+      expect(upsertMock).toHaveBeenCalledWith(
+        expect.objectContaining({ user_id: "user-123", status: "active" }),
+        { onConflict: "user_id" }
+      );
+    });
+  });
+
+  it("un paiement Klarna refusé (async_payment_failed) ne fait rien, sans erreur", async () => {
+    constructEventMock.mockReturnValue(
+      sessionAsyncEvent("checkout.session.async_payment_failed", { id: "cs_test_refuse" })
+    );
+
+    const res = await POST(requete("{}"));
+
+    expect(res.status).toBe(200);
+    expect(upsertMock).not.toHaveBeenCalled();
+    expect(creerCodeCadeauMock).not.toHaveBeenCalled();
   });
 });

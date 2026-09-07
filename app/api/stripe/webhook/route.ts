@@ -24,11 +24,24 @@ export async function POST(req: NextRequest) {
   }
 
   switch (event.type) {
+    // Paiement en plusieurs fois via Klarna (décision de Régis, 02/09/2026) :
+    // Klarna peut confirmer le paiement de façon asynchrone après la fin du
+    // checkout — Stripe recommande alors d'écouter aussi
+    // async_payment_succeeded, sinon un paiement confirmé après un court
+    // délai ne débloquerait jamais l'accès. Le garde payment_status ci-dessous
+    // rend ce cas sûr sans dupliquer la logique.
+    case "checkout.session.async_payment_failed": {
+      const session = event.data.object as Stripe.Checkout.Session;
+      console.log("Paiement Klarna refusé (résultat normal, pas une erreur) :", session.id);
+      break;
+    }
+
     // Paiement unique (décision révisée le 22 juillet 2026) : un seul
     // événement suffit, il n'y a plus de cycle d'abonnement à suivre. Prix
     // fixe tout compris depuis le 28 juillet 2026 (livre imprimé inclus) —
     // plus de paiement séparé pour le livre à distinguer ici.
-    case "checkout.session.completed": {
+    case "checkout.session.completed":
+    case "checkout.session.async_payment_succeeded": {
       const session = event.data.object as Stripe.Checkout.Session;
       if (session.payment_status !== "paid") break;
 
