@@ -8,6 +8,137 @@ export const metadata: Metadata = {
   description: "Durée des séances, rythme, silence, corrections — la mécanique expliquée simplement.",
 };
 
+// Icônes linework des 6 étapes ci-dessous — dessinées à la main (pas de
+// génération IA : les tentatives via ChatGPT produisaient un rendu qui ne
+// correspondait pas à sa propre description — fond non transparent, flou
+// parasite). Deux teintes de la charte uniquement : pétrole (trait
+// principal) + ambre (accent), jamais de dégradé, jamais de visage.
+const PETROLE = "#1F4B4C";
+const AMBRE = "#B8823D";
+
+function IconVousRacontez() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="26" y="8" width="12" height="22" rx="6" stroke={PETROLE} strokeWidth="2" />
+      <path d="M18 26a14 14 0 0 0 28 0" stroke={PETROLE} strokeWidth="2" />
+      <line x1="32" y1="40" x2="32" y2="48" stroke={PETROLE} strokeWidth="2" />
+      <line x1="24" y1="48" x2="40" y2="48" stroke={PETROLE} strokeWidth="2" />
+      <path d="M8 22v8M14 18v16" stroke={AMBRE} strokeWidth="2" opacity="0.85" />
+      <path d="M56 22v8M50 18v16" stroke={AMBRE} strokeWidth="2" opacity="0.85" />
+    </svg>
+  );
+}
+
+function IconInterlocuteurEcoute() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path
+        d="M26 46c-9-4-14-12-14-21a20 20 0 0 1 40 0c0 6-4 9-4 15 0 4-3 7-7 7-4 0-4-5-9-5"
+        stroke={PETROLE}
+        strokeWidth="2"
+      />
+      <path d="M40 20a6 6 0 0 1 0 8" stroke={AMBRE} strokeWidth="2" opacity="0.85" />
+      <path d="M46 15a14 14 0 0 1 0 18" stroke={AMBRE} strokeWidth="2" opacity="0.6" />
+    </svg>
+  );
+}
+
+function IconParoleFormeTexte() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 32h3M10 25v14M16 20v24M22 28v8M28 32h2" stroke={PETROLE} strokeWidth="2" />
+      <path d="M34 32h10M40 26l4 6-4 6" stroke={AMBRE} strokeWidth="2" />
+      <line x1="48" y1="22" x2="60" y2="22" stroke={PETROLE} strokeWidth="2" />
+      <line x1="48" y1="32" x2="60" y2="32" stroke={PETROLE} strokeWidth="2" />
+      <line x1="48" y1="42" x2="56" y2="42" stroke={PETROLE} strokeWidth="2" />
+    </svg>
+  );
+}
+
+function IconGardezLaMain() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 44l3-11L33 11l8 8-22 22-11 3z" stroke={PETROLE} strokeWidth="2" />
+      <line x1="29" y1="15" x2="37" y2="23" stroke={PETROLE} strokeWidth="2" />
+      <circle cx="48" cy="42" r="11" stroke={AMBRE} strokeWidth="2" />
+      <path d="M43 42l4 4 8-8" stroke={AMBRE} strokeWidth="2" />
+    </svg>
+  );
+}
+
+function IconChapitreApresChapitre() {
+  const tranches = ["Mes racines", "Les rencontres", "Les épreuves", "Les joies", "Le bilan", "La transmission"];
+  return (
+    <svg viewBox="0 0 220 150" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {tranches.map((label, i) => (
+        <g key={label}>
+          <rect x="14" y={12 + i * 21} width="192" height="16" rx="3" stroke={PETROLE} strokeWidth="1.5" />
+          <text x="24" y={24 + i * 21} fontSize="10.5" fontFamily="var(--font-serif)" fill={i % 2 === 0 ? PETROLE : AMBRE}>
+            {label}
+          </text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function IconTransmission() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 22h36v26l-18 5-18-5z" stroke={PETROLE} strokeWidth="2" />
+      <line x1="32" y1="22" x2="32" y2="53" stroke={PETROLE} strokeWidth="2" />
+      <path d="M26 32c4-4 8-4 8 0-4 4-8 4-8 0z" stroke={AMBRE} strokeWidth="2" />
+      <path d="M6 50c4-7 9-7 9-2v6" stroke={PETROLE} strokeWidth="2" />
+      <path d="M58 50c-4-7-9-7-9-2v6" stroke={PETROLE} strokeWidth="2" />
+    </svg>
+  );
+}
+
+const ETAPES_DETAIL = [
+  {
+    titre: "Vous racontez",
+    sousTitre: "À votre rythme.",
+    texte:
+      "Vous partagez vos souvenirs en toute simplicité, par la voix. Pas besoin d'écrire, ni d'être un expert. Juste l'envie de raconter.",
+    Icone: IconVousRacontez,
+  },
+  {
+    titre: "L'interlocuteur écoute",
+    sousTitre: "Une question ouvre le souvenir. Votre parole fait le reste.",
+    texte:
+      "Racontez-moi vous guide avec bienveillance. Chaque échange est une conversation naturelle, conçue pour faire émerger ce qui compte vraiment.",
+    Icone: IconInterlocuteurEcoute,
+  },
+  {
+    titre: "Votre parole prend forme",
+    sousTitre: "Votre parole devient un récit lisible, sans perdre votre voix.",
+    texte:
+      "La transcription structure vos souvenirs pour leur donner une cohérence, tout en respectant votre style et votre authenticité.",
+    Icone: IconParoleFormeTexte,
+  },
+  {
+    titre: "Vous gardez la main",
+    sousTitre: "Vous relisez. Vous corrigez. Vous validez. Rien n'est définitif sans vous.",
+    texte:
+      "Chaque texte vous est présenté. Vous pouvez le modifier, le compléter, demander des ajustements. C'est votre histoire, et elle vous ressemble.",
+    Icone: IconGardezLaMain,
+  },
+  {
+    titre: "Chapitre après chapitre",
+    sousTitre: "Votre histoire se construit progressivement.",
+    texte:
+      "Au fil des échanges, les chapitres s'assemblent pour former un récit fluide, vivant et profondément humain.",
+    Icone: IconChapitreApresChapitre,
+  },
+  {
+    titre: "Votre histoire devient transmission",
+    sousTitre: "Un livre à garder. Une histoire à transmettre.",
+    texte:
+      "Votre récit prend la forme d'un beau livre, agrémenté si vous le souhaitez de photos et de souvenirs. Un objet unique, pour vous et pour ceux qui comptent.",
+    Icone: IconTransmission,
+  },
+];
+
 // Niveau 2 (page dédiée) : le reste des questions, pour qui veut creuser —
 // cf. décision du 26/07/2026 (retour de Claude Pro), en complément de la
 // FAQ courte sur l'accueil.
@@ -88,6 +219,39 @@ export default function Fonctionnement() {
               psychologue Dan McAdams (Northwestern University)&nbsp;— un instrument de recherche publié, pas
               une improvisation.
             </p>
+          </div>
+
+          {/* ─── COMMENT ÇA MARCHE, EN DÉTAIL (6 étapes) ───────────────
+              Copy de Le Révélateur (2 août 2026), icônes linework codées à
+              la main (cf. commentaire plus haut : la génération IA ne
+              produisait pas un rendu fiable). Complète le "01/02/03" court
+              de la home, ne le remplace pas — l'un est le résumé, l'autre
+              l'approfondissement. */}
+          <div className="space-y-10 mb-16">
+            {ETAPES_DETAIL.map(({ titre, sousTitre, texte, Icone }, i) => (
+              <div key={titre} className="flex gap-6 items-start">
+                <div className="shrink-0 w-16 h-16 md:w-20 md:h-20">
+                  <Icone />
+                </div>
+                <div>
+                  <p className="font-sans text-xs tracking-widest uppercase text-grege mb-1">
+                    {String(i + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="font-display text-xl text-encre mb-1">{titre}</h3>
+                  <p className="font-serif italic text-base text-petrole mb-2">{sousTitre}</p>
+                  <p className="font-sans text-base text-grege leading-relaxed">{texte}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mb-16 space-y-2">
+            <p className="font-serif text-lg text-grege leading-relaxed">
+              On ne raconte pas votre vie à votre place.
+              <br />
+              On vous aide à lui donner forme.
+            </p>
+            <p className="font-display italic text-2xl text-petrole">Vous parlez. Le livre s&apos;écrit.</p>
           </div>
 
           {/* ─── LE FIL DE VOTRE RÉCIT (timeline sobre, 4 phases) ─────── */}
