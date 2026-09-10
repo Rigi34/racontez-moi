@@ -42,7 +42,7 @@ const FAQ_ACCUEIL = [
   {
     question: "Le prix change-t-il selon la longueur de mon récit ?",
     reponse:
-      "Non. 155€, une seule fois, quelle que soit la longueur finale de votre histoire — livre imprimé et relié inclus. Jamais de palier, jamais de supplément découvert après coup.",
+      "Non. 155€ quelle que soit la longueur finale de votre histoire — livre imprimé et relié inclus. Jamais de palier, jamais de supplément découvert après coup. Payable en une fois ou en plusieurs fois via Klarna.",
   },
 ];
 
@@ -300,11 +300,12 @@ export default function Home() {
       {/* ─── PRIX UNIQUE ─────────────────────────────────────────────── */}
       <section className="py-16 px-6 bg-papier border-y border-grege/40">
         <div className="max-w-2xl mx-auto text-center space-y-4">
-          <p className="font-display text-3xl text-encre">155€, une seule fois.</p>
+          <p className="font-display text-3xl text-encre">155€, en une fois ou en plusieurs fois.</p>
           <p className="font-serif text-lg text-grege leading-relaxed">
             Séances illimitées, manuscrit et livre imprimé relié couleur inclus — même prix,
             quelle que soit la longueur du récit final. Jamais de palier, jamais de supplément
-            découvert après coup.
+            découvert après coup. Paiement en 3 ou 4 fois disponible via Klarna à l&apos;étape de
+            paiement.
           </p>
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 pt-2 font-sans text-sm">
             <Link href="/parcours" className="text-petrole underline decoration-sauge underline-offset-4 hover:decoration-petrole transition-colors">

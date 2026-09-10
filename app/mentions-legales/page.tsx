@@ -209,9 +209,13 @@ export default function MentionsLegales() {
               3. Paiement
             </h2>
             <p>
-              Le paiement s&apos;effectue en une seule fois, par carte bancaire, au moment
-              de la commande, via le prestataire de paiement Stripe. Aucun abonnement ni
-              prélèvement récurrent n&apos;est mis en place.
+              Le paiement s&apos;effectue au moment de la commande, par carte bancaire ou,
+              si le client le souhaite, en plusieurs fois via Klarna (organisme de crédit
+              tiers, sous réserve d&apos;acceptation par Klarna), le tout par
+              l&apos;intermédiaire du prestataire de paiement Stripe. Aucun abonnement ni
+              prélèvement récurrent n&apos;est mis en place par Racontez-moi&nbsp;: en cas
+              de paiement en plusieurs fois, les échéances sont gérées directement par
+              Klarna, selon ses propres conditions.
             </p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">

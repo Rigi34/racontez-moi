@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import FAQAccordion from "../components/FAQAccordion";
 
@@ -33,12 +32,12 @@ function IconInterlocuteurEcoute() {
   return (
     <svg viewBox="0 0 64 64" fill="none" strokeLinecap="round" strokeLinejoin="round">
       <path
-        d="M26 46c-9-4-14-12-14-21a20 20 0 0 1 40 0c0 6-4 9-4 15 0 4-3 7-7 7-4 0-4-5-9-5"
+        d="M34 12c-11 0-20 9-20 20v4a7 7 0 0 0 7 7 5 5 0 0 0 5-5v-1.5a3 3 0 0 1 3-3 3 3 0 0 0 3-3v-1c0-6 5-11 11-11h1c6 0 11 5 11 11"
         stroke={PETROLE}
-        strokeWidth="2"
+        strokeWidth="2.2"
       />
-      <path d="M40 20a6 6 0 0 1 0 8" stroke={AMBRE} strokeWidth="2" opacity="0.85" />
-      <path d="M46 15a14 14 0 0 1 0 18" stroke={AMBRE} strokeWidth="2" opacity="0.6" />
+      <path d="M48 22a16 16 0 0 1 0 20" stroke={AMBRE} strokeWidth="2" opacity="0.85" />
+      <path d="M54 17a24 24 0 0 1 0 30" stroke={AMBRE} strokeWidth="2" opacity="0.55" />
     </svg>
   );
 }
@@ -85,11 +84,14 @@ function IconChapitreApresChapitre() {
 function IconTransmission() {
   return (
     <svg viewBox="0 0 64 64" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 22h36v26l-18 5-18-5z" stroke={PETROLE} strokeWidth="2" />
-      <line x1="32" y1="22" x2="32" y2="53" stroke={PETROLE} strokeWidth="2" />
-      <path d="M26 32c4-4 8-4 8 0-4 4-8 4-8 0z" stroke={AMBRE} strokeWidth="2" />
-      <path d="M6 50c4-7 9-7 9-2v6" stroke={PETROLE} strokeWidth="2" />
-      <path d="M58 50c-4-7-9-7-9-2v6" stroke={PETROLE} strokeWidth="2" />
+      {/* Livre fermé vu de face, tranche de pages à droite, ruban marque-page */}
+      <rect x="20" y="8" width="24" height="30" rx="1.5" stroke={PETROLE} strokeWidth="2" />
+      <path d="M44 10v26M46.5 11v24M49 12.5v21" stroke={PETROLE} strokeWidth="1" opacity="0.5" />
+      <path d="M30 8v14l4-4 4 4V8" stroke={AMBRE} strokeWidth="2" />
+      {/* Deux mains en coupe, qui présentent le livre */}
+      <path d="M6 46c2-7 9-10 15-6 2 1 3 2 3 2" stroke={PETROLE} strokeWidth="2" />
+      <path d="M58 46c-2-7-9-10-15-6-2 1-3 2-3 2" stroke={PETROLE} strokeWidth="2" />
+      <path d="M6 46c0 5 4 8 8 8M58 46c0 5-4 8-8 8" stroke={PETROLE} strokeWidth="2" />
     </svg>
   );
 }
@@ -159,7 +161,8 @@ const FAQ_FONCTIONNEMENT = [
   },
   {
     question: "Puis-je payer en plusieurs fois ?",
-    reponse: "Pas aujourd'hui — un paiement unique de 155€. C'est une question ouverte, pas encore tranchée.",
+    reponse:
+      "Oui — Klarna propose un paiement en 3 ou 4 fois directement à l'étape de paiement, sans démarche supplémentaire de votre part. Les conditions exactes (nombre de fois, frais éventuels) sont déterminées par Klarna selon votre situation.",
   },
   {
     question: "Le prix dépend-il du nombre de pages ou de photos de mon livre ?",
@@ -256,19 +259,11 @@ export default function Fonctionnement() {
 
           {/* ─── LE FIL DE VOTRE RÉCIT (timeline sobre, 4 phases) ─────── */}
           <h2 className="font-display text-2xl text-encre mb-8">Le fil de votre récit</h2>
-          <div className="relative md:pr-36">
-            {/* Accent photo — discret, un seul emplacement testé sur le site
-                (décision du 29/07/2026 : mieux vaut peu que trop, cf. mémoire) */}
-            <div className="hidden md:block absolute top-0 right-0 w-32 rotate-[4deg] shadow-[3px_3px_10px_rgba(36,34,32,0.18)]">
-              <Image
-                src="/polaroid-grand-pere.webp"
-                alt="Photo façon polaroïd d'un grand-père et de son petit-fils à table"
-                width={400}
-                height={484}
-                className="w-full h-auto"
-              />
-            </div>
-            <div className="mb-16 space-y-8 border-l-2 border-sauge pl-6">
+          {/* Photo d'accent retirée (10/09/2026) — mal raccordée visuellement au
+              texte dans cette mise en page, jugée "esseulée" au milieu de la
+              page. Reste cohérent avec "peu que trop" : zéro photo ici,
+              simplement, plutôt qu'une de plus mal intégrée. */}
+          <div className="mb-16 space-y-8 border-l-2 border-sauge pl-6">
             <div>
               <p className="font-display italic text-lg text-petrole mb-1">Les racines</p>
               <p className="font-sans text-base text-grege leading-relaxed">
@@ -294,7 +289,6 @@ export default function Fonctionnement() {
               <p className="font-sans text-base text-grege leading-relaxed">
                 Le bilan, ce que vous voulez laisser — le mot de la fin, celui qui compte le plus.
               </p>
-            </div>
             </div>
           </div>
 

@@ -189,7 +189,8 @@ export default function OffrirPage() {
               155€
             </p>
             <p className="font-sans text-sm text-grege mb-6">
-              Un seul paiement, tout compris — même prix quelle que soit la longueur du récit
+              Tout compris — même prix quelle que soit la longueur du récit. En une fois ou en
+              plusieurs fois via Klarna.
             </p>
             <FormulaireCadeau />
           </div>

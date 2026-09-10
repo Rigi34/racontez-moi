@@ -36,11 +36,11 @@ export default async function ParcoursPage() {
 
         <div className="bg-blanc border border-sauge rounded-2xl px-8 py-10 space-y-2">
           <p className="font-display text-4xl text-encre">155€</p>
-          <p className="font-sans text-sm text-grege">Un seul paiement, tout compris — aucune mensualité, aucun palier.</p>
+          <p className="font-sans text-sm text-grege">Tout compris, aucun palier — en une fois ou en plusieurs fois via Klarna.</p>
         </div>
 
         <p className="font-sans text-sm text-grege">
-          Pas d&apos;engagement caché, pas de facture surprise selon la longueur de votre récit : vous payez une fois, rien d&apos;autre ne sera jamais prélevé.
+          Pas d&apos;engagement caché, pas de facture surprise selon la longueur de votre récit : le prix total ne changera jamais, que vous le régliez en une fois ou en plusieurs fois.
         </p>
 
         <div className="text-left space-y-4">
