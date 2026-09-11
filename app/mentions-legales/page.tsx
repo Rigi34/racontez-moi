@@ -237,17 +237,40 @@ export default function MentionsLegales() {
               les spécifications du client ou nettement personnalisés&nbsp;: le manuscrit
               et le livre imprimé, composés à partir du récit propre à chaque narrateur,
               relèvent de cette exception dès lors que la composition du manuscrit a
-              débuté. Le narrateur qui souhaite interrompre son parcours avant toute
-              composition de fragment peut demander l&apos;annulation de sa commande et
-              le remboursement intégral, en écrivant via la page{" "}
-              <Link href="/contact" className="text-petrole hover:text-encre transition-colors">
-                Contact
-              </Link>
-              .
+              débuté. Racontez-moi propose néanmoins une garantie commerciale volontaire,
+              décrite à l&apos;article suivant.
             </p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
-              6. Impression et livraison
+              6. Garantie satisfait ou remboursé
+            </h2>
+            <p>
+              En dehors de toute obligation légale, Racontez-moi accorde à chaque
+              narrateur un remboursement intégral de son Parcours, sans justification à
+              fournir, à tout moment entre le paiement et la validation finale de la
+              commande d&apos;impression (bouton «&nbsp;Valider mon livre pour
+              impression&nbsp;»&nbsp;: cf. article 4). Cette garantie n&apos;est soumise à
+              aucun délai calendaire&nbsp;: elle reste valable aussi longtemps que le
+              narrateur n&apos;a pas validé cette commande, quelle que soit la durée déjà
+              écoulée de son parcours.
+            </p>
+            <p>
+              Une fois la commande d&apos;impression validée, cette garantie cesse de
+              s&apos;appliquer&nbsp;: le livre entre en fabrication chez le prestataire
+              d&apos;impression (cf. article 7).
+            </p>
+            <p>
+              Pour en bénéficier, le narrateur en fait la demande via le lien dédié
+              disponible sur son tableau de bord, ou via la page{" "}
+              <Link href="/contact" className="text-petrole hover:text-encre transition-colors">
+                Contact
+              </Link>
+              . Le remboursement est traité manuellement par Racontez-moi et entraîne la
+              perte immédiate de l&apos;accès au compte (séances, manuscrit, historique).
+            </p>
+
+            <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
+              7. Impression et livraison
             </h2>
             <p>
               Le livre imprimé est fabriqué et expédié par un prestataire d&apos;impression
@@ -257,7 +280,7 @@ export default function MentionsLegales() {
             </p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
-              7. Propriété du récit
+              8. Propriété du récit
             </h2>
             <p>
               Conformément à la section{" "}

@@ -39,12 +39,20 @@ export default function BoutonCommande({ adresseRemplie }: { adresseRemplie: boo
       {!adresseRemplie ? (
         <p className="font-sans text-sm text-grege">Renseignez votre adresse de livraison avant de commander.</p>
       ) : !confirmation ? (
-        <button
-          onClick={() => setConfirmation(true)}
-          className="font-sans text-sm bg-encre text-blanc rounded-full px-6 py-3 hover:bg-[#3A3632] transition-colors"
-        >
-          Valider mon livre pour impression →
-        </button>
+        <div className="space-y-2">
+          {/* Garantie (décision de Régis, 11/09/2026) — emplacement 3/5, la
+              dernière occasion, rappelée à l'instant où elle compte le
+              plus : juste avant le point de bascule qui la ferme. */}
+          <p className="font-sans text-sm text-grege">
+            Remboursement intégral, sans justification, jusqu&apos;à ce clic précis.
+          </p>
+          <button
+            onClick={() => setConfirmation(true)}
+            className="font-sans text-sm bg-encre text-blanc rounded-full px-6 py-3 hover:bg-[#3A3632] transition-colors"
+          >
+            Valider mon livre pour impression →
+          </button>
+        </div>
       ) : (
         <div className="bg-sauge border border-grege p-5 space-y-3">
           <p className="font-sans text-sm text-encre">

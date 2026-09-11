@@ -43,6 +43,13 @@ export default async function ParcoursPage() {
           Pas d&apos;engagement caché, pas de facture surprise selon la longueur de votre récit : le prix total ne changera jamais, que vous le régliez en une fois ou en plusieurs fois.
         </p>
 
+        {/* Garantie (décision de Régis, 11/09/2026) — emplacement 4/5,
+            version la plus générique des quatre, en dernière priorité. */}
+        <p className="font-sans text-sm text-grege">
+          Remboursement intégral, sans justification, tant que vous n&apos;avez pas commandé votre livre
+          imprimé.
+        </p>
+
         <div className="text-left space-y-4">
           <h2 className="font-display text-xl text-encre text-center">Ce qui est inclus</h2>
           <ul className="space-y-3 font-serif text-base text-grege leading-relaxed">

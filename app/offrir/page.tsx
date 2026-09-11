@@ -195,6 +195,15 @@ export default function OffrirPage() {
             <FormulaireCadeau />
           </div>
 
+          {/* Garantie (décision de Régis, 11/09/2026) — emplacement 2/5,
+              priorité sur /parcours : c'est l'acheteur-cadeau qui a motivé
+              cette garantie depuis le début (il ne vit jamais l'expérience
+              lui-même). */}
+          <p className="font-sans text-sm text-grege">
+            Si vos parents ne s&apos;y retrouvent pas, vous êtes remboursé intégralement — jusqu&apos;au
+            moment où le livre part à l&apos;impression.
+          </p>
+
           <p className="font-sans text-sm text-grege">
             Un certificat à imprimer ou à envoyer arrive aussitôt après le paiement — même un 24 décembre au soir.
           </p>
