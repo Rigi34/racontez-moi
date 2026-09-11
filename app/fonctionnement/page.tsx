@@ -31,13 +31,10 @@ function IconVousRacontez() {
 function IconInterlocuteurEcoute() {
   return (
     <svg viewBox="0 0 64 64" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <path
-        d="M34 12c-11 0-20 9-20 20v4a7 7 0 0 0 7 7 5 5 0 0 0 5-5v-1.5a3 3 0 0 1 3-3 3 3 0 0 0 3-3v-1c0-6 5-11 11-11h1c6 0 11 5 11 11"
-        stroke={PETROLE}
-        strokeWidth="2.2"
-      />
-      <path d="M48 22a16 16 0 0 1 0 20" stroke={AMBRE} strokeWidth="2" opacity="0.85" />
-      <path d="M54 17a24 24 0 0 1 0 30" stroke={AMBRE} strokeWidth="2" opacity="0.55" />
+      <path d="M12 34v-2a20 20 0 0 1 40 0v2" stroke={PETROLE} strokeWidth="2.2" />
+      <rect x="8" y="32" width="10" height="16" rx="5" stroke={PETROLE} strokeWidth="2.2" />
+      <rect x="46" y="32" width="10" height="16" rx="5" stroke={PETROLE} strokeWidth="2.2" />
+      <path d="M58 22a17 17 0 0 1 0 20" stroke={AMBRE} strokeWidth="2" opacity="0.75" />
     </svg>
   );
 }
@@ -84,14 +81,14 @@ function IconChapitreApresChapitre() {
 function IconTransmission() {
   return (
     <svg viewBox="0 0 64 64" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      {/* Livre fermé vu de face, tranche de pages à droite, ruban marque-page */}
-      <rect x="20" y="8" width="24" height="30" rx="1.5" stroke={PETROLE} strokeWidth="2" />
-      <path d="M44 10v26M46.5 11v24M49 12.5v21" stroke={PETROLE} strokeWidth="1" opacity="0.5" />
-      <path d="M30 8v14l4-4 4 4V8" stroke={AMBRE} strokeWidth="2" />
-      {/* Deux mains en coupe, qui présentent le livre */}
-      <path d="M6 46c2-7 9-10 15-6 2 1 3 2 3 2" stroke={PETROLE} strokeWidth="2" />
-      <path d="M58 46c-2-7-9-10-15-6-2 1-3 2-3 2" stroke={PETROLE} strokeWidth="2" />
-      <path d="M6 46c0 5 4 8 8 8M58 46c0 5-4 8-8 8" stroke={PETROLE} strokeWidth="2" />
+      {/* Livre fermé vu de face, tranche de pages à droite, cœur sur la couverture */}
+      <rect x="16" y="12" width="32" height="40" rx="2" stroke={PETROLE} strokeWidth="2.2" />
+      <path d="M48 14v38M51 15v36M54 16.5v33" stroke={PETROLE} strokeWidth="1" opacity="0.5" />
+      <path
+        d="M32 26c-3-4-9-2-9 2 0 5 9 11 9 11s9-6 9-11c0-4-6-6-9-2z"
+        stroke={AMBRE}
+        strokeWidth="2"
+      />
     </svg>
   );
 }
