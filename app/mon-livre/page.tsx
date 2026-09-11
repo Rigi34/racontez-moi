@@ -13,6 +13,16 @@ export default async function MonLivrePage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in");
 
+  // Accès au manuscrit (aperçu PDF/EPUB, commande) réservé aux comptes
+  // payés — trou trouvé le 11/09/2026 : cette page et les deux routes
+  // d'export ne vérifiaient que l'authentification, pas le paiement.
+  const { data: abonnement } = await supabase
+    .from("abonnements")
+    .select("status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (abonnement?.status !== "active") redirect("/parcours");
+
   const [fragments, { data: adresse }, { data: commande }] = await Promise.all([
     chargerFragmentsAvecPhotos(supabase, user.id),
     supabase.from("adresses_livraison").select("nom").eq("user_id", user.id).maybeSingle(),

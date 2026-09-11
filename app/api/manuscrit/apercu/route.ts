@@ -12,6 +12,18 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
 
+  // Trou trouvé le 11/09/2026 : cette route ne vérifiait que
+  // l'authentification, pas le paiement — n'importe quel compte pouvait
+  // récupérer le PDF sans avoir payé Le Parcours.
+  const { data: abonnement } = await supabase
+    .from("abonnements")
+    .select("status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (abonnement?.status !== "active") {
+    return NextResponse.json({ error: "Le Parcours n'est pas actif sur ce compte." }, { status: 403 });
+  }
+
   // Un fragment marqué "à revoir" n'a pas sa place dans un aperçu
   // d'impression — brouillon/validé passent, seul le rejet explicite du
   // narrateur exclut un fragment. chargerFragmentsAvecPhotos exclut déjà
