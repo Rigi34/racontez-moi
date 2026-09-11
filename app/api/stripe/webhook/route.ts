@@ -80,6 +80,29 @@ export async function POST(req: NextRequest) {
       );
       break;
     }
+
+    // Garantie "remboursement intégral, sans justification, tant que la
+    // commande n'est pas passée" (décision de Régis, 11/09/2026) — traitée
+    // manuellement par Régis dans le Dashboard Stripe (pas de flux
+    // applicatif en libre-service). Ce webhook réagit au remboursement une
+    // fois qu'il a eu lieu : révoque l'accès en repassant abonnements.status
+    // à une valeur différente de "active", ce qui suffit à couper l'accès
+    // partout (réutilise tels quels tous les contrôles déjà en place :
+    // /seance, /mon-livre, /api/manuscrit/*, /api/commande/livre). Ne
+    // révoque que sur un remboursement intégral (charge.refunded === true) —
+    // un remboursement partiel éventuel ne doit pas couper l'accès.
+    case "charge.refunded": {
+      const charge = event.data.object as Stripe.Charge;
+      if (!charge.refunded) break;
+      const customerId = charge.customer as string | null;
+      if (!customerId) break;
+
+      await supabase
+        .from("abonnements")
+        .update({ status: "rembourse", updated_at: new Date().toISOString() })
+        .eq("stripe_customer_id", customerId);
+      break;
+    }
   }
 
   return NextResponse.json({ received: true });

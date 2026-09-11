@@ -4,11 +4,13 @@ import type Stripe from "stripe";
 // Le module route.ts crée son propre client Supabase et son propre client
 // Stripe au chargement — on mocke les trois dépendances externes plutôt que
 // de les injecter, pour tester la route telle qu'elle tourne réellement.
-const { constructEventMock, creerCodeCadeauMock, maybeSingleMock, upsertMock } = vi.hoisted(() => ({
+const { constructEventMock, creerCodeCadeauMock, maybeSingleMock, upsertMock, updateMock, updateEqMock } = vi.hoisted(() => ({
   constructEventMock: vi.fn(),
   creerCodeCadeauMock: vi.fn(),
   maybeSingleMock: vi.fn(),
   upsertMock: vi.fn(),
+  updateMock: vi.fn(),
+  updateEqMock: vi.fn(),
 }));
 
 vi.mock("@/lib/stripe", () => ({
@@ -26,7 +28,7 @@ vi.mock("@supabase/supabase-js", () => ({
         return { select: () => ({ eq: () => ({ maybeSingle: maybeSingleMock }) }) };
       }
       if (table === "abonnements") {
-        return { upsert: upsertMock };
+        return { upsert: upsertMock, update: updateMock };
       }
       throw new Error(`Table inattendue dans le mock: ${table}`);
     }),
@@ -60,9 +62,18 @@ function sessionAsyncEvent(
   } as unknown as Stripe.Event;
 }
 
+function refundEvent(charge: Partial<Stripe.Charge>): Stripe.Event {
+  return {
+    type: "charge.refunded",
+    data: { object: charge },
+  } as unknown as Stripe.Event;
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   upsertMock.mockResolvedValue({ error: null });
+  updateMock.mockReturnValue({ eq: updateEqMock });
+  updateEqMock.mockResolvedValue({ error: null });
 });
 
 describe("POST /api/stripe/webhook", () => {
@@ -177,5 +188,38 @@ describe("POST /api/stripe/webhook", () => {
     expect(res.status).toBe(200);
     expect(upsertMock).not.toHaveBeenCalled();
     expect(creerCodeCadeauMock).not.toHaveBeenCalled();
+  });
+
+  describe("garantie — révocation d'accès sur remboursement", () => {
+    it("révoque l'accès (status != active) sur un remboursement intégral", async () => {
+      constructEventMock.mockReturnValue(refundEvent({ refunded: true, customer: "cus_123" }));
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(200);
+      expect(updateMock).toHaveBeenCalledTimes(1);
+      expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ status: "rembourse" }));
+      expect(updateEqMock).toHaveBeenCalledWith("stripe_customer_id", "cus_123");
+    });
+
+    it("ne révoque rien sur un remboursement partiel", async () => {
+      constructEventMock.mockReturnValue(
+        refundEvent({ refunded: false, amount_refunded: 5000, customer: "cus_123" })
+      );
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(200);
+      expect(updateMock).not.toHaveBeenCalled();
+    });
+
+    it("ne plante pas si le remboursement n'a pas de client Stripe associé", async () => {
+      constructEventMock.mockReturnValue(refundEvent({ refunded: true, customer: null }));
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(200);
+      expect(updateMock).not.toHaveBeenCalled();
+    });
   });
 });
