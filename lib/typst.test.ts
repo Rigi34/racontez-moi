@@ -81,4 +81,12 @@ describe("genererSourceTypst + assemblerFragments (compilation réelle)", () => 
     const resultat = compiler.compile({ mainFileContent: source });
     expect(resultat.hasError()).toBe(false);
   });
+
+  it("compile sans erreur avec le tampon APERÇU actif (garantie, 11/09/2026)", () => {
+    const corps = assemblerFragments([{ texte: "Un souvenir quelconque.", cheminsShadowPhotos: [] }]);
+    const source = genererSourceTypst(corps, { titre: "Mes Mémoires", apercu: true });
+    const compiler = NodeCompiler.create();
+    const resultat = compiler.compile({ mainFileContent: source });
+    expect(resultat.hasError()).toBe(false);
+  });
 });

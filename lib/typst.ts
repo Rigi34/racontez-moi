@@ -80,6 +80,11 @@ export function assemblerFragments(fragments: FragmentPourAssemblage[]): string 
 interface OptionsChapitre {
   titre: string;
   nombrePagesLivreEstime?: number; // pour calculer la gouttière ; défaut = pas de gouttière (chapitre isolé)
+  // Garantie (décision de Régis, 11/09/2026) : tampon visuel sur chaque page
+  // tant que la commande d'impression n'a pas été validée — jamais sur le
+  // fichier qui part réellement chez l'imprimeur (compilerInterieur appelé
+  // sans ce drapeau depuis /api/commande/livre).
+  apercu?: boolean;
 }
 
 export function genererSourceTypst(corps: string, opts: OptionsChapitre): string {
@@ -88,6 +93,9 @@ export function genererSourceTypst(corps: string, opts: OptionsChapitre): string
   const hauteurPage = (TRIM_HAUTEUR_MM + 2 * FOND_PERDU_MM).toFixed(2);
   const exterieur = (FOND_PERDU_MM + MARGE_SECURITE_MM).toFixed(2);
   const interieur = (FOND_PERDU_MM + MARGE_SECURITE_MM + gouttiere).toFixed(2);
+  const tamponApercu = opts.apercu
+    ? `rotate(-35deg, text(size: 70pt, fill: rgb(31, 75, 76, 35%), weight: "bold")[APERÇU])`
+    : "none";
 
   return `#set page(
   width: ${largeurPage}mm,
@@ -95,6 +103,7 @@ export function genererSourceTypst(corps: string, opts: OptionsChapitre): string
   margin: (inside: ${interieur}mm, outside: ${exterieur}mm, top: ${exterieur}mm, bottom: ${exterieur}mm),
   binding: left,
   numbering: "1",
+  background: align(center + horizon)[${tamponApercu}],
 )
 #set text(lang: "fr", font: "Libertinus Serif", size: 11pt)
 #set par(justify: true, leading: 0.75em, first-line-indent: 1.2em)

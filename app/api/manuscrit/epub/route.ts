@@ -58,10 +58,24 @@ export async function GET() {
     return NextResponse.json({ error: "Aucun fragment à assembler pour l'instant." }, { status: 400 });
   }
 
+  // Garantie (décision de Régis, 11/09/2026) : mention textuelle en début de
+  // chaque chapitre tant que la commande d'impression n'a pas été validée —
+  // pas de filigrane graphique, inadapté au texte fluide de l'EPUB. Une fois
+  // commandé, le narrateur a droit au fichier définitif, sans mention.
+  const { data: commandeExistante } = await supabase
+    .from("commandes_livre")
+    .select("id")
+    .eq("user_id", user.id)
+    .in("statut", ["en_cours", "confirmee"])
+    .maybeSingle();
+  const mentionApercu = commandeExistante
+    ? ""
+    : `<p><em>Aperçu — ce contenu devient votre livre définitif une fois la commande passée.</em></p>`;
+
   try {
     const chapitres = fragments.map((f, i) => ({
       title: `Souvenir ${i + 1}`,
-      content: fragmentVersHtml(f.texte),
+      content: mentionApercu + fragmentVersHtml(f.texte),
     }));
 
     const { titre } = await lirePersonnalisationLivre(supabase, user.id);

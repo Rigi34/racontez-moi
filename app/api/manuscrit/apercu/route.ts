@@ -34,9 +34,19 @@ export async function GET() {
     return NextResponse.json({ error: "Aucun fragment à assembler pour l'instant." }, { status: 400 });
   }
 
+  // Garantie (décision de Régis, 11/09/2026) : tampon "APERÇU" tant que la
+  // commande d'impression n'a pas été validée — une fois commandé, le
+  // narrateur a droit au fichier définitif, sans tampon.
+  const { data: commandeExistante } = await supabase
+    .from("commandes_livre")
+    .select("id")
+    .eq("user_id", user.id)
+    .in("statut", ["en_cours", "confirmee"])
+    .maybeSingle();
+
   try {
     const { titre } = await lirePersonnalisationLivre(supabase, user.id);
-    const { buffer, nombrePages } = compilerInterieur(fragments, { titre });
+    const { buffer, nombrePages } = compilerInterieur(fragments, { titre, apercu: !commandeExistante });
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {

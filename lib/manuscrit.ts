@@ -33,7 +33,10 @@ function cheminTypstPhoto(photoId: string, extension: string): string {
   return `/__shadow_photos__/${photoId}.${extension}`;
 }
 
-export function compilerInterieur(fragments: FragmentAvecPhotos[], opts?: { titre?: string }): ManuscritCompile {
+export function compilerInterieur(
+  fragments: FragmentAvecPhotos[],
+  opts?: { titre?: string; apercu?: boolean }
+): ManuscritCompile {
   const compiler = NodeCompiler.create();
   const titre = opts?.titre ?? "Mes Mémoires";
 
@@ -53,7 +56,7 @@ export function compilerInterieur(fragments: FragmentAvecPhotos[], opts?: { titr
   // Deux passes : la première donne la pagination réelle, nécessaire pour
   // choisir la bonne gouttière (lib/typst.ts, gouttiereMm) avant la
   // compilation finale.
-  const premiereSource = genererSourceTypst(corps, { titre });
+  const premiereSource = genererSourceTypst(corps, { titre, apercu: opts?.apercu });
   const premierResultat = compiler.compile({ mainFileContent: premiereSource });
   if (premierResultat.hasError()) {
     const diags = compiler.fetchDiagnostics(premierResultat.takeError()!);
@@ -61,7 +64,11 @@ export function compilerInterieur(fragments: FragmentAvecPhotos[], opts?: { titr
   }
   const nombrePages = premierResultat.result!.numOfPages;
 
-  const sourceFinale = genererSourceTypst(corps, { titre, nombrePagesLivreEstime: nombrePages });
+  const sourceFinale = genererSourceTypst(corps, {
+    titre,
+    nombrePagesLivreEstime: nombrePages,
+    apercu: opts?.apercu,
+  });
   const resultatFinal = compiler.compile({ mainFileContent: sourceFinale });
   if (resultatFinal.hasError()) {
     const diags = compiler.fetchDiagnostics(resultatFinal.takeError()!);
