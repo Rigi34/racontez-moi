@@ -53,11 +53,35 @@ export async function POST() {
   // Verrou applicatif avant l'appel Lulu — la contrainte unique en base
   // (commandes_livre_une_par_user) reste le vrai garde-fou contre une
   // double commande en cas de course entre deux requêtes simultanées.
-  const { data: commandeCreee, error: erreurInsertion } = await supabase
+  //
+  // Trou trouvé le 12/09/2026 (Phase 3 de l'audit sécurité) : une nouvelle
+  // tentative après un échec créait systématiquement une nouvelle ligne
+  // (donc un nouveau dossier Storage manuscrits/{user.id}/{id}/),
+  // abandonnant le dossier de la tentative précédente. Une commande déjà
+  // "echouee" est désormais reprise (même id, même dossier) plutôt que
+  // dupliquée — active enfin le upsert:true déjà présent sur les uploads
+  // ci-dessous, qui n'avait jusqu'ici jamais l'occasion de s'appliquer.
+  const { data: commandeEchouee } = await supabase
     .from("commandes_livre")
-    .insert({ user_id: user.id, statut: "en_cours" })
     .select("id")
-    .single();
+    .eq("user_id", user.id)
+    .eq("statut", "echouee")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { data: commandeCreee, error: erreurInsertion } = commandeEchouee
+    ? await supabase
+        .from("commandes_livre")
+        .update({ statut: "en_cours" })
+        .eq("id", commandeEchouee.id)
+        .select("id")
+        .single()
+    : await supabase
+        .from("commandes_livre")
+        .insert({ user_id: user.id, statut: "en_cours" })
+        .select("id")
+        .single();
   if (erreurInsertion || !commandeCreee) {
     return NextResponse.json({ error: "Une commande existe déjà pour ce livre." }, { status: 409 });
   }
@@ -83,6 +107,12 @@ export async function POST() {
       }),
     ]);
     if (erreurUploadInterieur || erreurUploadCouverture) {
+      // Trou trouvé le 12/09/2026 (Phase 3) : si un seul des deux uploads
+      // réussissait, le fichier restait seul dans le dossier, orphelin.
+      // Supprimer les deux chemins est un no-op sûr pour celui qui n'a
+      // jamais existé — même logique que le rollback déjà en place dans
+      // /api/photos (upload → insertion DB → rollback Storage si échec).
+      await supabase.storage.from("manuscrits").remove([`${dossier}/interieur.pdf`, `${dossier}/couverture.pdf`]);
       throw new Error("Upload Storage échoué: " + JSON.stringify({ erreurUploadInterieur, erreurUploadCouverture }));
     }
 

@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# .env.example lists variable NAMES only (no real values) — meant to be
+# committed, cf. docs/security/SECURITY.md §11ter (Phase 7, 12/09/2026).
+!.env.example
 
 # vercel
 .vercel
