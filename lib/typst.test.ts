@@ -89,4 +89,30 @@ describe("genererSourceTypst + assemblerFragments (compilation réelle)", () => 
     const resultat = compiler.compile({ mainFileContent: source });
     expect(resultat.hasError()).toBe(false);
   });
+
+  // Le bloc <style> du SVG Typst contient toujours "fill: none" (CSS
+  // générique, non lié au contenu) — on l'exclut avant de chercher du texte
+  // rendu, sous peine de faux positif sur la vérification "none" ci-dessous.
+  const texteRenduSvg = (svg: string) => svg.replace(/<style[\s\S]*?<\/style>/g, "");
+
+  it("rend visuellement le tampon APERÇU en aperçu, sans jamais afficher le code Typst en texte littéral (bug du 23/09/2026)", () => {
+    const source = genererSourceTypst("Un souvenir quelconque.", { titre: "Mes Mémoires", apercu: true });
+    const compiler = NodeCompiler.create();
+    const svg = texteRenduSvg(compiler.svg(compiler.compile({ mainFileContent: source }).result!));
+
+    expect(svg).toContain("APERÇU");
+    // Signature du bug corrigé : le code Typst du tampon inséré dans des
+    // crochets markup s'affichait comme texte brut au lieu d'être exécuté.
+    expect(svg).not.toContain("rotate(");
+    expect(svg).not.toContain("weight:");
+  });
+
+  it("n'affiche jamais le mot none sur un PDF de commande confirmée (bug du 23/09/2026)", () => {
+    const source = genererSourceTypst("Un souvenir quelconque.", { titre: "Mes Mémoires" });
+    const compiler = NodeCompiler.create();
+    const svg = texteRenduSvg(compiler.svg(compiler.compile({ mainFileContent: source }).result!));
+
+    expect(svg).not.toContain("none");
+    expect(svg).not.toContain("APERÇU");
+  });
 });

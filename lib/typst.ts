@@ -93,8 +93,16 @@ export function genererSourceTypst(corps: string, opts: OptionsChapitre): string
   const hauteurPage = (TRIM_HAUTEUR_MM + 2 * FOND_PERDU_MM).toFixed(2);
   const exterieur = (FOND_PERDU_MM + MARGE_SECURITE_MM).toFixed(2);
   const interieur = (FOND_PERDU_MM + MARGE_SECURITE_MM + gouttiere).toFixed(2);
+  // Bug trouvé le 23/09/2026 : `background: align(...)[${tamponApercu}]`
+  // insérait ce code Typst à l'intérieur de crochets `[...]` (mode markup),
+  // où il était donc affiché comme texte littéral au lieu d'être exécuté
+  // comme code — le tampon affichait le code source brut en aperçu, et le
+  // mot "none" en toutes lettres sur un PDF de commande confirmée. Corrigé
+  // en construisant l'expression complète (y compris l'appel à `align`) en
+  // code Typst, insérée directement comme valeur de `background:` sans
+  // crochets englobants.
   const tamponApercu = opts.apercu
-    ? `rotate(-35deg, text(size: 70pt, fill: rgb(31, 75, 76, 35%), weight: "bold")[APERÇU])`
+    ? `align(center + horizon, rotate(-35deg, text(size: 70pt, fill: rgb(31, 75, 76, 35%), weight: "bold")[APERÇU]))`
     : "none";
 
   return `#set page(
@@ -103,7 +111,7 @@ export function genererSourceTypst(corps: string, opts: OptionsChapitre): string
   margin: (inside: ${interieur}mm, outside: ${exterieur}mm, top: ${exterieur}mm, bottom: ${exterieur}mm),
   binding: left,
   numbering: "1",
-  background: align(center + horizon)[${tamponApercu}],
+  background: ${tamponApercu},
 )
 #set text(lang: "fr", font: "Libertinus Serif", size: 11pt)
 #set par(justify: true, leading: 0.75em, first-line-indent: 1.2em)
