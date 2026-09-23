@@ -69,7 +69,27 @@ export async function POST(req: NextRequest) {
       const userId = session.client_reference_id;
       if (!userId) break;
 
-      await supabase.from("abonnements").upsert(
+      // Trouvé le 20/09/2026 lors du test E2E réel (Tranche B) : un paiement
+      // par carte en une fois (hors Klarna) ne fait pas nécessairement créer
+      // de Customer Stripe pour une session en mode "payment" — session.customer
+      // peut être null. stripe_customer_id étant NOT NULL en base, l'upsert
+      // échouait alors silencieusement (retour non vérifié) : le paiement
+      // était confirmé côté Stripe (200 renvoyé) mais l'abonnement jamais
+      // activé, sans aucune trace. Ici on refuse explicitement ce cas et on
+      // renvoie 5xx pour que Stripe retente et que l'échec soit visible dans
+      // son dashboard, plutôt que de le masquer — la stratégie de fond
+      // (forcer la création d'un Customer à la création de la session, ou
+      // un autre mécanisme) reste à décider séparément, non traitée ici.
+      if (!session.customer) {
+        console.error("Webhook Stripe: session.customer absent, abonnement non activé.", {
+          event_type: event.type,
+          session_id: session.id,
+          user_id: userId,
+        });
+        return NextResponse.json({ error: "session.customer manquant." }, { status: 500 });
+      }
+
+      const { error: erreurUpsertAbonnement } = await supabase.from("abonnements").upsert(
         {
           user_id: userId,
           stripe_customer_id: session.customer as string,
@@ -78,6 +98,17 @@ export async function POST(req: NextRequest) {
         },
         { onConflict: "user_id" }
       );
+
+      if (erreurUpsertAbonnement) {
+        console.error("Webhook Stripe: échec de l'activation de l'abonnement.", {
+          event_type: event.type,
+          session_id: session.id,
+          user_id: userId,
+          error_code: erreurUpsertAbonnement.code,
+          error_message: erreurUpsertAbonnement.message,
+        });
+        return NextResponse.json({ error: "Échec de l'activation de l'abonnement." }, { status: 500 });
+      }
       break;
     }
 

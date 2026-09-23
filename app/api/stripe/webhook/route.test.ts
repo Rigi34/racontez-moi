@@ -134,16 +134,61 @@ describe("POST /api/stripe/webhook", () => {
   describe("parcours abonnement", () => {
     const session = { id: "cs_test_abo_1", client_reference_id: "user-123", customer: "cus_123" };
 
-    it("active l'abonnement via upsert scopé sur user_id", async () => {
+    it("customer présent : active l'abonnement via upsert scopé sur user_id, HTTP 200", async () => {
       constructEventMock.mockReturnValue(sessionCompletedEvent(session));
 
-      await POST(requete("{}"));
+      const res = await POST(requete("{}"));
 
+      expect(res.status).toBe(200);
       expect(upsertMock).toHaveBeenCalledTimes(1);
       expect(upsertMock).toHaveBeenCalledWith(
         expect.objectContaining({ user_id: "user-123", status: "active" }),
         { onConflict: "user_id" }
       );
+    });
+
+    // Trouvé le 20/09/2026 (test E2E réel, Tranche B) : un paiement carte en
+    // une fois (hors Klarna) peut ne jamais créer de Customer Stripe pour une
+    // session en mode "payment" — session.customer est alors null.
+    // stripe_customer_id étant NOT NULL en base, l'upsert échouait avant
+    // silencieusement (retour jamais vérifié), avec un 200 renvoyé à Stripe
+    // malgré l'échec réel.
+    it("customer absent : n'appelle jamais upsert, journalise une erreur, renvoie 500", async () => {
+      const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+      constructEventMock.mockReturnValue(sessionCompletedEvent({ ...session, customer: null }));
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(500);
+      expect(upsertMock).not.toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringContaining("session.customer absent"),
+        expect.objectContaining({ session_id: "cs_test_abo_1", user_id: "user-123" })
+      );
+      spy.mockRestore();
+    });
+
+    it("erreur Supabase lors de l'upsert : journalise sans exposer de secret, renvoie 500", async () => {
+      const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+      upsertMock.mockResolvedValue({ error: { code: "23502", message: "null value in column \"stripe_customer_id\"" } });
+      constructEventMock.mockReturnValue(sessionCompletedEvent(session));
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(500);
+      expect(upsertMock).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringContaining("échec de l'activation"),
+        expect.objectContaining({ session_id: "cs_test_abo_1", user_id: "user-123", error_code: "23502" })
+      );
+      // La charge journalisée ne contient jamais la session Stripe entière
+      // (pas de risque d'y faire fuiter un futur champ sensible) : seuls des
+      // identifiants et le message d'erreur Postgres sont passés.
+      const [, chargeLoggee] = spy.mock.calls[0];
+      expect(Object.keys(chargeLoggee)).toEqual(
+        expect.arrayContaining(["event_type", "session_id", "user_id", "error_code", "error_message"])
+      );
+      spy.mockRestore();
     });
 
     it("rejouer le même événement produit le même upsert, sans doublon ni erreur (idempotence)", async () => {

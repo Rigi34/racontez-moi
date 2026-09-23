@@ -11,6 +11,13 @@ export async function POST(req: NextRequest) {
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
+    // Trouvé le 20/09/2026 (test E2E réel, Tranche B) : sans ce paramètre,
+    // un paiement carte en une fois (hors Klarna) ne crée pas de Customer
+    // Stripe, laissant session.customer à null — stripe_customer_id étant
+    // NOT NULL en base (migration 0004), l'activation de l'abonnement
+    // échouait silencieusement côté webhook. "always" garantit un Customer
+    // systématique pour ce mode "payment" (cf. types Stripe SDK).
+    customer_creation: "always",
     line_items: [{ price: process.env.STRIPE_PRICE_ID_PARCOURS!, quantity: 1 }],
     client_reference_id: user.id,
     // Un compte encore anonyme (essai gratuit non converti, cf. Seance.tsx

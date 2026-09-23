@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { compilerInterieur, compilerCouverture } from "@/lib/manuscrit";
+import { chargerFragmentsAvecPhotos } from "@/lib/photos";
 import { lirePersonnalisationLivre } from "@/lib/profil-narrateur";
 
 // Génère la couverture (recto + dos + quatrième) aux dimensions exactes
@@ -10,20 +11,20 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
 
-  const { data: fragments } = await supabase
-    .from("fragments")
-    .select("texte")
-    .eq("user_id", user.id)
-    .neq("statut", "a_revoir")
-    .order("created_at", { ascending: true });
+  // Trouvé le 23/09/2026 (test E2E réel) : cette route construisait
+  // fragments avec un simple .map(f => f.texte), un tableau de chaînes,
+  // alors que compilerInterieur attend des objets {texte, photos}[]
+  // (cf. apercu/route.ts, commande/livre/route.ts) — plantait
+  // systématiquement sur `for (const photo of fragment.photos)`.
+  const fragments = await chargerFragmentsAvecPhotos(supabase, user.id);
 
-  if (!fragments?.length) {
+  if (!fragments.length) {
     return NextResponse.json({ error: "Aucun fragment à assembler pour l'instant." }, { status: 400 });
   }
 
   try {
     const { titre, sousTitre, couleurCle } = await lirePersonnalisationLivre(supabase, user.id);
-    const { nombrePages } = compilerInterieur(fragments.map((f) => f.texte), { titre });
+    const { nombrePages } = compilerInterieur(fragments, { titre });
     const pdfBuffer = await compilerCouverture(nombrePages, { titre, sousTitre, couleurCle });
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
