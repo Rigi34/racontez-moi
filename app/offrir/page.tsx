@@ -95,7 +95,7 @@ export default function OffrirPage() {
               </h3>
               <p className="font-sans text-base text-grege leading-relaxed">
                 Deux minutes&nbsp;: vous recevez un code d&apos;activation et un
-                certificat élégant à imprimer ou à envoyer.
+                certificat élégant à imprimer chez vous, ou à envoyer vous-même par mail ou SMS.
               </p>
             </div>
             <div className="text-center">
@@ -205,7 +205,7 @@ export default function OffrirPage() {
           </p>
 
           <p className="font-sans text-sm text-grege">
-            Un certificat à imprimer ou à envoyer arrive aussitôt après le paiement — même un 24 décembre au soir.
+            Un certificat à imprimer ou à transmettre vous-même arrive aussitôt après le paiement — même un 24 décembre au soir.
           </p>
         </div>
       </section>

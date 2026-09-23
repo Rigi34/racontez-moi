@@ -71,7 +71,7 @@ export default async function OffrirMerciPage({
           <p className="font-display italic text-lg text-petrole">Racontez-moi</p>
           <h1 className="font-display text-3xl text-encre">Merci pour ce cadeau.</h1>
           <p className="font-serif text-lg text-grege leading-relaxed">
-            Le certificat pour {destinataire} est prêt — imprimez-le ou envoyez-le directement.
+            Le certificat pour {destinataire} est prêt à télécharger — à imprimer, ou à envoyer vous-même par mail ou SMS.
           </p>
         </div>
 
