@@ -55,9 +55,9 @@ const objetsMemoire = [
   },
   {
     src: "/objet-2-laseance.webp",
-    alt: "Femme de dos assise près d'une fenêtre, téléphone posé sur la table en train d'enregistrer",
+    alt: "Femme de dos assise dans un canapé près d'une fenêtre, tenant son téléphone affichant une séance Racontez-moi en cours",
     caption: "La séance",
-    position: "object-center",
+    position: "object-right",
   },
   {
     src: "/objet-3-lepartage.webp",
