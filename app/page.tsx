@@ -57,7 +57,7 @@ const objetsMemoire = [
     src: "/objet-2-laseance.webp",
     alt: "Femme de dos assise dans un canapé près d'une fenêtre, tenant son téléphone affichant une séance Racontez-moi en cours",
     caption: "La séance",
-    position: "object-right",
+    position: "object-[90%_center]",
   },
   {
     src: "/objet-3-lepartage.webp",
