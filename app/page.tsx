@@ -180,7 +180,7 @@ export default function Home() {
                 alt="Une personne tenant le livre Racontez-moi ouvert, avec une photo de famille en noir et blanc insérée dans la page"
                 width={420}
                 height={525}
-                className="object-cover w-full"
+                className="object-cover w-full object-[30%_center]"
                 priority
               />
               {/* Fine bordure papier-foncé */}
