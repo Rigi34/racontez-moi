@@ -45,11 +45,12 @@ describe("composerFragment", () => {
     expect(contenu).not.toContain("a demandé à recomposer");
   });
 
-  it("journalise sans planter quand la réponse est tronquée par max_tokens", async () => {
+  it("rejette la réponse (throw) au lieu de renvoyer un fragment tronqué quand stop_reason = max_tokens", async () => {
     const erreurSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const client = mockAnthropic("fragment coupé en pl", "max_tokens");
-    const fragment = await composerFragment(client, { tours: TOURS });
-    expect(fragment).toBe("fragment coupé en pl");
+
+    await expect(composerFragment(client, { tours: TOURS })).rejects.toThrow(/max_tokens/);
+
     expect(erreurSpy).toHaveBeenCalledWith(
       "composerFragment: réponse tronquée par max_tokens",
       expect.objectContaining({ tours: TOURS.length })
