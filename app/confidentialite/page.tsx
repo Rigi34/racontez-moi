@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { voixChoisieActive } from "@/lib/voix";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -60,12 +61,34 @@ export default function Confidentialite() {
               (fournisseur du modèle qui vous relance et compose vos fragments).
               Ces échanges sont nécessaires au fonctionnement de la conversation.
             </p>
+            {/* Chantier VOIX-CHOISIE : la promesse ne change qu'au moment où la
+                fonction est réellement activée (interrupteur), jamais avant. */}
+            {voixChoisieActive() ? (
+              <p>
+                <strong className="font-semibold">
+                  Votre voix n&apos;est jamais conservée sans votre accord explicite.
+                </strong>{" "}
+                Pour la transcription, l&apos;audio est envoyé à Groq puis immédiatement
+                supprimé de leur côté. À la fin d&apos;une séance, vous pouvez choisir de garder
+                un extrait de votre voix pour le passage qui vient d&apos;être composé&nbsp;: il est
+                alors conservé dans un espace privé (Supabase, en Europe), vous pouvez le
+                réécouter, le supprimer ou désactiver son écoute à tout moment depuis votre
+                parcours, et il est accessible à vos proches par un QR code imprimé dans votre
+                livre. Votre accord est enregistré pour chaque extrait. Les extraits sont
+                supprimés avec votre compte et inclus dans l&apos;export de vos données.
+              </p>
+            ) : null}
             <p>
-              <strong className="font-semibold">
-                L&apos;audio de votre voix n&apos;est jamais conservé
-              </strong>{" "}
-              — il est envoyé à Groq pour être transcrit en texte, puis
-              immédiatement supprimé de leur côté. Le texte de vos séances et les
+              {!voixChoisieActive() && (
+                <>
+                  <strong className="font-semibold">
+                    L&apos;audio de votre voix n&apos;est jamais conservé
+                  </strong>{" "}
+                  — il est envoyé à Groq pour être transcrit en texte, puis
+                  immédiatement supprimé de leur côté.{" "}
+                </>
+              )}
+              Le texte de vos séances et les
               fragments composés à partir de vos réponses sont, eux, enregistrés
               dans notre base de données (hébergée par Supabase, en Europe), pour
               que votre parcours se poursuive d&apos;une séance à l&apos;autre et

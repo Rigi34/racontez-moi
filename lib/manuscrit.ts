@@ -6,6 +6,8 @@
 import { NodeCompiler } from "@myriaddreamin/typst-ts-node-compiler";
 import { genererLivreTypst, assemblerFragments, largeurTexteMm } from "./typst";
 import { organiserEnChapitres } from "./livre";
+import { qrSvg } from "./qr";
+import { urlEcoute } from "./voix";
 import { genererSourceCouverture, PALETTE_COUVERTURE, COULEUR_COUVERTURE_DEFAUT } from "./couverture";
 import { dimensionsCouverture } from "./lulu";
 
@@ -17,6 +19,9 @@ export type FragmentAvecPhotos = {
   // qui détermine le chapitre du livre (lib/livre.ts). Absente ou null :
   // première séance, rattachée au chapitre « Racines et petite enfance ».
   section?: string | null;
+  // Jeton d'écoute d'un extrait de voix gardé pour ce fragment (chantier
+  // VOIX-CHOISIE) : un QR code est alors imprimé en fin de passage.
+  voixJeton?: string | null;
   // Une photo par id + son contenu binaire déjà téléchargé depuis Supabase
   // Storage — le compilateur Typst ne peut pas aller chercher une URL lui-
   // même, il lui faut les octets en mémoire (cf. NodeCompiler.mapShadow).
@@ -62,12 +67,22 @@ export function compilerInterieur(
     }
   }
 
+  // QR codes d'écoute (chantier VOIX-CHOISIE) : SVG déposés comme les photos.
+  const qrParFragment = new Map<number, { chemin: string; url: string }>();
+  fragments.forEach((f, i) => {
+    if (!f.voixJeton) return;
+    const url = urlEcoute(f.voixJeton);
+    compiler.mapShadow(`${process.cwd()}/__shadow_voix__/${f.voixJeton}.svg`, Buffer.from(qrSvg(url)));
+    qrParFragment.set(i, { chemin: `/__shadow_voix__/${f.voixJeton}.svg`, url });
+  });
+
   // Chapitres par section de vie, photo d'ouverture éventuelle (02/10/2026,
   // cf. lib/livre.ts) — le texte des fragments n'est jamais modifié.
   const chapitres = organiserEnChapitres(
-    fragments.map((f) => ({
+    fragments.map((f, i) => ({
       texte: f.texte,
       section: f.section,
+      qrVoix: qrParFragment.get(i) ?? null,
       photos: f.photos.map((p) => ({
         chemin: cheminTypstPhoto(p.id, p.extension),
         largeurPx: p.largeurPx,

@@ -6,7 +6,7 @@
 // Principe : le récit reste premier, la photographie accompagne le
 // souvenir. Aucune règle ici ne touche au texte des fragments.
 
-import type { PhotoShadow } from "./typst";
+import type { PhotoShadow, QrVoix } from "./typst";
 
 // Dimensions de la page avec fond perdu (6x9po + 3,18mm par côté, cf.
 // lib/typst.ts) — utilisées pour juger si une photo tient en pleine page.
@@ -48,12 +48,13 @@ export type FragmentPourLivre = {
   // pour la toute première séance (question fixe, thématiquement section A).
   section?: string | null;
   photos: PhotoShadow[];
+  qrVoix?: QrVoix | null;
 };
 
 export type Chapitre = {
   section: string;
   titre: string;
-  fragments: { texte: string; photos: PhotoShadow[] }[];
+  fragments: { texte: string; photos: PhotoShadow[]; qrVoix?: QrVoix | null }[];
   // Photo composée en pleine page sur la page paire qui fait face à
   // l'ouverture du chapitre — retirée du flux du texte. null : la page
   // paire reste blanche, l'ouverture se fait seule sur la page impaire.
@@ -115,11 +116,11 @@ function choisirPhotoOuverture(fragments: { photos: PhotoShadow[] }[]): PhotoSha
 // chapitres ; à l'intérieur d'un chapitre, l'ordre d'enregistrement est
 // conservé (les fragments arrivent déjà triés par date de création).
 export function organiserEnChapitres(fragments: FragmentPourLivre[]): Chapitre[] {
-  const parSection = new Map<string, { texte: string; photos: PhotoShadow[] }[]>();
+  const parSection = new Map<string, { texte: string; photos: PhotoShadow[]; qrVoix?: QrVoix | null }[]>();
   for (const fragment of fragments) {
     const section = sectionValide(fragment.section);
     const liste = parSection.get(section) ?? [];
-    liste.push({ texte: fragment.texte, photos: fragment.photos });
+    liste.push({ texte: fragment.texte, photos: fragment.photos, qrVoix: fragment.qrVoix ?? null });
     parSection.set(section, liste);
   }
 

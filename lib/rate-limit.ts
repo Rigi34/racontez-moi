@@ -51,6 +51,11 @@ export async function verifierQuota(
 export const LIMITES_QUOTIDIENNES_ANONYME = {
   contact: 5,
   certificat_apercu: 20,
+  // Écoute d'un extrait de voix par QR code (chantier VOIX-CHOISIE) : une
+  // famille qui feuillette le livre scanne plusieurs pages ; 100 par jour et
+  // par IP laisse toute la marge à un usage réel tout en bornant
+  // l'énumération de jetons.
+  ecoute_voix: 100,
 } as const;
 
 export type RouteLimiteeAnonyme = keyof typeof LIMITES_QUOTIDIENNES_ANONYME;

@@ -77,9 +77,35 @@ describe("POST /api/compte/supprimer", () => {
     expect(res.status).toBe(200);
     expect(viderPrefixeUtilisateurMock).toHaveBeenCalledWith(expect.anything(), "photos", "user-abc");
     expect(viderPrefixeUtilisateurMock).toHaveBeenCalledWith(expect.anything(), "manuscrits", "user-abc");
-    expect(viderPrefixeUtilisateurMock).toHaveBeenCalledTimes(2);
+    // 03/10/2026 : + le bucket des extraits de voix (chantier VOIX-CHOISIE).
+    expect(viderPrefixeUtilisateurMock).toHaveBeenCalledWith(expect.anything(), "voix", "user-abc");
+    expect(viderPrefixeUtilisateurMock).toHaveBeenCalledTimes(3);
     expect(deleteUserMock).toHaveBeenCalledWith("user-abc");
     expect(body).toEqual({ ok: true, photos_supprimees: 3, manuscrits_supprimes: 3 });
+  });
+
+  it("voix : un bucket « voix » absent (fonction coupée, migration non appliquée) ne bloque jamais la suppression", async () => {
+    viderPrefixeUtilisateurMock.mockImplementation((_client: unknown, bucket: string) =>
+      bucket === "voix"
+        ? Promise.reject(new Error("Listage Storage échoué (voix/user-abc): Bucket not found"))
+        : Promise.resolve({ videe: true, supprimes: 1 })
+    );
+
+    const res = await POST();
+
+    expect(res.status).toBe(200);
+    expect(deleteUserMock).toHaveBeenCalledWith("user-abc");
+  });
+
+  it("voix : un nettoyage voix incomplet bloque la suppression, comme pour les photos", async () => {
+    viderPrefixeUtilisateurMock.mockImplementation((_client: unknown, bucket: string) =>
+      Promise.resolve(bucket === "voix" ? { videe: false, supprimes: 1 } : { videe: true, supprimes: 0 })
+    );
+
+    const res = await POST();
+
+    expect(res.status).toBe(500);
+    expect(deleteUserMock).not.toHaveBeenCalled();
   });
 
   it("B — n'appelle jamais deleteUser si le nettoyage photos est incomplet", async () => {

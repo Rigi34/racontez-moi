@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { voixChoisieActive } from "@/lib/voix";
 
 export async function GET() {
   const supabase = await createClient();
@@ -17,6 +18,23 @@ export async function GET() {
     supabase.from("fragments_historique").select("id, fragment_id, texte, created_at").eq("user_id", user.id),
   ]);
 
+  // Extraits de voix (chantier VOIX-CHOISIE) : métadonnées + lien de
+  // téléchargement signé valable 7 jours, pour que l'export reste utile
+  // une fois téléchargé. Absent tant que la fonction est coupée.
+  let extraitsVoix: unknown[] | undefined;
+  if (voixChoisieActive()) {
+    const { data } = await supabase
+      .from("extraits_voix")
+      .select("id, fragment_id, chemin_stockage, type_mime, taille_octets, actif, consenti_le, version_consentement, created_at")
+      .eq("user_id", user.id);
+    extraitsVoix = await Promise.all(
+      (data ?? []).map(async ({ chemin_stockage, ...e }) => {
+        const { data: signe } = await supabase.storage.from("voix").createSignedUrl(chemin_stockage, 7 * 24 * 3600);
+        return { ...e, telechargement: signe?.signedUrl ?? null };
+      })
+    );
+  }
+
   const export_ = {
     exporte_le: new Date().toISOString(),
     compte: { email: user.email, cree_le: user.created_at },
@@ -30,6 +48,7 @@ export async function GET() {
     profil_narrateur: profilNarrateur.data,
     adresse_livraison: adresseLivraison.data,
     commandes_livre: commandesLivre.data,
+    ...(extraitsVoix ? { extraits_voix: extraitsVoix } : {}),
   };
 
   return new NextResponse(JSON.stringify(export_, null, 2), {

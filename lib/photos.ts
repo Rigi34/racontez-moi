@@ -20,6 +20,7 @@ export const PHOTOS_MAX_TOTAL = 80;
 import type { SupabaseClient } from "@supabase/supabase-js";
 import * as Sentry from "@sentry/nextjs";
 import type { FragmentAvecPhotos } from "./manuscrit";
+import { voixChoisieActive } from "./voix";
 
 export type FragmentsAvecPhotosResultat = {
   fragments: FragmentAvecPhotos[];
@@ -58,6 +59,18 @@ export async function chargerFragmentsAvecPhotos(
     .select("id, section_ouverture")
     .in("id", [...new Set(fragments.map((f) => f.session_id))]);
   const sectionParSession = new Map((sessions ?? []).map((s) => [s.id, s.section_ouverture as string | null]));
+
+  // Extraits de voix actifs (chantier VOIX-CHOISIE) : seul le jeton est
+  // utile au livre (QR code). Rien n'est lu tant que la fonction est coupée.
+  const jetonParFragment = new Map<string, string>();
+  if (voixChoisieActive()) {
+    const { data: extraits } = await supabase
+      .from("extraits_voix")
+      .select("fragment_id, jeton")
+      .in("fragment_id", fragments.map((f) => f.id))
+      .eq("actif", true);
+    for (const e of extraits ?? []) jetonParFragment.set(e.fragment_id, e.jeton);
+  }
 
   const { data: photos } = await supabase
     .from("photos")
@@ -113,6 +126,7 @@ export async function chargerFragmentsAvecPhotos(
       return {
         texte: fragment.texte,
         section: sectionParSession.get(fragment.session_id) ?? null,
+        voixJeton: jetonParFragment.get(fragment.id) ?? null,
         photos: photosTelechargees.filter((p): p is NonNullable<typeof p> => p !== null),
       };
     })

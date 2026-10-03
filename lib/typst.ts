@@ -149,7 +149,20 @@ export type FragmentPourAssemblage = {
   // Supabase Storage, qui ne sont pas accessibles depuis le compilateur
   // Typst.
   photos: PhotoShadow[];
+  // QR code d'écoute de la voix (chantier VOIX-CHOISIE) : chemin du SVG déjà
+  // déposé dans le compilateur, et adresse imprimée en clair sous le code.
+  qrVoix?: QrVoix | null;
 };
+
+export type QrVoix = { chemin: string; url: string };
+
+// QR code en fin de souvenir : petit, discret, insécable, aligné à gauche
+// sous le texte — il accompagne le passage sans concurrencer le récit.
+// L'adresse est imprimée en clair pour qui n'aurait pas de téléphone à
+// portée de main.
+function blocQrVoix(qr: QrVoix): string {
+  return `#block(above: 1.4em, below: 0.4em, breakable: false)[#grid(columns: (auto, auto), gutter: 3mm, align: horizon, image("${qr.chemin}", width: 16mm), [#text(size: 8.5pt, style: "italic", fill: luma(70))[Écouter ce souvenir de vive voix] \\ #text(size: 7pt, fill: luma(110))[${echapperMarkupTypst(qr.url.replace(/^https?:\/\//, ""))}]])]`;
+}
 
 // Séparateur entre deux souvenirs d'un même chapitre : trois astérisques
 // espacées, la convention des livres imprimés français pour une rupture de
@@ -190,6 +203,7 @@ export function assemblerFragments(
       } else {
         corps = [...paragraphes, ...blocs].join("\n\n");
       }
+      if (fragment.qrVoix) corps += `\n\n${blocQrVoix(fragment.qrVoix)}`;
       if (i === 0) return corps;
       return `#block(above: 2em, below: 1.8em, sticky: true, width: 100%)[#align(center)[${SEPARATEUR}]]\n\n${corps}`;
     })

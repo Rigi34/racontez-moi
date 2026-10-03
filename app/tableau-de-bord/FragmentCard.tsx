@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import PhotosFragment from "./PhotosFragment";
+import VoixFragment from "./VoixFragment";
 
 type Statut = "brouillon" | "valide" | "a_revoir";
 type Version = { id: string; texte: string; created_at: string };
@@ -166,6 +167,8 @@ export default function FragmentCard({
       )}
 
       <PhotosFragment fragmentId={id} />
+
+      <VoixFragment fragmentId={id} />
 
       {enRegeneration && (
         <div className="space-y-2 bg-sauge/40 p-4">

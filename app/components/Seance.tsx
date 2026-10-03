@@ -4,6 +4,8 @@ import { useState, useRef, useCallback, useEffect, Dispatch, SetStateAction, Rea
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { messageErreurAuth } from "@/lib/auth-erreurs";
+import { voixChoisieActive } from "@/lib/voix";
+import ChoixVoix, { type Enregistrement } from "./ChoixVoix";
 
 type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment" | "conversion";
 
@@ -392,6 +394,19 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
   const chunksRagRef = useRef<string[]>([]);
   const chunksRagRef2 = useRef<string[]>([]);
   const [phaseApresReprise, setPhaseApresReprise] = useState<Phase>("relance");
+  // Chantier VOIX-CHOISIE : enregistrements de la séance gardés en mémoire
+  // dans le navigateur uniquement, pour proposer à la fin d'en conserver un.
+  // Jamais pour l'essai gratuit anonyme ni pour les pseudo-questions
+  // (« Pour qui », « Prénom »), et seulement si l'interrupteur est actif.
+  const garderVoixPossible = voixChoisieActive() && !modeInvite;
+  const enregistrementsRef = useRef<Enregistrement[]>([]);
+  const [enregistrementsSeance, setEnregistrementsSeance] = useState<Enregistrement[]>([]);
+  const phaseRef = useRef<Phase>("chargement");
+  const etapeSpecialeRef = useRef<"pour_qui" | "prenom" | null>(null);
+  useEffect(() => {
+    phaseRef.current = phase;
+    etapeSpecialeRef.current = etapeSpeciale;
+  }, [phase, etapeSpeciale]);
 
   useEffect(() => {
     (async () => {
@@ -501,6 +516,19 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
         stream.getTracks().forEach((t) => t.stop());
         if (chronoRef.current) clearInterval(chronoRef.current);
         const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        const etape = phaseRef.current;
+        if (
+          garderVoixPossible &&
+          !etapeSpecialeRef.current &&
+          (etape === "question" || etape === "relance" || etape === "relance2")
+        ) {
+          // Type réel du navigateur (Safari enregistre en mp4) pour l'extrait
+          // éventuellement conservé ; la transcription garde son envoi actuel.
+          enregistrementsRef.current.push({
+            blob: new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" }),
+            etape,
+          });
+        }
         setTranscribing(true);
         try {
           const form = new FormData();
@@ -526,7 +554,7 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
     } catch {
       setError("Accès au microphone refusé. Vérifiez les permissions du navigateur.");
     }
-  }, []);
+  }, [garderVoixPossible]);
 
   const stopVoice = useCallback(() => {
     mediaRecorderRef.current?.stop();
@@ -710,6 +738,8 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
       setFragment(data.fragment);
       setFragmentId(data.fragment_id ?? null);
       setStatutFragment("brouillon");
+      setEnregistrementsSeance([...enregistrementsRef.current]);
+      enregistrementsRef.current = [];
       setPhase("fragment");
     } catch {
       setError("Une erreur s'est produite. Veuillez réessayer.");
@@ -970,6 +1000,10 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
                 {fragment}
               </p>
             </div>
+
+            {garderVoixPossible && fragmentId && (
+              <ChoixVoix fragmentId={fragmentId} enregistrements={enregistrementsSeance} />
+            )}
 
             <div className="text-center space-y-6">
               <p className="font-serif text-lg text-grege italic">

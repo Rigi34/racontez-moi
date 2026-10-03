@@ -3,6 +3,7 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/server";
 import { stripe } from "@/lib/stripe";
 import { viderPrefixeUtilisateur } from "@/lib/nettoyage-storage";
+import { BUCKET_VOIX, voixChoisieActive } from "@/lib/voix";
 
 export async function POST() {
   const supabase = await createClient();
@@ -36,20 +37,31 @@ export async function POST() {
   // user.id de la session, jamais une valeur cliente).
   let photos: { videe: boolean; supprimes: number };
   let manuscrits: { videe: boolean; supprimes: number };
+  let voix: { videe: boolean; supprimes: number };
   try {
-    [photos, manuscrits] = await Promise.all([
+    [photos, manuscrits, voix] = await Promise.all([
       viderPrefixeUtilisateur(serviceClient, "photos", user.id),
       viderPrefixeUtilisateur(serviceClient, "manuscrits", user.id),
+      // Extraits de voix (chantier VOIX-CHOISIE). Tant que la fonction est
+      // coupée, le bucket peut ne pas exister encore dans un environnement
+      // (migration 0024 non appliquée) : ce cas ne doit jamais bloquer une
+      // suppression de compte. Fonction active : erreur bloquante, comme
+      // pour les photos.
+      viderPrefixeUtilisateur(serviceClient, BUCKET_VOIX, user.id).catch((e) => {
+        if (!voixChoisieActive() && /not found/i.test(String(e))) return { videe: true, supprimes: 0 };
+        throw e;
+      }),
     ]);
   } catch (e) {
     console.error("Nettoyage Storage échoué lors de la suppression de compte:", user.id, e);
     return NextResponse.json({ error: "Erreur lors de la suppression. Réessayez." }, { status: 500 });
   }
 
-  if (!photos.videe || !manuscrits.videe) {
+  if (!photos.videe || !manuscrits.videe || !voix.videe) {
     console.error("Nettoyage Storage incomplet, suppression du compte annulée:", user.id, {
       photos_videe: photos.videe,
       manuscrits_videe: manuscrits.videe,
+      voix_videe: voix.videe,
     });
     return NextResponse.json({ error: "Erreur lors de la suppression. Réessayez." }, { status: 500 });
   }
