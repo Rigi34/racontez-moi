@@ -133,7 +133,7 @@ const ETAPES_DETAIL = [
     titre: "Votre histoire devient transmission",
     sousTitre: "Un livre à garder. Une histoire à transmettre.",
     texte:
-      "Votre récit prend la forme d'un beau livre, agrémenté si vous le souhaitez de photos et de souvenirs. Un objet unique, pour vous et pour ceux qui comptent.",
+      "Votre récit prend la forme d'un beau livre. Après chaque séance, vous retrouvez vos souvenirs sur votre tableau de bord, où vous pouvez y ajouter vos photos si vous le souhaitez. Un objet unique, pour vous et pour ceux qui comptent.",
     Icone: IconTransmission,
   },
 ];

@@ -16,7 +16,7 @@ export async function GET() {
   // alors que compilerInterieur attend des objets {texte, photos}[]
   // (cf. apercu/route.ts, commande/livre/route.ts) — plantait
   // systématiquement sur `for (const photo of fragment.photos)`.
-  const fragments = await chargerFragmentsAvecPhotos(supabase, user.id);
+  const { fragments } = await chargerFragmentsAvecPhotos(supabase, user.id);
 
   if (!fragments.length) {
     return NextResponse.json({ error: "Aucun fragment à assembler pour l'instant." }, { status: 400 });

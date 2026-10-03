@@ -41,7 +41,7 @@ const FRAGMENTS_AVEC_PHOTOS = [
 beforeEach(() => {
   vi.clearAllMocks();
   getUserMock.mockResolvedValue({ data: { user: USER } });
-  chargerFragmentsAvecPhotosMock.mockResolvedValue(FRAGMENTS_AVEC_PHOTOS);
+  chargerFragmentsAvecPhotosMock.mockResolvedValue({ fragments: FRAGMENTS_AVEC_PHOTOS, photosManquantes: 0 });
   compilerInterieurMock.mockReturnValue({ buffer: Buffer.from("interieur"), nombrePages: 42 });
   compilerCouvertureMock.mockResolvedValue(Buffer.from("couverture"));
   lirePersonnalisationLivreMock.mockResolvedValue({ titre: "Mes Mémoires", sousTitre: "Racontez-moi", couleurCle: "petrole" });
@@ -58,7 +58,7 @@ describe("GET /api/manuscrit/couverture", () => {
   });
 
   it("refuse si aucun fragment", async () => {
-    chargerFragmentsAvecPhotosMock.mockResolvedValue([]);
+    chargerFragmentsAvecPhotosMock.mockResolvedValue({ fragments: [], photosManquantes: 0 });
 
     const res = await GET();
 

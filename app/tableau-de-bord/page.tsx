@@ -92,7 +92,7 @@ export default async function TableauDeBord() {
             <div className="space-y-4 pt-4">
               <h2 className="font-display text-xl text-encre">Vos fragments</h2>
               <p className="font-sans text-sm text-grege">
-                Relisez à tout moment ce que vos séances ont déjà écrit.
+                Relisez à tout moment ce que vos séances ont déjà écrit. Après chaque séance, retrouvez vos souvenirs ici et ajoutez vos photos à chacun d&apos;eux.
               </p>
               <div className="space-y-4">
                 {fragments?.map((f) => {

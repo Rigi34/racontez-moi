@@ -106,7 +106,7 @@ beforeEach(() => {
   uploadMock.mockResolvedValue({ error: null });
   removeMock.mockResolvedValue({ data: [], error: null });
   createSignedUrlMock.mockResolvedValue({ data: { signedUrl: "https://signed.example/x" } });
-  chargerFragmentsAvecPhotosMock.mockResolvedValue([{ texte: "Un souvenir.", photos: [] }]);
+  chargerFragmentsAvecPhotosMock.mockResolvedValue({ fragments: [{ texte: "Un souvenir.", photos: [] }], photosManquantes: 0 });
   compilerInterieurMock.mockReturnValue({ buffer: Buffer.from("pdf"), nombrePages: 60 });
   compilerCouvertureMock.mockResolvedValue(Buffer.from("cover"));
   lirePersonnalisationLivreMock.mockResolvedValue({ titre: "Mes Mémoires", sousTitre: "Racontez-moi", couleurCle: "petrole" });
@@ -122,6 +122,23 @@ describe("POST /api/commande/livre", () => {
     expect(body.ok).toBe(true);
     expect(insertSingleMock).toHaveBeenCalled();
     expect(updateSingleMock).not.toHaveBeenCalled();
+  });
+
+  it("A3 — inclut photos_manquantes: 0 quand aucune photo n'est manquante", async () => {
+    const res = await POST();
+    const body = await res.json();
+
+    expect(body.photos_manquantes).toBe(0);
+  });
+
+  it("A3 — répercute le nombre de photos manquantes renvoyé par chargerFragmentsAvecPhotos", async () => {
+    chargerFragmentsAvecPhotosMock.mockResolvedValue({ fragments: [{ texte: "Un souvenir.", photos: [] }], photosManquantes: 2 });
+
+    const res = await POST();
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.photos_manquantes).toBe(2);
   });
 
   it("F — réutilise la commande echouee existante (même dossier) plutôt que d'en créer une nouvelle", async () => {

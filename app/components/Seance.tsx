@@ -3,8 +3,9 @@
 import { useState, useRef, useCallback, useEffect, Dispatch, SetStateAction, ReactNode } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import { messageErreurAuth } from "@/lib/auth-erreurs";
 
-type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment";
+type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment" | "conversion";
 
 // Repli affiché si jamais la question n'a pas pu être récupérée du serveur
 // (erreur réseau au chargement) — le serveur reste la source de vérité :
@@ -738,6 +739,73 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
     }
   };
 
+  // Conversion du compte anonyme d'essai (trouvé le 23/09/2026, cf.
+  // TRAVAIL-ID AUTH-ANONYME-CONVERSION) : sans email ni mot de passe, un
+  // narrateur qui a payé perd définitivement l'accès à son parcours au
+  // moindre changement d'appareil ou nettoyage du navigateur — jusqu'ici
+  // rien ne le lui demandait jamais. supabase.auth.updateUser() sur la
+  // session anonyme encore active convertit ce même utilisateur (même
+  // user.id, cf. auth.users) en compte permanent — jamais un second
+  // utilisateur, jamais de migration de données puisque rien ne change à
+  // la clé étrangère user_id déjà posée sur fragments/sessions.
+  //
+  // Volontairement placée AVANT la redirection Stripe, pas après : après
+  // paiement laisserait une fenêtre où l'argent est déjà engagé sans que
+  // le compte soit protégé. Le mot de passe est actif immédiatement ; la
+  // confirmation de l'email (même mécanisme que l'inscription classique,
+  // cf. app/sign-in/page.tsx et app/auth/callback/route.ts) reste en
+  // attente sans jamais bloquer la suite du parcours — la session en cours
+  // n'est pas invalidée par un updateUser() non confirmé.
+  const [convEmail, setConvEmail] = useState("");
+  const [convPassword, setConvPassword] = useState("");
+  const [convError, setConvError] = useState("");
+  const [convLoading, setConvLoading] = useState(false);
+  const [convEnvoyee, setConvEnvoyee] = useState(false);
+  const [verificationCompte, setVerificationCompte] = useState(false);
+
+  // Un compte déjà permanent (narrateur connecté qui rouvre l'essai gratuit
+  // par curiosité, is_anonymous déjà false) saute directement au paiement,
+  // exactement comme avant ce chantier — aucune régression du parcours déjà
+  // authentifié.
+  const demarrerConversion = async () => {
+    if (verificationCompte) return;
+    setVerificationCompte(true);
+    setError("");
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    setVerificationCompte(false);
+    if (user && !user.is_anonymous) {
+      continuerVersPaiement();
+      return;
+    }
+    setPhase("conversion");
+  };
+
+  const soumettreConversion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (convLoading) return; // anti double-soumission
+    if (convPassword.length < 8) {
+      setConvError("Mot de passe trop court (8 caractères minimum).");
+      return;
+    }
+    setConvLoading(true);
+    setConvError("");
+    const supabase = createClient();
+    const { error } = await supabase.auth.updateUser(
+      { email: convEmail, password: convPassword },
+      { emailRedirectTo: `${window.location.origin}/auth/callback` }
+    );
+    setConvLoading(false);
+    if (error) {
+      // La session anonyme n'est jamais touchée par un échec ici : aucun
+      // signOut, aucune création d'un second utilisateur pour contourner
+      // l'erreur — l'utilisateur peut simplement corriger et réessayer.
+      setConvError(messageErreurAuth(error.message));
+      return;
+    }
+    setConvEnvoyee(true);
+  };
+
   const marquerFragment = async (statut: "valide" | "a_revoir") => {
     if (!fragmentId) return;
     try {
@@ -943,11 +1011,11 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
                 </button>
                 {modeInvite ? (
                   <button
-                    onClick={continuerVersPaiement}
-                    disabled={redirectionPaiement}
+                    onClick={demarrerConversion}
+                    disabled={verificationCompte}
                     className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-base px-8 py-3 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
                   >
-                    {redirectionPaiement ? "Un instant…" : "Continuer mon histoire →"}
+                    {verificationCompte ? "Un instant…" : "Continuer mon histoire →"}
                   </button>
                 ) : (
                   <a
@@ -966,6 +1034,78 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
               </p>
               {error && <p className="font-sans text-sm text-red-700">{error}</p>}
             </div>
+          </div>
+        )}
+
+        {/* Phase 3bis — Conversion du compte anonyme avant le paiement (essai
+            gratuit uniquement) : "sans compte, sans carte" reste vrai jusque-là ;
+            cette étape n'intervient qu'au moment où le narrateur décide de
+            continuer vers l'offre payante. */}
+        {phase === "conversion" && (
+          <div className="text-center space-y-8 max-w-sm mx-auto">
+            {!convEnvoyee ? (
+              <>
+                <h2 className="font-display font-normal text-2xl md:text-3xl text-encre leading-[1.3]">
+                  Pour garder votre histoire
+                </h2>
+                <p className="font-serif text-lg text-grege">
+                  Un accès à vous, pour la retrouver à tout moment — même depuis un autre appareil.
+                </p>
+                <form onSubmit={soumettreConversion} className="space-y-4 text-left">
+                  <div>
+                    <label className="font-sans text-sm text-encre block mb-1.5">Adresse email</label>
+                    <input
+                      type="email"
+                      value={convEmail}
+                      onChange={(e) => setConvEmail(e.target.value)}
+                      inputMode="email"
+                      autoComplete="email"
+                      placeholder="votre@email.fr"
+                      required
+                      className="w-full border border-grege bg-white text-encre px-4 py-3 font-sans text-base focus:outline-none focus:border-petrole transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-sans text-sm text-encre block mb-1.5">Mot de passe</label>
+                    <input
+                      type="password"
+                      value={convPassword}
+                      onChange={(e) => setConvPassword(e.target.value)}
+                      autoComplete="new-password"
+                      placeholder="Choisissez un mot de passe (8 car. min.)"
+                      required
+                      className="w-full border border-grege bg-white text-encre px-4 py-3 font-sans text-base focus:outline-none focus:border-petrole transition-colors"
+                    />
+                  </div>
+                  {convError && <p className="font-sans text-sm text-red-600">{convError}</p>}
+                  <button
+                    type="submit"
+                    disabled={convLoading || !convEmail || convPassword.length < 8}
+                    className="w-full bg-encre text-blanc rounded-full font-sans font-medium text-base py-3.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
+                  >
+                    {convLoading ? "Un instant…" : "Continuer →"}
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <h2 className="font-display font-normal text-2xl md:text-3xl text-encre leading-[1.3]">
+                  Votre accès est prêt.
+                </h2>
+                <p className="font-serif text-lg text-grege">
+                  Un email de confirmation vous a été envoyé — vous pouvez continuer dès maintenant, et le
+                  confirmer quand vous le souhaitez.
+                </p>
+                <button
+                  onClick={continuerVersPaiement}
+                  disabled={redirectionPaiement}
+                  className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-base px-8 py-3 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
+                >
+                  {redirectionPaiement ? "Un instant…" : "Continuer vers le paiement →"}
+                </button>
+                {error && <p className="font-sans text-sm text-red-700">{error}</p>}
+              </>
+            )}
           </div>
         )}
       </div>

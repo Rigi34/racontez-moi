@@ -31,7 +31,7 @@ export async function POST() {
     return NextResponse.json({ error: "Une commande existe déjà pour ce livre." }, { status: 409 });
   }
 
-  const fragments = await chargerFragmentsAvecPhotos(supabase, user.id);
+  const { fragments, photosManquantes } = await chargerFragmentsAvecPhotos(supabase, user.id);
 
   if (!fragments.length) {
     return NextResponse.json({ error: "Aucun fragment à assembler." }, { status: 400 });
@@ -144,7 +144,7 @@ export async function POST() {
       .update({ statut: "confirmee", lulu_print_job_id: String(commandeLulu.id), nombre_pages: nombrePages })
       .eq("id", commandeCreee.id);
 
-    return NextResponse.json({ ok: true, nombre_pages: nombrePages });
+    return NextResponse.json({ ok: true, nombre_pages: nombrePages, photos_manquantes: photosManquantes });
   } catch (error) {
     console.error("Commande livre échouée:", error);
     await supabase.from("commandes_livre").update({ statut: "echouee" }).eq("id", commandeCreee.id);

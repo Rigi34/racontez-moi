@@ -67,7 +67,10 @@ export async function POST(req: NextRequest) {
   try {
     dimensions = imageSize(buffer);
   } catch {
-    return NextResponse.json({ error: "Image illisible — réessayez avec un autre fichier." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Ce fichier n'a pas pu être ouvert comme image — vérifiez qu'il s'agit bien d'une photo au format JPG, PNG ou WebP." },
+      { status: 400 }
+    );
   }
   const { width, height } = dimensions;
   if (!width || !height) {
@@ -76,7 +79,8 @@ export async function POST(req: NextRequest) {
   if (Math.min(width, height) < RESOLUTION_MIN_PX) {
     return NextResponse.json(
       {
-        error: `Cette photo est trop petite (${width}×${height}px) pour une impression de qualité — envoyez une version d'au moins ${RESOLUTION_MIN_PX}px sur son plus petit côté.`,
+        error:
+          "Cette photo n'a pas une définition suffisante pour un rendu net dans le livre imprimé — essayez une version plus grande, idéalement la photo originale plutôt qu'une capture d'écran ou une image déjà réduite.",
       },
       { status: 400 }
     );

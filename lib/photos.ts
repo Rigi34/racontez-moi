@@ -18,7 +18,19 @@ export const PHOTOS_MAX_PAR_FRAGMENT = 6;
 export const PHOTOS_MAX_TOTAL = 80;
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import * as Sentry from "@sentry/nextjs";
 import type { FragmentAvecPhotos } from "./manuscrit";
+
+export type FragmentsAvecPhotosResultat = {
+  fragments: FragmentAvecPhotos[];
+  // Nombre de photos référencées en base mais introuvables dans Storage,
+  // exclues du document plutôt que de faire échouer toute la génération
+  // (cf. A3, 23/09/2026 — incohérence DB/Storage possible via un vrai
+  // chemin de code : app/api/photos/[id]/route.ts supprime l'objet Storage
+  // avant la ligne DB, une panne transitoire entre les deux laisse une
+  // référence orpheline).
+  photosManquantes: number;
+};
 
 // Charge les fragments d'un narrateur avec leurs photos déjà téléchargées
 // (octets en mémoire, pas des URLs) — prêt à passer directement à
@@ -28,7 +40,7 @@ import type { FragmentAvecPhotos } from "./manuscrit";
 export async function chargerFragmentsAvecPhotos(
   supabase: SupabaseClient,
   userId: string
-): Promise<FragmentAvecPhotos[]> {
+): Promise<FragmentsAvecPhotosResultat> {
   const { data: fragments } = await supabase
     .from("fragments")
     .select("id, texte")
@@ -36,34 +48,65 @@ export async function chargerFragmentsAvecPhotos(
     .neq("statut", "a_revoir")
     .order("created_at", { ascending: true });
 
-  if (!fragments?.length) return [];
+  if (!fragments?.length) return { fragments: [], photosManquantes: 0 };
 
   const { data: photos } = await supabase
     .from("photos")
-    .select("id, fragment_id, chemin_stockage")
+    .select("id, fragment_id, chemin_stockage, largeur_px, hauteur_px")
     .in("fragment_id", fragments.map((f) => f.id));
 
-  const photosParFragment = new Map<string, { id: string; chemin_stockage: string }[]>();
+  const photosParFragment = new Map<
+    string,
+    { id: string; chemin_stockage: string; largeur_px: number; hauteur_px: number }[]
+  >();
   for (const photo of photos ?? []) {
     const liste = photosParFragment.get(photo.fragment_id) ?? [];
     liste.push(photo);
     photosParFragment.set(photo.fragment_id, liste);
   }
 
-  return Promise.all(
+  let photosManquantes = 0;
+
+  const fragmentsAvecPhotos = await Promise.all(
     fragments.map(async (fragment) => {
       const photosFragment = photosParFragment.get(fragment.id) ?? [];
       const photosTelechargees = await Promise.all(
         photosFragment.map(async (photo) => {
           const { data, error } = await supabase.storage.from("photos").download(photo.chemin_stockage);
           if (error || !data) {
-            throw new Error(`Téléchargement de la photo ${photo.id} échoué : ${error?.message ?? "réponse vide"}`);
+            // A3 : ne fait plus échouer tout le document pour une seule
+            // photo Storage manquante — exclue silencieusement du point de
+            // vue du document, mais journalisée pour investigation (id
+            // opaques uniquement, aucune donnée personnelle).
+            photosManquantes += 1;
+            const contexte = {
+              photo_id: photo.id,
+              fragment_id: fragment.id,
+              user_id: userId,
+              chemin_stockage: photo.chemin_stockage,
+            };
+            console.error("Photo Storage introuvable, exclue du document:", contexte, error?.message);
+            Sentry.captureException(new Error(`Téléchargement de la photo ${photo.id} échoué : ${error?.message ?? "réponse vide"}`), {
+              extra: contexte,
+            });
+            return null;
           }
           const extension = photo.chemin_stockage.split(".").pop() ?? "jpg";
-          return { id: photo.id, extension, buffer: Buffer.from(await data.arrayBuffer()) };
+          return {
+            id: photo.id,
+            extension,
+            buffer: Buffer.from(await data.arrayBuffer()),
+            largeurPx: photo.largeur_px,
+            hauteurPx: photo.hauteur_px,
+          };
         })
       );
-      return { texte: fragment.texte, photos: photosTelechargees };
+      return {
+        texte: fragment.texte,
+        photos: photosTelechargees.filter((p): p is NonNullable<typeof p> => p !== null),
+      };
     })
   );
+
+  return { fragments: fragmentsAvecPhotos, photosManquantes };
 }

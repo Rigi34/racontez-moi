@@ -23,7 +23,7 @@ export default async function MonLivrePage() {
     .maybeSingle();
   if (abonnement?.status !== "active") redirect("/parcours");
 
-  const [fragments, { data: adresse }, { data: commande }] = await Promise.all([
+  const [{ fragments, photosManquantes }, { data: adresse }, { data: commande }] = await Promise.all([
     chargerFragmentsAvecPhotos(supabase, user.id),
     supabase.from("adresses_livraison").select("nom").eq("user_id", user.id).maybeSingle(),
     supabase.from("commandes_livre").select("statut").eq("user_id", user.id).in("statut", ["en_cours", "confirmee"]).maybeSingle(),
@@ -75,6 +75,13 @@ export default async function MonLivrePage() {
 
             <div className="bg-sauge border border-grege p-6 space-y-3">
               <h2 className="font-display text-lg text-encre">Aperçu de votre manuscrit</h2>
+              {photosManquantes > 0 && (
+                <p className="font-sans text-sm text-grege">
+                  {photosManquantes > 1
+                    ? `${photosManquantes} photos ne sont plus disponibles et ont été retirées automatiquement de votre livre — le reste n'est pas affecté.`
+                    : "1 photo n'est plus disponible et a été retirée automatiquement de votre livre — le reste n'est pas affecté."}
+                </p>
+              )}
               <div className="flex gap-3 flex-wrap">
                 <a
                   href="/api/manuscrit/apercu"

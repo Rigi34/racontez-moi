@@ -28,7 +28,7 @@ export async function GET() {
   // d'impression — brouillon/validé passent, seul le rejet explicite du
   // narrateur exclut un fragment. chargerFragmentsAvecPhotos exclut déjà
   // "à revoir" et télécharge les photos associées.
-  const fragments = await chargerFragmentsAvecPhotos(supabase, user.id);
+  const { fragments } = await chargerFragmentsAvecPhotos(supabase, user.id);
 
   if (!fragments.length) {
     return NextResponse.json({ error: "Aucun fragment à assembler pour l'instant." }, { status: 400 });

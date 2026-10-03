@@ -2,19 +2,12 @@
 import { Suspense, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
+import { messageErreurAuth } from "@/lib/auth-erreurs"
 
 // Identifiant de version du texte de consentement (annexe du document
 // juridique du 30/07/2026) — à incrémenter si le texte de la case à cocher
 // change, pour pouvoir prouver quelle version exacte a été acceptée.
 const VERSION_CONSENTEMENT = "v1.0 — 30/07/2026"
-
-function messageErreur(raw: string): string {
-  if (/invalid login credentials/i.test(raw)) return "Email ou mot de passe incorrect."
-  if (/user already registered/i.test(raw)) return "Un compte existe déjà avec cet email. Connectez-vous."
-  if (/password should be at least/i.test(raw)) return "Mot de passe trop court (8 caractères minimum)."
-  if (/unable to validate email|invalid email/i.test(raw)) return "Adresse email invalide."
-  return "Une erreur est survenue. Réessayez."
-}
 
 function SignInInner() {
   const params = useSearchParams()
@@ -56,7 +49,7 @@ function SignInInner() {
         },
       })
       setLoading(false)
-      if (error) { setError(messageErreur(error.message)); return }
+      if (error) { setError(messageErreurAuth(error.message)); return }
       if (!data.session) { setConfirmationEnvoyee(true); return }
       window.location.assign(next)
       return
@@ -64,7 +57,7 @@ function SignInInner() {
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     setLoading(false)
-    if (error) { setError(messageErreur(error.message)); return }
+    if (error) { setError(messageErreurAuth(error.message)); return }
     window.location.assign(next)
   }
 
@@ -81,7 +74,7 @@ function SignInInner() {
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback?${callbackParams.toString()}` },
     })
-    if (error) { setLoading(false); setError(messageErreur(error.message)) }
+    if (error) { setLoading(false); setError(messageErreurAuth(error.message)) }
   }
 
   if (confirmationEnvoyee) {

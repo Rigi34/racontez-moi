@@ -20,7 +20,11 @@ export default function BoutonCommande({ adresseRemplie }: { adresseRemplie: boo
         return;
       }
       setResultat("ok");
-      setMessage(`Commande envoyée — ${data.nombre_pages} pages.`);
+      const precisionPhotos =
+        data.photos_manquantes > 0
+          ? ` (${data.photos_manquantes} photo${data.photos_manquantes > 1 ? "s n'ont" : " n'a"} pas pu être incluse${data.photos_manquantes > 1 ? "s" : ""}.)`
+          : "";
+      setMessage(`Commande envoyée — ${data.nombre_pages} pages.${precisionPhotos}`);
     } catch {
       setResultat("erreur");
       setMessage("Une erreur s'est produite. Veuillez réessayer.");

@@ -15,7 +15,10 @@ export type FragmentAvecPhotos = {
   // Une photo par id + son contenu binaire déjà téléchargé depuis Supabase
   // Storage — le compilateur Typst ne peut pas aller chercher une URL lui-
   // même, il lui faut les octets en mémoire (cf. NodeCompiler.mapShadow).
-  photos: { id: string; extension: string; buffer: Buffer }[];
+  // largeurPx/hauteurPx : dimensions réelles enregistrées à l'upload (cf.
+  // lib/photos.ts), nécessaires à genererBlocPhotos pour déterminer
+  // l'orientation et dimensionner la mise en page (cf. lib/typst.ts, B1).
+  photos: { id: string; extension: string; buffer: Buffer; largeurPx: number; hauteurPx: number }[];
 };
 
 // mapShadow() exige le chemin absolu réel du fichier sur le système, car il
@@ -49,7 +52,11 @@ export function compilerInterieur(
   const corps = assemblerFragments(
     fragments.map((f) => ({
       texte: f.texte,
-      cheminsShadowPhotos: f.photos.map((p) => cheminTypstPhoto(p.id, p.extension)),
+      photos: f.photos.map((p) => ({
+        chemin: cheminTypstPhoto(p.id, p.extension),
+        largeurPx: p.largeurPx,
+        hauteurPx: p.hauteurPx,
+      })),
     }))
   );
 
