@@ -9,10 +9,15 @@ vi.mock("@sentry/nextjs", () => ({ captureException: captureExceptionMock }));
 
 import { chargerFragmentsAvecPhotos } from "./photos";
 
-type FragmentRow = { id: string; texte: string };
+type FragmentRow = { id: string; texte: string; session_id?: string };
 type PhotoRow = { id: string; fragment_id: string; chemin_stockage: string; largeur_px: number; hauteur_px: number };
 
-function creerSupabaseFake(fragments: FragmentRow[], photos: PhotoRow[], downloadImpl: (chemin: string) => Promise<{ data: Blob | null; error: { message: string } | null }>) {
+function creerSupabaseFake(
+  fragments: FragmentRow[],
+  photos: PhotoRow[],
+  downloadImpl: (chemin: string) => Promise<{ data: Blob | null; error: { message: string } | null }>,
+  sessions: { id: string; section_ouverture: string | null }[] = []
+) {
   return {
     from: (table: string) => {
       if (table === "fragments") {
@@ -23,6 +28,13 @@ function creerSupabaseFake(fragments: FragmentRow[], photos: PhotoRow[], downloa
                 order: () => Promise.resolve({ data: fragments }),
               }),
             }),
+          }),
+        };
+      }
+      if (table === "sessions") {
+        return {
+          select: () => ({
+            in: () => Promise.resolve({ data: sessions }),
           }),
         };
       }
@@ -47,6 +59,23 @@ beforeEach(() => {
 });
 
 describe("chargerFragmentsAvecPhotos", () => {
+  it("rattache à chaque fragment la section de vie de sa séance (chapitres du livre, 02/10/2026)", async () => {
+    const fragments = [
+      { id: "frag-1", texte: "Première séance.", session_id: "s-1" },
+      { id: "frag-2", texte: "Le mariage.", session_id: "s-2" },
+      { id: "frag-3", texte: "Séance introuvable.", session_id: "s-inconnue" },
+    ];
+    const sessions = [
+      { id: "s-1", section_ouverture: null },
+      { id: "s-2", section_ouverture: "E" },
+    ];
+    const supabase = creerSupabaseFake(fragments, [], async () => ({ data: null, error: null }), sessions);
+
+    const resultat = await chargerFragmentsAvecPhotos(supabase, "user-1");
+
+    expect(resultat.fragments.map((f) => f.section)).toEqual([null, "E", null]);
+  });
+
   it("retourne un tableau vide et 0 photo manquante sans fragment", async () => {
     const supabase = creerSupabaseFake([], [], async () => ({ data: null, error: null }));
 

@@ -46,7 +46,7 @@ const PAYSAGE = (chemin: string) => ({ chemin, largeurPx: 1600, hauteurPx: 1200 
 describe("assemblerFragments", () => {
   it("n'ajoute aucun séparateur pour un fragment unique", () => {
     const resultat = assemblerFragments([{ texte: "Un seul souvenir.", photos: [] }]);
-    expect(resultat).not.toContain("—");
+    expect(resultat).not.toContain("\\*\\*\\*");
     expect(resultat).toContain("Un seul souvenir.");
   });
 
@@ -59,7 +59,8 @@ describe("assemblerFragments", () => {
     // fragment entier en breakable: false (cf. bug de pagination ci-dessous).
     expect(resultat).toContain("sticky: true");
     expect(resultat).not.toContain("breakable: false");
-    expect((resultat.match(/—/g) ?? []).length).toBe(1);
+    // Séparateur : trois astérisques espacées (02/10/2026, remplace le tiret).
+    expect(resultat.split("\\*\\*\\*").length - 1).toBe(1);
   });
 
   it("B1 : deux photos portrait forment une paire (grille), pas deux blocs seuls", () => {
@@ -85,8 +86,9 @@ describe("assemblerFragments", () => {
       { texte: "Souvenir illustré.", photos: [PORTRAIT("/__shadow_photos__/a.png"), PAYSAGE("/__shadow_photos__/b.png")] },
     ]);
     expect(resultat).not.toContain("#grid(");
-    expect(resultat).toContain('#image("/__shadow_photos__/a.png", height: 9cm)');
-    expect(resultat).toContain('#image("/__shadow_photos__/b.png", width:');
+    // 02/10/2026 : tailles calculées (largeur du texte, résolution), en mm.
+    expect(resultat).toMatch(/#image\("\/__shadow_photos__\/a\.png", height: [\d.]+mm\)/);
+    expect(resultat).toMatch(/#image\("\/__shadow_photos__\/b\.png", height: [\d.]+mm\)/);
   });
 
   it("B1 : 3 photos (2 même orientation + 1 seule) donnent une paire et un bloc seul", () => {
@@ -97,7 +99,7 @@ describe("assemblerFragments", () => {
       },
     ]);
     expect((resultat.match(/#grid\(/g) ?? []).length).toBe(1);
-    expect(resultat).toContain('#image("/__shadow_photos__/c.png", width:');
+    expect(resultat).toMatch(/#image\("\/__shadow_photos__\/c\.png", height: [\d.]+mm\)/);
   });
 
   it("B1 : 6 photos (le maximum par fragment) en alternance produisent 6 blocs seuls (aucune paire adjacente compatible)", () => {

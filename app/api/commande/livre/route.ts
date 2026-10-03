@@ -92,7 +92,7 @@ export async function POST() {
     // redemandées ici, cohérent avec le principe déjà en place pour la
     // compilation Typst elle-même (manifeste §6.3).
     const { titre, sousTitre, couleurCle } = await lirePersonnalisationLivre(supabase, user.id);
-    const { buffer: interieurBuffer, nombrePages } = compilerInterieur(fragments, { titre });
+    const { buffer: interieurBuffer, nombrePages } = compilerInterieur(fragments, { titre, sousTitre });
     const couvertureBuffer = await compilerCouverture(nombrePages, { titre, sousTitre, couleurCle });
 
     const dossier = `${user.id}/${commandeCreee.id}`;

@@ -24,7 +24,7 @@ export async function GET() {
 
   try {
     const { titre, sousTitre, couleurCle } = await lirePersonnalisationLivre(supabase, user.id);
-    const { nombrePages } = compilerInterieur(fragments, { titre });
+    const { nombrePages } = compilerInterieur(fragments, { titre, sousTitre });
     const pdfBuffer = await compilerCouverture(nombrePages, { titre, sousTitre, couleurCle });
 
     return new NextResponse(new Uint8Array(pdfBuffer), {

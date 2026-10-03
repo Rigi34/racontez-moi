@@ -45,8 +45,8 @@ export async function GET() {
     .maybeSingle();
 
   try {
-    const { titre } = await lirePersonnalisationLivre(supabase, user.id);
-    const { buffer, nombrePages } = compilerInterieur(fragments, { titre, apercu: !commandeExistante });
+    const { titre, sousTitre } = await lirePersonnalisationLivre(supabase, user.id);
+    const { buffer, nombrePages } = compilerInterieur(fragments, { titre, sousTitre, apercu: !commandeExistante });
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {

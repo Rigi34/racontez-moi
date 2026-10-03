@@ -43,12 +43,21 @@ export async function chargerFragmentsAvecPhotos(
 ): Promise<FragmentsAvecPhotosResultat> {
   const { data: fragments } = await supabase
     .from("fragments")
-    .select("id, texte")
+    .select("id, texte, session_id")
     .eq("user_id", userId)
     .neq("statut", "a_revoir")
     .order("created_at", { ascending: true });
 
   if (!fragments?.length) return { fragments: [], photosManquantes: 0 };
+
+  // Section de vie de chaque séance (02/10/2026) : elle détermine le
+  // chapitre du livre (lib/livre.ts). Une séance sans section (la toute
+  // première, question fixe) ou introuvable retombe sur le chapitre A.
+  const { data: sessions } = await supabase
+    .from("sessions")
+    .select("id, section_ouverture")
+    .in("id", [...new Set(fragments.map((f) => f.session_id))]);
+  const sectionParSession = new Map((sessions ?? []).map((s) => [s.id, s.section_ouverture as string | null]));
 
   const { data: photos } = await supabase
     .from("photos")
@@ -103,6 +112,7 @@ export async function chargerFragmentsAvecPhotos(
       );
       return {
         texte: fragment.texte,
+        section: sectionParSession.get(fragment.session_id) ?? null,
         photos: photosTelechargees.filter((p): p is NonNullable<typeof p> => p !== null),
       };
     })
