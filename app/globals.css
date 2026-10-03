@@ -13,7 +13,6 @@
   --font-display: var(--font-fraunces);
   --font-serif: var(--font-source-serif);
   --font-sans: var(--font-plex-sans);
-  --font-manuscrit: var(--font-caveat);
 }
 
 html {
@@ -44,18 +43,10 @@ body {
   font-feature-settings: "liga" 1, "kern" 1;
 }
 
-/* Note manuscrite en marge — élément signature, à utiliser avec parcimonie */
-.note-marginale {
-  font-family: var(--font-manuscrit), cursive;
-  color: #B8823D;
-  transform: rotate(-2deg);
-}
+/* .note-marginale (Caveat) retirée le 02/10/2026 : seul usage, la signature
+   de Cyrulnik, passée en petites capitales Plex (étude « face au marché »). */
 
 @media (prefers-reduced-motion: no-preference) {
-  .note-marginale {
-    transition: transform 0.2s ease-out;
-  }
-
   @keyframes onde-sonore {
     0%, 100% { transform: scaleY(0.32); }
     50% { transform: scaleY(1); }

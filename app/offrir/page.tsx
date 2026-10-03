@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import FormulaireCadeau from "./FormulaireCadeau";
+import EnTeteSite from "../components/EnTeteSite";
+import BarreCTAMobile from "../components/BarreCTAMobile";
+import { ListeCompris } from "../components/OffreParcours";
 
 export const metadata: Metadata = {
   title: "Cadeau Mémoire — Racontez-moi",
@@ -11,8 +14,13 @@ export const metadata: Metadata = {
 export default function OffrirPage() {
   return (
     <main className="min-h-screen">
+      {/* En-tête commun (02/10/2026) : /offrir n'avait ni logo ni navigation. */}
+      <EnTeteSite />
+
       {/* ─── HERO /OFFRIR ─────────────────────────────────────────────── */}
-      <section className="flex flex-col items-center justify-center min-h-[80vh] px-6 pt-24 pb-20 text-center">
+      {/* Hauteur ramenée au contenu (02/10/2026) : le min-h-[80vh] repoussait
+          prix et garantie hors du premier écran mobile. */}
+      <section className="flex flex-col items-center justify-center px-6 pt-12 pb-16 md:pt-24 md:pb-24 text-center">
         <h1 className="font-display font-normal text-4xl md:text-5xl lg:text-6xl leading-[1.15] text-encre max-w-3xl mb-6">
           Vos parents ont une histoire.
           <br />
@@ -30,6 +38,11 @@ export default function OffrirPage() {
         >
           Offrir le Parcours →
         </a>
+
+        <p className="font-sans text-sm text-grege mt-5 max-w-md">
+          155&nbsp;€, tout compris, livre relié inclus. Le certificat arrive aussitôt après le
+          paiement.
+        </p>
       </section>
 
       {/* ─── LEAD ─────────────────────────────────────────────────────── */}
@@ -82,41 +95,46 @@ export default function OffrirPage() {
       </section>
 
       {/* ─── COMMENT ÇA MARCHE ────────────────────────────────────────── */}
-      <section className="bg-sauge py-20 px-6">
+      {/* Aplat pétrole foncé (03/10/2026), cohérent avec la section « La
+          séance » de l'accueil. */}
+      <section className="bg-petrole-fonce text-papier py-20 px-6">
         <div className="max-w-3xl mx-auto">
-          <h2 className="font-display font-normal text-3xl text-encre text-center mb-14">
+          <h2 className="font-display font-normal text-3xl text-papier text-center mb-14">
             En trois temps
           </h2>
           <div className="grid md:grid-cols-3 gap-10">
             <div className="text-center">
-              <div className="font-display italic text-5xl text-grege mb-4">I.</div>
-              <h3 className="font-serif font-semibold text-lg text-encre mb-3">
+              <div className="font-display italic text-5xl text-sauge mb-4">I.</div>
+              <h3 className="font-serif font-semibold text-lg text-papier mb-3">
                 Vous offrez.
               </h3>
-              <p className="font-sans text-base text-grege leading-relaxed">
+              <p className="font-sans text-base text-papier/80 leading-relaxed">
                 Deux minutes&nbsp;: vous recevez un code d&apos;activation et un
                 certificat élégant à imprimer chez vous, ou à envoyer vous-même par mail ou SMS.
               </p>
             </div>
             <div className="text-center">
-              <div className="font-display italic text-5xl text-grege mb-4">II.</div>
-              <h3 className="font-serif font-semibold text-lg text-encre mb-3">
+              <div className="font-display italic text-5xl text-sauge mb-4">II.</div>
+              <h3 className="font-serif font-semibold text-lg text-papier mb-3">
                 Ils racontent.
               </h3>
-              <p className="font-sans text-base text-grege leading-relaxed">
+              <p className="font-sans text-base text-papier/80 leading-relaxed">
                 Chez eux, à la voix, trente à quarante-cinq minutes, une à deux fois par semaine. La
                 première séance se fait ensemble&nbsp;: c&apos;est vous qui poserez
                 la première question.
               </p>
             </div>
             <div className="text-center">
-              <div className="font-display italic text-5xl text-grege mb-4">III.</div>
-              <h3 className="font-serif font-semibold text-lg text-encre mb-3">
+              <div className="font-display italic text-5xl text-sauge mb-4">III.</div>
+              <h3 className="font-serif font-semibold text-lg text-papier mb-3">
                 Le livre arrive.
               </h3>
-              <p className="font-sans text-base text-grege leading-relaxed">
-                Composé, imprimé, relié. Le leur — et, si vous voulez, un exemplaire
-                pour chaque petit-enfant.
+              <p className="font-sans text-base text-papier/80 leading-relaxed">
+                {/* 03/10/2026 : « un exemplaire pour chaque petit-enfant » retiré,
+                    l'achat d'exemplaires supplémentaires n'existe pas encore.
+                    PDF et ePub, eux, sont bien inclus. */}
+                Composé, imprimé, relié. Le leur — et, en PDF et en ePub, à partager
+                avec toute la famille.
               </p>
             </div>
           </div>
@@ -192,17 +210,28 @@ export default function OffrirPage() {
               Tout compris — même prix quelle que soit la longueur du récit. En une fois ou en
               plusieurs fois via Klarna.
             </p>
+            {/* Garantie (décision de Régis, 11/09/2026) — emplacement 2/5,
+                priorité sur /parcours : c'est l'acheteur-cadeau qui a motivé
+                cette garantie depuis le début (il ne vit jamais l'expérience
+                lui-même). 03/10/2026 : garantie ramenée à 30 jours à compter de
+                l'activation du code (cf. CGV art. 6). */}
+            <p className="font-sans text-sm text-grege mb-6">
+              Si le cadeau ne convient pas, vous êtes remboursé intégralement, sans justification&nbsp;:
+              tant que le code n&apos;a pas été activé, puis pendant les 30 jours qui suivent son activation.
+            </p>
             <FormulaireCadeau />
           </div>
 
-          {/* Garantie (décision de Régis, 11/09/2026) — emplacement 2/5,
-              priorité sur /parcours : c'est l'acheteur-cadeau qui a motivé
-              cette garantie depuis le début (il ne vit jamais l'expérience
-              lui-même). */}
-          <p className="font-sans text-sm text-grege">
-            Si vos parents ne s&apos;y retrouvent pas, vous êtes remboursé intégralement — jusqu&apos;au
-            moment où le livre part à l&apos;impression.
-          </p>
+          <details className="bg-papier/60 border border-grege/30 px-6 py-4 text-left group">
+            <summary className="cursor-pointer font-display text-lg text-encre list-none flex items-center justify-between [&::-webkit-details-marker]:hidden">
+              Ce qui est compris dans le Parcours
+              <span className="font-sans text-xl text-grege group-open:hidden" aria-hidden="true">+</span>
+              <span className="font-sans text-xl text-grege hidden group-open:inline" aria-hidden="true">−</span>
+            </summary>
+            <div className="pt-5">
+              <ListeCompris />
+            </div>
+          </details>
 
           <p className="font-sans text-sm text-grege">
             Un certificat à imprimer ou à transmettre vous-même arrive aussitôt après le paiement — même un 24 décembre au soir.
@@ -251,7 +280,7 @@ export default function OffrirPage() {
       </section>
 
       {/* ─── FOOTER ────────────────────────────────────────────────── */}
-      <footer className="py-12 px-6 bg-encre">
+      <footer className="pt-12 pb-28 md:pb-12 px-6 bg-encre">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <Link href="/" className="font-display italic text-papier text-xl hover:text-petrole transition-colors">
             Racontez-moi
@@ -272,6 +301,8 @@ export default function OffrirPage() {
           </div>
         </div>
       </footer>
+
+      <BarreCTAMobile cible="offrir-cta" libelle="Offrir le Parcours — 155 €" />
     </main>
   );
 }
