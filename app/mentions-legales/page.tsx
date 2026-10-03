@@ -241,26 +241,35 @@ export default function MentionsLegales() {
               décrite à l&apos;article suivant.
             </p>
 
-            <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
-              6. Garantie satisfait ou remboursé
+            <h2 id="garantie" className="font-display font-normal text-2xl text-encre mt-12 mb-4 scroll-mt-6">
+              6. Garantie de remboursement de 30 jours
             </h2>
             <p>
-              En dehors de toute obligation légale, Racontez-moi accorde à chaque
-              narrateur un remboursement intégral de son Parcours, sans justification à
-              fournir, à tout moment entre le paiement et la validation finale de la
-              commande d&apos;impression (bouton «&nbsp;Valider mon livre pour
-              impression&nbsp;»&nbsp;: cf. article 4). Cette garantie n&apos;est soumise à
-              aucun délai calendaire&nbsp;: elle reste valable aussi longtemps que le
-              narrateur n&apos;a pas validé cette commande, quelle que soit la durée déjà
-              écoulée de son parcours.
+              En dehors de toute obligation légale, Racontez-moi accorde un remboursement
+              intégral du Parcours, sans justification à fournir, pendant les 30 jours qui
+              suivent le paiement.
             </p>
             <p>
-              Une fois la commande d&apos;impression validée, cette garantie cesse de
-              s&apos;appliquer&nbsp;: le livre entre en fabrication chez le prestataire
-              d&apos;impression (cf. article 7).
+              Pour un Parcours offert en cadeau, ce délai de 30 jours court à compter de
+              l&apos;activation du code par son destinataire&nbsp;; tant que le code n&apos;a
+              pas été activé, l&apos;acheteur peut demander le remboursement à tout moment.
             </p>
             <p>
-              Pour en bénéficier, le narrateur en fait la demande via le lien dédié
+              Ce délai de 30 jours n&apos;est jamais prolongé. Il prend fin plus tôt si le
+              livre est validé pour l&apos;impression avant son terme (bouton «&nbsp;Valider
+              mon livre pour impression&nbsp;»&nbsp;: cf. article 4)&nbsp;: le livre entre
+              alors en fabrication chez le prestataire d&apos;impression (cf. article 7) et
+              ne peut plus être remboursé à ce titre.
+            </p>
+            <p>
+              Indépendamment de cette garantie commerciale, le livre imprimé bénéficie de
+              la garantie légale de conformité (articles L217-3 et suivants du Code de la
+              consommation)&nbsp;: un exemplaire endommagé à la livraison ou présentant un
+              défaut d&apos;impression est réimprimé ou remboursé.
+            </p>
+            <p>
+              Pour bénéficier de la garantie de 30 jours, le narrateur (ou, pour un cadeau
+              non activé, l&apos;acheteur) en fait la demande via le lien dédié
               disponible sur son tableau de bord, ou via la page{" "}
               <Link href="/contact" className="text-petrole hover:text-encre transition-colors">
                 Contact

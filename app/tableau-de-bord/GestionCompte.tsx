@@ -36,9 +36,11 @@ export default function GestionCompte() {
         </button>
         {/* Remboursement traité manuellement (pas de flux applicatif) — le
             lien évite juste d'avoir à chercher comment nous contacter.
-            Portée de la garantie : intégral, sans justification, tant que
-            "commander mon livre" n'a pas été cliqué (décision du
-            11/09/2026). La révocation d'accès au remboursement est gérée
+            Portée de la garantie (CGV art. 6, 03/10/2026) : intégral, sans
+            justification, dans les 30 jours qui suivent le paiement (pour
+            un cadeau : avant activation, puis 30 jours après), et au plus
+            tard jusqu'à la validation du livre pour impression. Le délai est
+            vérifié à la main lors du traitement. La révocation d'accès au remboursement est gérée
             côté webhook Stripe (charge.refunded), pas ici. */}
         <a
           href="mailto:rigi34000@gmail.com?subject=Demande%20de%20remboursement%20%E2%80%94%20Le%20Parcours&body=Bonjour%2C%0A%0AJe%20souhaite%20demander%20le%20remboursement%20de%20mon%20Parcours.%0A%0AEmail%20du%20compte%20%3A%20%0A"

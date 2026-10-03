@@ -112,8 +112,9 @@ export async function POST(req: NextRequest) {
       break;
     }
 
-    // Garantie "remboursement intégral, sans justification, tant que la
-    // commande n'est pas passée" (décision de Régis, 11/09/2026) — traitée
+    // Garantie "remboursement intégral, sans justification, dans les 30
+    // jours" (décision de Régis du 11/09/2026, ramenée à 30 jours le
+    // 03/10/2026, cf. CGV art. 6) — traitée
     // manuellement par Régis dans le Dashboard Stripe (pas de flux
     // applicatif en libre-service). Ce webhook réagit au remboursement une
     // fois qu'il a eu lieu : révoque l'accès en repassant abonnements.status

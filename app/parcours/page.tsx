@@ -43,11 +43,10 @@ export default async function ParcoursPage() {
           Pas d&apos;engagement caché, pas de facture surprise selon la longueur de votre récit : le prix total ne changera jamais, que vous le régliez en une fois ou en plusieurs fois.
         </p>
 
-        {/* Garantie (décision de Régis, 11/09/2026) — emplacement 4/5,
-            version la plus générique des quatre, en dernière priorité. */}
+        {/* Garantie (décision de Régis, 11/09/2026, ramenée à 30 jours le
+            03/10/2026) — emplacement 4/5. */}
         <p className="font-sans text-sm text-grege">
-          Remboursement intégral, sans justification, tant que vous n&apos;avez pas commandé votre livre
-          imprimé.
+          Remboursement intégral, sans justification, dans les 30 jours qui suivent le paiement.
         </p>
 
         <div className="text-left space-y-4">

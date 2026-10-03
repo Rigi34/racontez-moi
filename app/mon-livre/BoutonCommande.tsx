@@ -44,11 +44,11 @@ export default function BoutonCommande({ adresseRemplie }: { adresseRemplie: boo
         <p className="font-sans text-sm text-grege">Renseignez votre adresse de livraison avant de commander.</p>
       ) : !confirmation ? (
         <div className="space-y-2">
-          {/* Garantie (décision de Régis, 11/09/2026) — emplacement 3/5, la
-              dernière occasion, rappelée à l'instant où elle compte le
-              plus : juste avant le point de bascule qui la ferme. */}
+          {/* 03/10/2026 : la garantie n'est plus liée à ce clic (30 jours
+              après le paiement, cf. CGV art. 6) ; on rappelle seulement ce
+              que la validation déclenche. */}
           <p className="font-sans text-sm text-grege">
-            Remboursement intégral, sans justification, jusqu&apos;à ce clic précis.
+            Une fois validé, votre livre part à l&apos;impression&nbsp;: il ne pourra plus être modifié.
           </p>
           <button
             onClick={() => setConfirmation(true)}

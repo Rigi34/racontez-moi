@@ -24,12 +24,16 @@ export async function POST(req: NextRequest) {
       message: (message ?? "").trim().slice(0, 500),
     },
     allow_promotion_codes: true,
-    // Garantie (décision de Régis, 11/09/2026) — emplacement 1/5, le vrai
+    // Garantie (décision de Régis du 11/09/2026, ramenée à 30 jours le
+    // 03/10/2026). Pour un cadeau, les 30 jours courent à partir de
+    // l'activation du code (codes_cadeau.activated_at) : un code offert à
+    // Noël peut n'être activé que des semaines après l'achat — emplacement
+    // 1/5, le vrai
     // pic d'anxiété d'achat, plus que n'importe quelle page en amont.
     custom_text: {
       submit: {
         message:
-          "Si ce n'est pas ce dont vous aviez besoin, vous êtes remboursé intégralement, sans justification, jusqu'à ce que le livre parte à l'impression.",
+          "Si ce cadeau ne convient pas, vous êtes remboursé intégralement, sans justification, tant que le code n'a pas été activé, puis pendant les 30 jours qui suivent son activation.",
       },
     },
     success_url: `${origin}/offrir/merci?session_id={CHECKOUT_SESSION_ID}`,
