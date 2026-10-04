@@ -1,15 +1,15 @@
 {
   "pages": {
-    "1": "/livre-exemple/page-01.8458eba6a3.webp",
+    "1": "/livre-exemple/page-01.7ad9e89a32.webp",
     "3": "/livre-exemple/page-03.98ec853fee.webp",
     "5": "/livre-exemple/page-05.5fca96f8af.webp",
     "7": "/livre-exemple/page-07.0970933420.webp",
     "51": "/livre-exemple/page-51.f1309e4902.webp"
   },
   "couvertures": {
-    "petrole": "/livre-exemple/couverture-petrole.d6609ce712.webp",
-    "petrole_fonce": "/livre-exemple/couverture-petrole_fonce.cbe8c30315.webp",
-    "encre": "/livre-exemple/couverture-encre.1bf0a62547.webp",
-    "grege": "/livre-exemple/couverture-grege.62b7f7f5a7.webp"
+    "petrole": "/livre-exemple/couverture-petrole.ca5a3d533d.webp",
+    "petrole_fonce": "/livre-exemple/couverture-petrole_fonce.ca96bd2ac3.webp",
+    "encre": "/livre-exemple/couverture-encre.b9bef43f69.webp",
+    "grege": "/livre-exemple/couverture-grege.dc97a4040a.webp"
   }
 }

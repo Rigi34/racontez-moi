@@ -25,7 +25,7 @@ export type PageExemple = { src: string; alt: string; legende: string };
 export const PAGES_EXEMPLE: PageExemple[] = [
   {
     src: visuels.pages["1"],
-    alt: "Page de titre : « Là où le muret chauffait », sous-titre « Souvenirs de Daniel »",
+    alt: "Page de titre : « Le figuier au fond du jardin », sous-titre « Souvenirs de Daniel »",
     legende: "La page de titre, avec le titre que vous choisissez",
   },
   {

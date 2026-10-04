@@ -41,7 +41,7 @@ export function VisuelLivre() {
         <div className="absolute left-[4%] top-0 w-[50%] shadow-[6px_6px_0px_#DAD4C5]">
           <Image
             src={COULEURS_COUVERTURE.find((c) => c.cle === "petrole")!.src}
-            alt="Couverture du livre d'exemple « Là où le muret chauffait », couleur pétrole"
+            alt="Couverture du livre d'exemple « Le figuier au fond du jardin », couleur pétrole"
             width={COUVERTURE.largeur}
             height={COUVERTURE.hauteur}
             sizes="(max-width: 1024px) 50vw, 210px"
