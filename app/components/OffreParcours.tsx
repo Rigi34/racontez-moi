@@ -6,7 +6,8 @@ import Link from "next/link";
 // - séances sans limite de nombre (CGV art. 2) ;
 // - deux relances par question + mémoire des séances (lib/redaction, RAG
 //   sur les fragments précédents) ;
-// - photos : PHOTOS_MAX_TOTAL = 80 (lib/photos.ts) ;
+// - photos : PHOTOS_MAX_TOTAL = 80 par compte, donc pour tout le livre, et
+//   6 au plus par souvenir (lib/photos.ts, app/api/photos/route.ts) ;
 // - livre relié couleur, prix identique quel que soit le nombre de pages
 //   (CGV art. 2) — expédition Lulu "MAIL" payée par Racontez-moi, adresse
 //   par défaut en France (FormulaireAdresse) ;
@@ -17,9 +18,9 @@ export const CE_QUI_EST_COMPRIS = [
   "Des conversations à la voix, sans limite de nombre de séances",
   "Deux relances à chaque question, et un interlocuteur qui se souvient de vos séances précédentes",
   "Un texte composé à partir de vos mots, que vous relisez et corrigez",
-  "Jusqu'à 80 photos intégrées à votre récit",
+  "Jusqu'à 80 photos dans votre livre",
   "Le livre imprimé et relié en couleur, au même prix quel que soit le nombre de pages",
-  "Le manuscrit en PDF et en ePub",
+  "Le même récit en PDF et en ePub",
   "Un aperçu complet du livre avant l'impression",
   "La livraison du livre en France",
 ];

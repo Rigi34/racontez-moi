@@ -6,6 +6,7 @@ import EnTeteSite from "./components/EnTeteSite";
 import BarreCTAMobile from "./components/BarreCTAMobile";
 import EmplacementPreuve, { AFFICHER_EMPLACEMENTS } from "./components/EmplacementPreuve";
 import { ChangementAvis, ListeCompris } from "./components/OffreParcours";
+import { SectionDeLaVoixAuLivre, SectionVotreLivre, VisuelLivre } from "./components/livre/PresentationLivre";
 
 // Niveau 1 (accueil) : uniquement les questions qui lèvent un frein direct à
 // l'essai gratuit — celles qu'un visiteur hésitant se pose avant de cliquer.
@@ -46,7 +47,7 @@ const FAQ_ACCUEIL = [
   {
     question: "Le prix change-t-il selon la longueur de mon récit ?",
     reponse:
-      "Non. 155€ quelle que soit la longueur finale de votre histoire — livre imprimé et relié inclus. Jamais de palier, jamais de supplément découvert après coup. Payable en une fois ou en plusieurs fois via Klarna.",
+      "Non. 155\u00a0€ quelle que soit la longueur finale de votre histoire — livre imprimé et relié inclus. Jamais de palier, jamais de supplément découvert après coup. Payable en une fois ou en plusieurs fois via Klarna.",
   },
 ];
 
@@ -63,9 +64,12 @@ const objetsMemoire = [
     caption: "La séance",
     position: "object-[90%_center]",
   },
+  // 04/10/2026 : image d'ambiance choisie par Régis — le geste du partage,
+  // deux personnes de dos devant un livre ouvert. Elle illustre l'aboutissement,
+  // pas le détail du produit, montré en vrai juste avant et juste après.
   {
-    src: "/objet-3-lepartage.webp",
-    alt: "Trois personnes de dos, réunies sur un canapé, lisant un livre ensemble",
+    src: "/le-partage-portrait.webp",
+    alt: "Deux personnes de dos, côte à côte, regardant ensemble un livre ouvert avec des photos",
     caption: "Le partage",
     position: "object-center",
   },
@@ -198,21 +202,12 @@ export default function Home() {
             </p>
           </div>
 
+          {/* 04/10/2026 : vrais rendus du moteur (couverture + ouverture de
+              chapitre) à la place de hero-livre.webp, image générée qui
+              montrait un papier crème et une mise en page qui ne sont pas les
+              nôtres. */}
           <div className="mt-12 lg:mt-0 max-w-[420px] mx-auto w-full">
-            <div className="relative overflow-hidden shadow-[6px_6px_0px_#DAD4C5]">
-              <Image
-                src="/hero-livre.webp"
-                alt="Une personne tenant le livre Racontez-moi ouvert, avec une photo de famille en noir et blanc insérée dans la page"
-                width={420}
-                height={525}
-                className="object-cover w-full aspect-[4/3] lg:aspect-[4/5] object-[30%_center]"
-                priority
-              />
-              <div className="absolute inset-0 ring-1 ring-inset ring-grege/40" />
-            </div>
-            <p className="mt-3 font-sans text-xs text-grege tracking-widest uppercase text-center lg:text-right">
-              Vous parlez. Le livre s&apos;écrit.
-            </p>
+            <VisuelLivre />
           </div>
         </div>
       </section>
@@ -322,63 +317,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── CE QUE VOUS RECEVEZ (composition photographique) ────────── */}
-      <section className="py-20 md:py-24 px-6 bg-papier">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-[1.35fr_1fr] gap-12 lg:gap-16 items-center">
-          {/* Composition : le livre en grand, la tablette et le téléphone en
-              contrepoint. Remplace les trois cartes à icônes (PDF / ePub / Livre
-              relié) et la mention « 🌿 Zéro souci », jugées trop « gabarit ».
-              Photo du livre à remplacer par une vraie photo d'exemplaire Lulu
-              dès qu'elle existe. */}
-          <div className="relative pb-16 sm:pb-20 sm:pr-16">
-            <div className="relative aspect-[3/2] overflow-hidden shadow-[6px_6px_0px_#DAD4C5]">
-              <Image
-                src="/triptyque-livre.webp"
-                alt="Mains tenant le livre relié ouvert sur un chapitre, avec une photo de famille en noir et blanc"
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 90vw, 55vw"
-              />
-            </div>
-            <div className="absolute bottom-0 right-0 flex gap-3 sm:gap-4 w-[58%] sm:w-[46%]">
-              <div className="relative flex-1 aspect-[4/3] overflow-hidden border-4 border-papier shadow-[4px_4px_0px_#DAD4C5]">
-                <Image
-                  src="/triptyque-pdf.webp"
-                  alt="Tablette affichant une page du manuscrit au format PDF"
-                  fill
-                  className="object-cover"
-                  sizes="25vw"
-                />
-              </div>
-              <div className="relative flex-1 aspect-[4/3] overflow-hidden border-4 border-papier shadow-[4px_4px_0px_#DAD4C5]">
-                <Image
-                  src="/triptyque-epub.webp"
-                  alt="Téléphone affichant une page du manuscrit au format ePub"
-                  fill
-                  className="object-cover"
-                  sizes="25vw"
-                />
-              </div>
-            </div>
-          </div>
+      {/* ─── CE QUE VOUS RECEVEZ : LE LIVRE (rendus réels du moteur) ──
+          04/10/2026 : remplace la composition triptyque-livre / pdf / epub,
+          images générées qui montraient un livre et des écrans qui ne sont
+          pas les nôtres. Voir app/components/livre/. */}
+      <SectionVotreLivre />
 
-          <div>
-            <p className="font-sans text-xs tracking-widest uppercase text-grege mb-4">Ce que vous recevez</p>
-            <h2 className="font-display font-normal text-3xl md:text-4xl leading-[1.2] text-encre mb-6 text-balance">
-              Un livre relié, fait de vos mots et de vos photos.
-            </h2>
-            <p className="font-serif text-lg leading-[1.8] text-encre/85 mb-6">
-              Imprimé en couleur et relié, il arrive chez vous une fois votre récit relu et validé.
-              Le même récit vous est remis en PDF, pour l&apos;imprimer ou le partager, et en ePub,
-              pour le lire sur une liseuse ou un téléphone.
-            </p>
-            <p className="font-sans text-sm text-grege">
-              Le livre, le PDF et l&apos;ePub sont compris dans le prix, quelle que soit la
-              longueur du récit.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* ─── DE LA VOIX AU LIVRE (séance de test réelle) ─────────────── */}
+      <SectionDeLaVoixAuLivre />
 
       {/* ─── PREUVE : LA MÉTHODE ET LE RÉSULTAT ──────────────────────── */}
       <section className="py-20 md:py-24 px-6 bg-blanc">
@@ -413,20 +359,7 @@ export default function Home() {
           </div>
 
           {AFFICHER_EMPLACEMENTS && (
-            <div className="grid md:grid-cols-2 gap-6 mt-16">
-              <EmplacementPreuve
-                titre="Le vrai livre"
-                attendu="3 à 5 photos d'un exemplaire Lulu réellement imprimé : couverture, dos, tranche, une page avec photo. Lumière naturelle, mains sans visage (charte)."
-              />
-              <EmplacementPreuve
-                titre="Une double page lisible"
-                attendu="Une double page intérieure d'un manuscrit pilote, assez grande pour être lue, avec l'accord écrit du narrateur (PNG issu du PDF réel)."
-              />
-              <EmplacementPreuve
-                titre="Un extrait de manuscrit"
-                attendu="Un passage réel de 150 à 250 mots, tel que composé par Racontez-moi, avec le prénom ou l'initiale autorisés par le narrateur."
-                format="min-h-40"
-              />
+            <div className="max-w-xl mt-16">
               <EmplacementPreuve
                 titre="Avis vérifiés"
                 attendu="Uniquement des avis réels, recueillis après réception du livre, avec accord de publication. Aucun avis tant qu'il n'y en a pas."
