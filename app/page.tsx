@@ -53,12 +53,6 @@ const FAQ_ACCUEIL = [
 
 const objetsMemoire = [
   {
-    src: "/objet-1-lecoute.webp",
-    alt: "Téléphone posé sur une table en bois affichant une séance en cours, entouré d'anciennes photos de famille",
-    caption: "L'écoute",
-    position: "object-center",
-  },
-  {
     src: "/objet-2-laseance.webp",
     alt: "Femme de dos assise dans un canapé près d'une fenêtre, tenant son téléphone affichant une séance Racontez-moi en cours",
     caption: "La séance",
@@ -285,7 +279,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 sm:gap-6 md:gap-8 mt-12 md:mt-14">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 md:gap-8 mt-12 md:mt-14 max-w-3xl">
             {objetsMemoire.map((objet) => (
               <figure key={objet.caption}>
                 <div className="relative aspect-[4/5] overflow-hidden bg-petrole">
@@ -294,7 +288,7 @@ export default function Home() {
                     alt={objet.alt}
                     fill
                     className={`object-cover ${objet.position}`}
-                    sizes="30vw"
+                    sizes="(max-width: 768px) 45vw, 380px"
                   />
                 </div>
                 <figcaption className="mt-3 font-sans text-[10px] sm:text-xs tracking-widest uppercase text-papier/70 text-center">
