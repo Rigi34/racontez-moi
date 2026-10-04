@@ -52,18 +52,18 @@ const FAQ_ACCUEIL = [
 ];
 
 const objetsMemoire = [
+  // 04/10/2026 : images d'ambiance choisies par Régis (personnes de dos, sans
+  // visage). « Le partage » montre le geste, pas le détail du produit, montré
+  // en vrai juste avant et juste après.
   {
-    src: "/objet-2-laseance.webp",
-    alt: "Femme de dos assise dans un canapé près d'une fenêtre, tenant son téléphone affichant une séance Racontez-moi en cours",
+    src: "/la-seance-2.webp",
+    alt: "Femme de dos assise près d'une fenêtre, parlant en tenant son téléphone, des photos anciennes posées sur la table",
     caption: "La séance",
-    position: "object-[90%_center]",
+    position: "object-center",
   },
-  // 04/10/2026 : image d'ambiance choisie par Régis — le geste du partage,
-  // deux personnes de dos devant un livre ouvert. Elle illustre l'aboutissement,
-  // pas le détail du produit, montré en vrai juste avant et juste après.
   {
-    src: "/le-partage-portrait.webp",
-    alt: "Deux personnes de dos, côte à côte, regardant ensemble un livre ouvert avec des photos",
+    src: "/le-partage-2.webp",
+    alt: "Une femme et un homme âgé de dos, attablés, regardant ensemble un livre ouvert avec des photos",
     caption: "Le partage",
     position: "object-center",
   },
