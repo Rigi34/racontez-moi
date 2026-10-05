@@ -14,7 +14,10 @@ import visuels from "./visuels.json";
 export const PAGE = { largeur: 1201, hauteur: 1801 };
 export const COUVERTURE = { largeur: 1225, hauteur: 1850 };
 
-export const MENTION_EXEMPLE = "Livre d'exemple · rendu numérique · récit de démonstration";
+// Légende des pages qu'on fait défiler. Pas « récit authentique » ici : seule
+// la page 5 vient de la vraie séance, les autres de la partie imaginée du livre
+// d'exemple (05/10/2026).
+export const MENTION_EXEMPLE = "Livre d'exemple · rendu numérique produit par Racontez-moi";
 
 export type PageExemple = { src: string; alt: string; legende: string };
 
