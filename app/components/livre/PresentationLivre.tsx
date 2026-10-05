@@ -52,7 +52,7 @@ export function VisuelLivre() {
         </div>
       </div>
       <figcaption className="mt-4 font-sans text-[11px] text-grege tracking-wide text-center lg:text-right">
-        Livre d&apos;exemple · rendu numérique · récit authentique composé à partir d&apos;une vraie séance
+        {MENTION_EXEMPLE}
       </figcaption>
     </figure>
   );

@@ -4,7 +4,7 @@
 // rendus du moteur de production (scripts/generer-visuels-livre.mts, à
 // relancer si la mise en page change) ; la séance est une vraie séance de
 // test, recopiée telle quelle depuis la base (tours_conversation et
-// fragments, 23/09/2026). Daniel est un narrateur de démonstration : on le
+// fragments, 23/09/2026). Daniel est le narrateur du livre d'exemple : on le
 // dit au visiteur, et on ne le présente jamais comme un client.
 
 import { PALETTE_COUVERTURE } from "@/lib/couverture";
@@ -14,10 +14,9 @@ import visuels from "./visuels.json";
 export const PAGE = { largeur: 1201, hauteur: 1801 };
 export const COUVERTURE = { largeur: 1225, hauteur: 1850 };
 
-// Légende des pages qu'on fait défiler. Pas « récit authentique » ici : seule
-// la page 5 vient de la vraie séance, les autres de la partie imaginée du livre
-// d'exemple (05/10/2026).
-export const MENTION_EXEMPLE = "Livre d'exemple · rendu numérique produit par Racontez-moi";
+// Légende commune à toute la présentation du livre (05/10/2026, décision de
+// Régis, qui atteste que ces récits sont vécus).
+export const MENTION_EXEMPLE = "Livre d'exemple · rendu numérique · récit authentique composé à partir d'une vraie séance";
 
 export type PageExemple = { src: string; alt: string; legende: string };
 
