@@ -61,7 +61,9 @@ export const COULEURS_COUVERTURE = PALETTE_COUVERTURE.map((c) => ({
 // Séance de test réelle du 23/09/2026 : la question d'ouverture, les trois
 // réponses telles que transcrites (reponse_brute), puis le début du souvenir
 // composé (les deux premiers paragraphes, ceux du livre d'exemple). Les deux
-// questions de relance sont celles réellement posées. Le souvenir est celui de
+// questions de relance ont été raccordées aux réponses (06/10/2026) : pendant
+// le test, les réponses étaient lues d'avance et ne suivaient pas les relances
+// réellement posées (odeur de la lavande, bois des volets). Le souvenir est celui de
 // scripts/data/livre-exemple.json (même texte que la page du livre, vérifié par
 // donnees.test.ts) : texte composé, relu comme le ferait le narrateur — une
 // faute de grammaire corrigée et deux détails ramenés à ce qui a été dit (le
@@ -75,12 +77,12 @@ export const SEANCE_REELLE = {
         "La première maison dont je me souviens est une petite maison en pierre, dans un village de montagne, avec un grand jardin plein de lavande et un vieux puits en pierre au fond de la cour.",
     },
     {
-      question: "Vous rappelez-vous l'odeur de cette lavande, particulièrement à certains moments de la journée\u00a0?",
+      question: "Dans cette maison, qu'est-ce qui vous revient d'abord, le matin\u00a0: une odeur, un bruit\u00a0?",
       reponse:
         "Je me souviens surtout de l'odeur du pain que ma grand-mère faisait cuire le matin, et du bruit des volets en bois qu'on ouvrait chaque jour au lever du soleil.",
     },
     {
-      question: "Vous rappelez-vous la sensation du bois sous vos doigts quand vous aidiez à ouvrir ces volets\u00a0?",
+      question: "Et ce grand jardin plein de lavande, comment le voyiez-vous quand vous étiez enfant\u00a0?",
       reponse:
         "Le jardin était immense pour moi, enfant. Il y avait un vieux figuier au fond, et je passais des heures à observer les lézards sur le muret chauffé par le soleil de l'après-midi.",
     },
