@@ -336,7 +336,7 @@ function ZoneEcoute({
               </button>
               <button
                 onClick={onContinuer}
-                disabled={!valeur.trim() || loading || transcribing}
+                disabled={!valeur.trim() || loading || transcribing || isRecording}
                 className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-3 hover:bg-[#3A3632] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading ? continuerLoadingLabel : continuerLabel}
