@@ -52,20 +52,20 @@ const FAQ_ACCUEIL = [
 ];
 
 const objetsMemoire = [
-  // 04/10/2026 : images d'ambiance choisies par Régis (personnes de dos, sans
-  // visage). « Le partage » montre le geste, pas le détail du produit, montré
-  // en vrai juste avant et juste après.
+  // 12/10/2026 : nouvelles images d'ambiance choisies par Régis, les mêmes
+  // scènes que dans la vidéo de présentation. « Le partage » montre le geste,
+  // pas le détail du produit, montré en vrai juste avant et juste après.
   {
-    src: "/la-seance-2.webp",
-    alt: "Femme de dos assise près d'une fenêtre, parlant en tenant son téléphone, des photos anciennes posées sur la table",
+    src: "/la-seance-3.webp",
+    alt: "Femme assise sur le rebord d'une grande fenêtre, souriante, son téléphone à la main",
     caption: "La séance",
-    position: "object-center",
+    position: "object-[35%_50%]",
   },
   {
-    src: "/le-partage-2.webp",
-    alt: "Une femme et un homme âgé de dos, attablés, regardant ensemble un livre ouvert avec des photos",
+    src: "/le-partage-3.webp",
+    alt: "Dans une barque, au bord de l'eau, un jeune homme lit un livre à voix haute, une femme penchée sur son épaule",
     caption: "Le partage",
-    position: "object-center",
+    position: "object-[50%_50%]",
   },
 ];
 
@@ -194,6 +194,11 @@ export default function Home() {
                 Le détail
               </a>
             </p>
+            <p className="font-sans text-sm text-grege mt-3">
+              <a href="#presentation" className={lienDiscret}>
+                ▶ Voir la présentation (2&nbsp;min&nbsp;44)
+              </a>
+            </p>
           </div>
 
           {/* 04/10/2026 : vrais rendus du moteur (couverture + ouverture de
@@ -203,6 +208,39 @@ export default function Home() {
           <div className="mt-12 lg:mt-0 max-w-[420px] mx-auto w-full">
             <VisuelLivre />
           </div>
+        </div>
+      </section>
+
+      {/* ─── LA PRÉSENTATION (vidéo, 12/10/2026) ───────────────────────
+          Facultative : elle accompagne le texte, ne le remplace pas. Pas de
+          lecture automatique, rien n'est chargé avant le clic (preload="none"),
+          image d'attente et sous-titres. Fichier servi par le site lui-même
+          (pas de YouTube, donc pas de cookies tiers). */}
+      <section id="presentation" className="px-6 pb-16 md:pb-24 scroll-mt-6">
+        <div className="max-w-4xl mx-auto">
+          <p className="font-sans text-center text-encre/70 text-xs tracking-widest uppercase mb-6">
+            La présentation, en images
+          </p>
+          <div className="relative aspect-video overflow-hidden rounded-sm bg-encre shadow-sm">
+            <video
+              className="absolute inset-0 h-full w-full"
+              controls
+              preload="none"
+              playsInline
+              poster="/video/racontez-moi-presentation.jpg"
+            >
+              <source src="/video/racontez-moi-presentation.mp4" type="video/mp4" />
+              <track
+                kind="subtitles"
+                src="/video/racontez-moi-presentation.fr.vtt"
+                srcLang="fr"
+                label="Français"
+              />
+            </video>
+          </div>
+          <p className="mt-3 font-sans text-[11px] text-grege text-center">
+            Musique&nbsp;: «&nbsp;Glow&nbsp;», Scott Buckley (CC&nbsp;BY&nbsp;4.0) · Images d&apos;ambiance&nbsp;: Pexels
+          </p>
         </div>
       </section>
 
