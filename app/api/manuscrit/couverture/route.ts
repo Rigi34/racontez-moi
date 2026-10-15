@@ -11,6 +11,17 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
 
+  // A-2026-09-12-04 : cette route ne vérifiait que l'authentification, pas
+  // le paiement — même contrôle que apercu/ et epub/ (trou du 11/09/2026).
+  const { data: abonnement } = await supabase
+    .from("abonnements")
+    .select("status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (abonnement?.status !== "active") {
+    return NextResponse.json({ error: "Le Parcours n'est pas actif sur ce compte." }, { status: 403 });
+  }
+
   // Trouvé le 23/09/2026 (test E2E réel) : cette route construisait
   // fragments avec un simple .map(f => f.texte), un tableau de chaînes,
   // alors que compilerInterieur attend des objets {texte, photos}[]
@@ -36,10 +47,9 @@ export async function GET() {
       },
     });
   } catch (error) {
+    // A-2026-09-12-06 : le détail reste dans les logs serveur, jamais dans
+    // la réponse au client.
     console.error("Génération couverture échouée:", error);
-    return NextResponse.json(
-      { error: "Échec de la génération de la couverture.", details: String(error) },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Échec de la génération de la couverture." }, { status: 500 });
   }
 }
