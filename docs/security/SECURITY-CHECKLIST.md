@@ -64,10 +64,16 @@
       réponses HTTP : **PARTIEL**. 404 générique confirmé sur ressource
       non trouvée/non possédée, mais `/api/manuscrit/{apercu,epub,couverture}`
       renvoient un champ `details` avec l'erreur brute au client sur
-      échec 500 (cf. A-2026-09-12-06, V2)
+      échec 500 (cf. A-2026-09-12-06, V2). **15/10/2026** : corrigé dans
+      la PR #5 (non fusionnée), validé en local contre TEST — erreur 500
+      non provoquée en réel (tests de régression seulement) ; case à
+      cocher après déploiement en production
 - [ ] Toutes les fonctionnalités payantes vérifient le statut de paiement
       côté serveur — **PROBLÈME** : `/api/manuscrit/couverture` ne le
-      fait pas (cf. A-2026-09-12-04, V2, CONFIRMÉ)
+      fait pas (cf. A-2026-09-12-04, V2, CONFIRMÉ). **15/10/2026** :
+      corrigé dans la PR #5 (non fusionnée), validé en local contre TEST
+      (403 sans abonnement, 200 avec) — non validé sur Preview, case à
+      cocher après déploiement en production
 
 ## Secrets
 - [x] Service role jamais exposée au client — 8 fichiers server-only
@@ -99,6 +105,8 @@
       `/api/manuscrit/couverture` ne vérifie pas le paiement (cf.
       A-2026-09-12-04, CONFIRMÉ). `/api/manuscrit/apercu`, `/epub`,
       `/api/commande/livre`, `/mon-livre`, `/seance` : OK.
+      **15/10/2026** : couverture corrigée dans la PR #5 (non fusionnée),
+      cf. ligne « fonctionnalités payantes » ci-dessus
 
 ## Cloisonnement (V2)
 - [x] Une session utilisateur compromise reste limitée aux données de ce
