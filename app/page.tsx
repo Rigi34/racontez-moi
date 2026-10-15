@@ -239,7 +239,7 @@ export default function Home() {
             </video>
           </div>
           <p className="mt-3 font-sans text-[11px] text-grege text-center">
-            Musique&nbsp;: «&nbsp;Glow&nbsp;», Scott Buckley (CC&nbsp;BY&nbsp;4.0) · Images d&apos;ambiance&nbsp;: Pexels
+            Musique&nbsp;: «&nbsp;Effervescence&nbsp;», Scott Buckley (CC&nbsp;BY&nbsp;4.0) · Images d&apos;ambiance&nbsp;: Pexels
           </p>
         </div>
       </section>
