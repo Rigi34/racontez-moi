@@ -20,7 +20,10 @@ export async function POST(req: NextRequest) {
   }
 
   const { nom, email, message } = body;
-  if (!nom?.trim() || !email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !message?.trim()) {
+  // Longueur bornée avant l'expression régulière (alerte CodeQL
+  // js/polynomial-redos, 17/10/2026) : 254 caractères = maximum d'une adresse
+  // e-mail (RFC 5321) ; la regex n'est jamais évaluée sur une chaîne énorme.
+  if (!nom?.trim() || !email?.trim() || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !message?.trim()) {
     return NextResponse.json({ error: "Merci de remplir tous les champs avec une adresse email valide." }, { status: 400 });
   }
 

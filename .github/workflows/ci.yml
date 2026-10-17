@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+# Droits minimaux (alerte CodeQL actions/missing-workflow-permissions,
+# 17/10/2026) : le job ne fait que lire le code et lancer les vérifications.
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
