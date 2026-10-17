@@ -1198,3 +1198,20 @@ FAIBLE :      4  (A-2026-09-12-03, -07 ; A-2026-10-16-01, -02)
 INFORMATION : 2  (A-2026-09-12-08 ; axe 5 détection/traçabilité)
 CORRIGÉ :     2  (A-2026-09-12-04, -06 — en production le 17/10/2026)
 ```
+
+---
+
+## Suivi du 17/10/2026 (après-midi) — PR #8 en production
+
+PR #8 fusionnée (commit `8dfb815`), déploiement de production Vercel réussi
+le 17/10/2026.
+- **A-2026-10-16-01 : CORRIGÉ en partie.** Vérifié en ligne sur `/`,
+  `/offrir`, `/sign-in` et une route API : X-Frame-Options DENY,
+  X-Content-Type-Options nosniff, Referrer-Policy
+  strict-origin-when-cross-origin, Permissions-Policy présents ; HSTS
+  inchangé. Reste ouvert : la CSP.
+- **A-2026-09-12-02 et A-2026-09-12-03 : correctif en production, non
+  vérifié en ligne.** Le vérifier demanderait de créer des sessions
+  anonymes ou de solliciter le certificat en boucle sur la production :
+  non fait. Couverts par les tests de régression. À confirmer par une
+  séance d'essai réelle (le micro doit rester autorisé).
