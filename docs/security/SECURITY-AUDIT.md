@@ -1215,3 +1215,37 @@ le 17/10/2026.
   anonymes ou de solliciter le certificat en boucle sur la production :
   non fait. Couverts par les tests de régression. À confirmer par une
   séance d'essai réelle (le micro doit rester autorisé).
+
+---
+
+## Suivi du 17/10/2026 (soir) — Statut réel de A-2026-09-12-05 ; connexion Google
+
+**A-2026-09-12-05 : CORRIGÉ (validé en TEST, en production).** Relecture
+du 17/10 : la correction (`lib/nettoyage-storage.ts`, nettoyage et
+vérification avant `auth.admin.deleteUser` dans
+`app/api/compte/supprimer/route.ts`) est dans `main` depuis le commit
+`486a8cd` (20/09/2026), donc en production. Elle a été validée
+dynamiquement contre Supabase TEST le 20/09/2026 (scénarios A, B et C de
+`TEST-RESULTATS-A-J-2026-09-20.md` : 0 objet restant pour le compte
+supprimé, comptes témoins intacts). Les compteurs des suivis précédents,
+y compris ceux des 16 et 17/10, la classaient à tort parmi les ÉLEVÉ
+ouverts : ils n'avaient pas été mis à jour après cette validation.
+Non vérifié en production (pas de suppression de compte réel effectuée).
+
+**Connexion Google : bouton masqué.** Le fournisseur Google est désactivé
+dans Supabase PRODUCTION (vérifié le 17/10 sur `/auth/v1/settings`) alors
+que `/sign-in` affichait « Continuer avec Google » : le bouton menait à une
+erreur. Il est masqué tant que `NEXT_PUBLIC_AUTH_GOOGLE` ≠ `1`.
+
+### Compteurs corrigés (17/10, soir)
+
+```
+CRITIQUE :    0
+ÉLEVÉ :       0
+MOYEN :       2  (A-2026-09-12-01, -02)
+FAIBLE :      4  (A-2026-09-12-03, -07 ; A-2026-10-16-01, -02)
+INFORMATION : 2  (A-2026-09-12-08 ; axe 5 détection/traçabilité)
+CORRIGÉ :     3  (A-2026-09-12-04, -06 — prod 17/10 ; -05 — prod depuis le 20/09)
+```
+A-02, A-03 et A-2026-10-16-01 restent listées tant que leurs correctifs
+(PR #8, en production depuis le 17/10) ne sont pas vérifiés en ligne.
