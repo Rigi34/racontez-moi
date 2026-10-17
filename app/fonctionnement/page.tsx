@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import FAQAccordion from "../components/FAQAccordion";
+import { voixChoisieActive } from "@/lib/voix";
 
 export const metadata: Metadata = {
   title: "Comment fonctionne Racontez-moi",
@@ -175,6 +176,15 @@ const FAQ_FONCTIONNEMENT = [
     question: "Puis-je corriger ou refaire une réponse après coup ?",
     reponse:
       "Oui. Chaque fragment de récit reste modifiable depuis votre parcours : vous pouvez corriger le texte, demander une recomposition, ou consulter l'historique de vos versions précédentes.",
+  },
+  {
+    // Validé par Régis le 17/10/2026 (étude des référents). La seconde phrase
+    // ne vaut que tant que la voix n'est pas conservée : elle disparaît avec
+    // l'interrupteur VOIX-CHOISIE, comme la promesse de /confidentialite.
+    question: "Ma voix peut-elle être imitée ou clonée ?",
+    reponse:
+      "Racontez-moi ne fabrique jamais de fausse voix : aucune imitation, aucun clonage." +
+      (voixChoisieActive() ? "" : " Votre voix sert à écrire votre récit, rien d'autre."),
   },
 ];
 
