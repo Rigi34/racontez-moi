@@ -1027,3 +1027,120 @@ contenu.
 **Compteurs de gravité** : inchangés à cette date. A-2026-09-12-04 et -06
 ne seront considérés comme CORRIGÉ qu'une fois le correctif en
 production.
+
+---
+
+## Audit du 16/10/2026 — Observation externe de la production (REA)
+
+Méthode : observation passive des pages **publiques** de la production
+(`https://racontez-moi.com`) par un navigateur réel piloté par REA 6.5.0
+(`rea capture-browser-scenario`, Chromium 152, profil temporaire, vue
+mobile 390 px, fr-FR). Un seul passage, vers 15:46 UTC, pour ne pas
+déclencher le « Security Checkpoint » de Vercel. Pages : `/`, `/offrir`,
+`/sign-in`, `/confidentialite`, `/v/AAAAAAAAAAAAAAAAAAAAAA` (jeton au bon
+format, inexistant). Aucune connexion, aucun formulaire envoyé, aucune
+séance démarrée. Preuve REA : `ev_90dde714ecc65872cb5414514ed4d34657ca592d0c687d0bbe5f6993e3638262`
+(conservée localement, hors dépôt). Constats consignés seulement : rien
+n'est corrigé dans ce suivi.
+
+### A-2026-10-16-01 — En-têtes de sécurité HTTP absents sur les pages publiques
+
+```
+ID : A-2026-10-16-01
+Date : 2026-10-16
+Catégorie : Durcissement HTTP / défense en profondeur
+Gravité : FAIBLE
+Composant : Réponses HTML de toutes les pages observées
+Fichier : next.config.ts (aucune fonction headers()) ; middleware.ts
+          (matcher limité à /tableau-de-bord et /seance, n'ajoute pas
+          d'en-tête)
+Fonction / route : /, /offrir, /sign-in, /confidentialite, /v/[jeton]
+Statut : CONFIRMÉ (observé en production)
+Description : Aucune des cinq réponses HTML observées ne porte
+  Content-Security-Policy, X-Frame-Options (ni frame-ancestors),
+  X-Content-Type-Options, Referrer-Policy ni Permissions-Policy. Seul
+  Strict-Transport-Security est présent (max-age=63072000, valeur lue sur
+  /v/). Le dépôt ne configure ces en-têtes nulle part.
+Impact : Aucune faille exploitable démontrée. Sans frame-ancestors, les
+  pages (dont /sign-in et le parcours d'achat) peuvent être intégrées dans
+  un cadre sur un site tiers (risque de clickjacking). Sans CSP, une
+  éventuelle injection de script ne serait pas freinée par le navigateur.
+  Sans Permissions-Policy, rien ne limite l'accès au micro aux pages qui
+  en ont besoin (la séance).
+Scénario : Non testé (aucune tentative d'intégration ni d'injection).
+Preuve : noms d'en-têtes relevés par REA sur chaque réponse document ;
+  valeurs non exposées par Playwright pour les pages pré-rendues
+  (« unavailable »), lues pour /v/.
+Correction recommandée : Ajouter headers() dans next.config.ts :
+  X-Frame-Options DENY (ou CSP frame-ancestors 'none'),
+  X-Content-Type-Options nosniff, Referrer-Policy
+  strict-origin-when-cross-origin, Permissions-Policy limitant le micro à
+  'self' ; CSP à construire et tester à part (Next, Stripe, Supabase,
+  Sentry), d'abord en Content-Security-Policy-Report-Only.
+Dernière vérification : 2026-10-16
+```
+
+### A-2026-10-16-02 — Session anonyme Supabase ouverte à chaque chargement de l'accueil
+
+```
+ID : A-2026-10-16-02
+Date : 2026-10-16
+Catégorie : Abus de ressources / hygiène des données (complément de
+            A-2026-09-12-02)
+Gravité : FAIBLE
+Composant : Séance gratuite intégrée à l'accueil
+Fichier : app/components/Seance.tsx (useEffect, lignes 411-428 :
+          getSession() puis signInAnonymously() si modeInvite)
+Fonction / route : POST https://<projet>.supabase.co/auth/v1/signup
+Statut : CONFIRMÉ (observé en production)
+Description : Au simple chargement de l'accueil, sans action du
+  visiteur, le navigateur appelle /auth/v1/signup : un utilisateur
+  anonyme Supabase est créé pour toute visite qui exécute le JavaScript
+  (visiteurs, robots, outils de capture). C'est la décision produit du
+  26/07/2026 (commentaire du code), pas un défaut d'implémentation.
+Impact : Accumulation de comptes anonymes vides dans auth.users ;
+  surface de A-2026-09-12-02 élargie (une identité neuve par visite,
+  donc un quota neuf, sans même cliquer) ; risque d'atteindre la limite
+  de création anonyme de Supabase par IP pour des visiteurs derrière une
+  même adresse (à vérifier, configuration hors dépôt).
+Scénario : Observé une fois. Effet de bord de cet audit : 1 utilisateur
+  anonyme créé en production vers 15:46 UTC le 16/10/2026, non supprimé.
+Preuve : requête POST /auth/v1/signup (200) à l'étape « accueil » de la
+  preuve REA ci-dessus ; code cité.
+Correction recommandée : À décider (change une décision produit) :
+  ouvrir la session anonyme au premier geste de la séance (clic
+  « Commencer » ou premier enregistrement) plutôt qu'au chargement ;
+  purge périodique des comptes anonymes sans fragment ; traiter
+  A-2026-09-12-02 (dimension IP du quota) en même temps.
+Dernière vérification : 2026-10-16
+```
+
+### Constats sains (pour mémoire)
+
+- **Aucun service tiers ni traceur** : 91 requêtes, deux hôtes seulement
+  (`racontez-moi.com` et le projet Supabase). Aucune mesure d'audience,
+  aucun pixel publicitaire, aucun envoi Sentry observé pendant le passage.
+- **HSTS** présent sur toutes les réponses document.
+- **/v/[jeton]** répond 404 avec `Cache-Control: no-store` tant que
+  l'interrupteur de la voix est coupé.
+- Aucune erreur de page ; une seule erreur console, le 404 attendu de /v/.
+
+### Limites
+
+- Pages publiques seulement ; aucune page connectée, aucune route API
+  appelée directement, aucun paiement.
+- Valeurs d'en-têtes non disponibles pour les pages pré-rendues (noms
+  seulement) ; `Access-Control-Allow-Origin` est présent sur ces pages,
+  valeur non lue.
+- Un seul passage, un seul navigateur ; comportement de Vercel Security
+  Checkpoint non observé.
+
+### Compteurs mis à jour (V1 + V2 + 16/10)
+
+```
+CRITIQUE :    0
+ÉLEVÉ :       1  (A-2026-09-12-05)
+MOYEN :       3  (A-2026-09-12-01, -02, -04)
+FAIBLE :      5  (A-2026-09-12-03, -06, -07 ; A-2026-10-16-01, -02)
+INFORMATION : 2  (A-2026-09-12-08 ; axe 5 détection/traçabilité)
+```
