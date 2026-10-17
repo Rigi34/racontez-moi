@@ -473,3 +473,31 @@
   validée dynamiquement sur tous les points testables. Aucune policy,
   migration, configuration ou donnée de production modifiée à aucun moment
   de la Phase 8. Rien commité, rien pushé.
+
+## 2026-10-15 — Correctif A-2026-09-12-04 et A-2026-09-12-06 (PR #5), validation locale contre TEST
+
+- Périmètre limité à deux entrées du registre : A-2026-09-12-04 (paiement
+  non vérifié sur `/api/manuscrit/couverture`, toujours présent dans le
+  code de `main` à cette date) et A-2026-09-12-06 (`details` d'erreur
+  renvoyé au client par les 3 routes `manuscrit`). Les autres entrées
+  ouvertes ne sont pas touchées.
+- Correctif : commit `103e5c0`, branche `fix/manuscrit-paywall-erreurs`,
+  PR #5 — **non fusionnée, non déployée en production**.
+- Tests de régression : 13 tests sur les 3 routes (dont 2 nouveaux
+  fichiers), contre-épreuve faite (5 échecs sans le correctif). Suite
+  complète 197/197, typecheck, lint, build et CI : OK.
+- Validation dynamique **locale** (`next dev`, code de la PR) contre le
+  projet Supabase TEST `zxlagkkujufmhwprwued`, garde-fou anti-production
+  vérifié avant toute connexion. Comptes de test existants eta / iota /
+  zeta : 200 avec abonnement actif, 403 sans abonnement sur les 3 routes,
+  aucune réponse d'erreur avec `details`. 3 sessions temporaires ouvertes
+  puis révoquées (révocation vérifiée côté API et en base). Aucun compte
+  créé ou supprimé, aucune donnée métier modifiée.
+- **Non réalisé** : validation sur la Preview Vercel (Preview protégée,
+  cible Supabase de la Preview non établie) ; erreur 500 provoquée en
+  réel ; abonnement remboursé en réel ; parcours navigateur complet.
+- Statut dans `SECURITY-AUDIT.md` : CORRIGÉ DANS LE CODE — VALIDÉ EN LOCAL
+  CONTRE TEST — NON VALIDÉ SUR PREVIEW — NON DÉPLOYÉ. Compteurs de gravité
+  inchangés jusqu'au déploiement en production.
+- Aucune modification de Vercel, de variable d'environnement, de
+  migration, de Stripe, de Lulu ni de la production.

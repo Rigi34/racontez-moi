@@ -57,10 +57,9 @@ export async function GET() {
       },
     });
   } catch (error) {
+    // A-2026-09-12-06 : le détail reste dans les logs serveur, jamais dans
+    // la réponse au client.
     console.error("Assemblage manuscrit échoué:", error);
-    return NextResponse.json(
-      { error: "Échec de la compilation du manuscrit.", details: String(error) },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Échec de la compilation du manuscrit." }, { status: 500 });
   }
 }

@@ -491,6 +491,19 @@ directe du code des 3 fichiers, aucune dépendance externe). Correction
 recommandée : renvoyer un message générique au client, garder `details`
 uniquement côté `console.error` (déjà fait en parallèle sur ces 3 routes).
 
+**Mise à jour du 15/10/2026 — statut : CORRIGÉ DANS LE CODE (PR #5, non
+fusionnée) — VALIDÉ EN LOCAL CONTRE TEST — NON VALIDÉ SUR PREVIEW — NON
+DÉPLOYÉ EN PRODUCTION.** Commit `103e5c0` (branche
+`fix/manuscrit-paywall-erreurs`) : les 3 routes renvoient désormais
+seulement `{ error: "<message générique>" }` en 500 ; le
+`console.error(..., error)` serveur est conservé. Aucun code client ne
+lisait `details`. Détail des tests et limites : section « Suivi du
+15/10/2026 » en fin de registre. Limite principale : **aucune erreur 500
+n'a été provoquée en réel** (il aurait fallu écrire des données
+corrompues) — l'absence de `details` en 500 n'est prouvée que par les
+tests de régression ; les réponses d'erreur observées en réel (403) ne
+contiennent pas de `details`.
+
 Autres points vérifiés sous cet axe, sans problème trouvé :
 - URLs signées Storage (1h, jetons non réutilisables après expiration).
 - Noms de fichiers Storage : toujours `crypto.randomUUID()`, jamais le nom
@@ -540,6 +553,20 @@ Correction recommandée : Ajouter la même garde que sur apercu/epub :
   403 sinon.
 Dernière vérification : 2026-09-12
 ```
+
+**Mise à jour du 15/10/2026 — statut : CORRIGÉ DANS LE CODE (PR #5, non
+fusionnée) — VALIDÉ EN LOCAL CONTRE TEST — NON VALIDÉ SUR PREVIEW — NON
+DÉPLOYÉ EN PRODUCTION.** Toujours présent dans le code de `main` jusqu'à
+cette date (le correctif du 23/09, commit `c393045`, n'avait traité que la
+TypeError de cette route, pas le paiement). Commit `103e5c0` (branche
+`fix/manuscrit-paywall-erreurs`) : même garde que apercu/epub
+(`abonnements.status === "active"`, sinon 403), placée avant tout
+chargement de fragments ou compilation. Aucune page n'appelle cette route
+(vérifié par recherche dans `app/` et `lib/`). Observé en réel contre
+Supabase TEST : compte sans abonnement → 403, compte à abonnement actif →
+200 + PDF. Limite : l'abonnement **remboursé** (`status = "rembourse"`)
+n'est couvert que par les tests unitaires. Détail : section « Suivi du
+15/10/2026 » en fin de registre.
 
 Recherche du même pattern sur les autres routes payantes : aucune autre
 occurrence trouvée. `/api/compte/personnalisation` (qui stocke titre/
@@ -927,3 +954,193 @@ INFORMATION : 2  (A-2026-09-12-08 ; axe 5 détection/traçabilité)
 - Tout ce qui, comme en V1, nécessiterait un test dynamique réel contre
   l'environnement de production (cf. Axe 10 ci-dessus pour la liste
   complète proposée).
+
+---
+
+## Suivi du 15/10/2026 — Correctif A-2026-09-12-04 et A-2026-09-12-06 (PR #5)
+
+Lot limité à ces deux entrées. Les autres entrées ouvertes (A-2026-09-12-02,
+-03, -07, -08, axe 5) ne sont **pas** traitées ici et gardent leur statut.
+Ce suivi ne constitue ni un nouvel audit ni une certification de la
+sécurité globale du site.
+
+**Correctif** — commit `103e5c0`, branche `fix/manuscrit-paywall-erreurs`,
+PR #5 (non fusionnée à cette date) :
+- `app/api/manuscrit/couverture/route.ts` : garde de paiement
+  (A-2026-09-12-04) + réponse 500 sans `details` (A-2026-09-12-06).
+- `app/api/manuscrit/apercu/route.ts`, `app/api/manuscrit/epub/route.ts` :
+  réponse 500 sans `details` (A-2026-09-12-06).
+
+**1. Tests de régression (unitaires, Supabase et compilation simulés)**
+- `app/api/manuscrit/couverture/route.test.ts` (adapté),
+  `app/api/manuscrit/apercu/route.test.ts` et
+  `app/api/manuscrit/epub/route.test.ts` (nouveaux) : 13 tests — 403 sans
+  abonnement, 403 abonnement `rembourse`, 200 avec abonnement actif, 500
+  sans `details` avec `console.error` appelé.
+- Contre-épreuve : correctifs retirés → les 5 tests de régression
+  correspondants échouent ; correctifs remis → 13/13.
+- Suite complète 197/197, `tsc --noEmit`, `npm run lint`, `npm run build`
+  : OK. CI GitHub (`verify`) de la PR : OK.
+
+**2. Validation dynamique locale contre Supabase TEST** (15/10/2026, vers
+10:54 UTC)
+- Code : branche de la PR (`103e5c0`), `next dev` local.
+- Cible : projet TEST `zxlagkkujufmhwprwued`, confirmée avant toute
+  connexion par `scripts/garde-environnement-test.ts` (`SUPABASE_ENV=test`,
+  hôte non production) et par le `ref` de la clé `service_role`.
+- Comptes de test existants (aucun créé ni supprimé) :
+  `narrateur-test-eta` (abonnement actif, 40 fragments),
+  `narrateur-test-iota` (sans abonnement, 1 fragment),
+  `narrateur-test-zeta` (sans abonnement, 0 fragment).
+- Sessions temporaires ouvertes via l'API d'administration de TEST (lien
+  de connexion à usage unique, aucun mot de passe modifié), puis
+  révoquées : jetons refusés par Supabase après révocation, sessions
+  absentes de `auth.sessions`, compteurs de sessions revenus à l'état
+  initial. Données métier (abonnements, fragments, commandes) inchangées,
+  vérifiées avant/après. Seule trace : `last_sign_in_at` des 3 comptes.
+
+| Compte | `/couverture` | `/apercu` | `/epub` |
+|---|---|---|---|
+| eta (actif) | 200, PDF | 200, PDF | 200, EPUB |
+| iota (sans abonnement) | 403 | 403 | 403 |
+| zeta (sans abonnement, 0 fragment) | 403 | 403 | 403 |
+| sans session | 401 | — | — |
+
+Toutes les réponses d'erreur observées : `{"error": "..."}` seul, sans
+`details`. zeta reçoit 403 et non 400 : le paiement est vérifié avant le
+contenu.
+
+**3. Non réalisé / limites (à conserver tant qu'elles ne sont pas levées)**
+- **Validation sur la Preview Vercel : NON RÉALISÉE.** La Preview est
+  protégée (Vercel Authentication) et la cible Supabase de la Preview de
+  cette branche n'est pas établie (la variable vérifiée est rattachée à la
+  branche `test`, pas à `fix/manuscrit-paywall-erreurs`).
+- **Erreur 500 non provoquée en réel** : l'absence de `details` en 500
+  n'est prouvée que par les tests de régression.
+- **Abonnement remboursé** (`status = "rembourse"`) : couvert uniquement
+  par les tests unitaires.
+- **Aucun parcours navigateur complet** (interface, Playwright) : appels
+  HTTP directs aux routes seulement.
+- **Production : non déployé, non vérifié.** Les deux entrées restent
+  ouvertes en production jusqu'à fusion et déploiement de la PR #5.
+
+**Compteurs de gravité** : inchangés à cette date. A-2026-09-12-04 et -06
+ne seront considérés comme CORRIGÉ qu'une fois le correctif en
+production.
+
+---
+
+## Audit du 16/10/2026 — Observation externe de la production (REA)
+
+Méthode : observation passive des pages **publiques** de la production
+(`https://racontez-moi.com`) par un navigateur réel piloté par REA 6.5.0
+(`rea capture-browser-scenario`, Chromium 152, profil temporaire, vue
+mobile 390 px, fr-FR). Un seul passage, vers 15:46 UTC, pour ne pas
+déclencher le « Security Checkpoint » de Vercel. Pages : `/`, `/offrir`,
+`/sign-in`, `/confidentialite`, `/v/AAAAAAAAAAAAAAAAAAAAAA` (jeton au bon
+format, inexistant). Aucune connexion, aucun formulaire envoyé, aucune
+séance démarrée. Preuve REA : `ev_90dde714ecc65872cb5414514ed4d34657ca592d0c687d0bbe5f6993e3638262`
+(conservée localement, hors dépôt). Constats consignés seulement : rien
+n'est corrigé dans ce suivi.
+
+### A-2026-10-16-01 — En-têtes de sécurité HTTP absents sur les pages publiques
+
+```
+ID : A-2026-10-16-01
+Date : 2026-10-16
+Catégorie : Durcissement HTTP / défense en profondeur
+Gravité : FAIBLE
+Composant : Réponses HTML de toutes les pages observées
+Fichier : next.config.ts (aucune fonction headers()) ; middleware.ts
+          (matcher limité à /tableau-de-bord et /seance, n'ajoute pas
+          d'en-tête)
+Fonction / route : /, /offrir, /sign-in, /confidentialite, /v/[jeton]
+Statut : CONFIRMÉ (observé en production)
+Description : Aucune des cinq réponses HTML observées ne porte
+  Content-Security-Policy, X-Frame-Options (ni frame-ancestors),
+  X-Content-Type-Options, Referrer-Policy ni Permissions-Policy. Seul
+  Strict-Transport-Security est présent (max-age=63072000, valeur lue sur
+  /v/). Le dépôt ne configure ces en-têtes nulle part.
+Impact : Aucune faille exploitable démontrée. Sans frame-ancestors, les
+  pages (dont /sign-in et le parcours d'achat) peuvent être intégrées dans
+  un cadre sur un site tiers (risque de clickjacking). Sans CSP, une
+  éventuelle injection de script ne serait pas freinée par le navigateur.
+  Sans Permissions-Policy, rien ne limite l'accès au micro aux pages qui
+  en ont besoin (la séance).
+Scénario : Non testé (aucune tentative d'intégration ni d'injection).
+Preuve : noms d'en-têtes relevés par REA sur chaque réponse document ;
+  valeurs non exposées par Playwright pour les pages pré-rendues
+  (« unavailable »), lues pour /v/.
+Correction recommandée : Ajouter headers() dans next.config.ts :
+  X-Frame-Options DENY (ou CSP frame-ancestors 'none'),
+  X-Content-Type-Options nosniff, Referrer-Policy
+  strict-origin-when-cross-origin, Permissions-Policy limitant le micro à
+  'self' ; CSP à construire et tester à part (Next, Stripe, Supabase,
+  Sentry), d'abord en Content-Security-Policy-Report-Only.
+Dernière vérification : 2026-10-16
+```
+
+### A-2026-10-16-02 — Session anonyme Supabase ouverte à chaque chargement de l'accueil
+
+```
+ID : A-2026-10-16-02
+Date : 2026-10-16
+Catégorie : Abus de ressources / hygiène des données (complément de
+            A-2026-09-12-02)
+Gravité : FAIBLE
+Composant : Séance gratuite intégrée à l'accueil
+Fichier : app/components/Seance.tsx (useEffect, lignes 411-428 :
+          getSession() puis signInAnonymously() si modeInvite)
+Fonction / route : POST https://<projet>.supabase.co/auth/v1/signup
+Statut : CONFIRMÉ (observé en production)
+Description : Au simple chargement de l'accueil, sans action du
+  visiteur, le navigateur appelle /auth/v1/signup : un utilisateur
+  anonyme Supabase est créé pour toute visite qui exécute le JavaScript
+  (visiteurs, robots, outils de capture). C'est la décision produit du
+  26/07/2026 (commentaire du code), pas un défaut d'implémentation.
+Impact : Accumulation de comptes anonymes vides dans auth.users ;
+  surface de A-2026-09-12-02 élargie (une identité neuve par visite,
+  donc un quota neuf, sans même cliquer) ; risque d'atteindre la limite
+  de création anonyme de Supabase par IP pour des visiteurs derrière une
+  même adresse (à vérifier, configuration hors dépôt).
+Scénario : Observé une fois. Effet de bord de cet audit : 1 utilisateur
+  anonyme créé en production vers 15:46 UTC le 16/10/2026, non supprimé.
+Preuve : requête POST /auth/v1/signup (200) à l'étape « accueil » de la
+  preuve REA ci-dessus ; code cité.
+Correction recommandée : À décider (change une décision produit) :
+  ouvrir la session anonyme au premier geste de la séance (clic
+  « Commencer » ou premier enregistrement) plutôt qu'au chargement ;
+  purge périodique des comptes anonymes sans fragment ; traiter
+  A-2026-09-12-02 (dimension IP du quota) en même temps.
+Dernière vérification : 2026-10-16
+```
+
+### Constats sains (pour mémoire)
+
+- **Aucun service tiers ni traceur** : 91 requêtes, deux hôtes seulement
+  (`racontez-moi.com` et le projet Supabase). Aucune mesure d'audience,
+  aucun pixel publicitaire, aucun envoi Sentry observé pendant le passage.
+- **HSTS** présent sur toutes les réponses document.
+- **/v/[jeton]** répond 404 avec `Cache-Control: no-store` tant que
+  l'interrupteur de la voix est coupé.
+- Aucune erreur de page ; une seule erreur console, le 404 attendu de /v/.
+
+### Limites
+
+- Pages publiques seulement ; aucune page connectée, aucune route API
+  appelée directement, aucun paiement.
+- Valeurs d'en-têtes non disponibles pour les pages pré-rendues (noms
+  seulement) ; `Access-Control-Allow-Origin` est présent sur ces pages,
+  valeur non lue.
+- Un seul passage, un seul navigateur ; comportement de Vercel Security
+  Checkpoint non observé.
+
+### Compteurs mis à jour (V1 + V2 + 16/10)
+
+```
+CRITIQUE :    0
+ÉLEVÉ :       1  (A-2026-09-12-05)
+MOYEN :       3  (A-2026-09-12-01, -02, -04)
+FAIBLE :      5  (A-2026-09-12-03, -06, -07 ; A-2026-10-16-01, -02)
+INFORMATION : 2  (A-2026-09-12-08 ; axe 5 détection/traçabilité)
+```

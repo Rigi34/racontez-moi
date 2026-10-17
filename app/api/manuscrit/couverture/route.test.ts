@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Isole la route de ses dépendances : le client Supabase (session), le
+// Isole la route de ses dépendances : le client Supabase (session,
+// abonnement), le
 // chargement des fragments+photos, et la compilation Typst (intérieur +
 // couverture) — déjà testées indépendamment ailleurs.
 const {
@@ -9,8 +10,10 @@ const {
   compilerInterieurMock,
   compilerCouvertureMock,
   lirePersonnalisationLivreMock,
+  abonnementMock,
 } = vi.hoisted(() => ({
   getUserMock: vi.fn(),
+  abonnementMock: vi.fn(),
   chargerFragmentsAvecPhotosMock: vi.fn(),
   compilerInterieurMock: vi.fn(),
   compilerCouvertureMock: vi.fn(),
@@ -20,6 +23,11 @@ const {
 vi.mock("@/utils/supabase/server", () => ({
   createClient: vi.fn(() => ({
     auth: { getUser: getUserMock },
+    from: vi.fn((table: string) => {
+      if (table !== "abonnements") throw new Error(`table inattendue : ${table}`);
+      const chaine = { select: () => chaine, eq: () => chaine, maybeSingle: abonnementMock };
+      return chaine;
+    }),
   })),
 }));
 
@@ -41,6 +49,7 @@ const FRAGMENTS_AVEC_PHOTOS = [
 beforeEach(() => {
   vi.clearAllMocks();
   getUserMock.mockResolvedValue({ data: { user: USER } });
+  abonnementMock.mockResolvedValue({ data: { status: "active" } });
   chargerFragmentsAvecPhotosMock.mockResolvedValue({ fragments: FRAGMENTS_AVEC_PHOTOS, photosManquantes: 0 });
   compilerInterieurMock.mockReturnValue({ buffer: Buffer.from("interieur"), nombrePages: 42 });
   compilerCouvertureMock.mockResolvedValue(Buffer.from("couverture"));
@@ -55,6 +64,26 @@ describe("GET /api/manuscrit/couverture", () => {
 
     expect(res.status).toBe(401);
     expect(chargerFragmentsAvecPhotosMock).not.toHaveBeenCalled();
+  });
+
+  // A-2026-09-12-04 : la couverture était accessible sans paiement.
+  it("refuse sans abonnement", async () => {
+    abonnementMock.mockResolvedValue({ data: null });
+
+    const res = await GET();
+
+    expect(res.status).toBe(403);
+    expect(chargerFragmentsAvecPhotosMock).not.toHaveBeenCalled();
+    expect(compilerCouvertureMock).not.toHaveBeenCalled();
+  });
+
+  it("refuse un abonnement non actif (remboursé)", async () => {
+    abonnementMock.mockResolvedValue({ data: { status: "rembourse" } });
+
+    const res = await GET();
+
+    expect(res.status).toBe(403);
+    expect(compilerCouvertureMock).not.toHaveBeenCalled();
   });
 
   it("refuse si aucun fragment", async () => {
@@ -92,7 +121,9 @@ describe("GET /api/manuscrit/couverture", () => {
     expect(body.toString()).toBe("couverture");
   });
 
-  it("renvoie 500 avec le détail si la compilation échoue", async () => {
+  // A-2026-09-12-06 : le détail de l'erreur reste dans les logs serveur.
+  it("renvoie 500 sans détail interne si la compilation échoue, et journalise l'erreur", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     compilerInterieurMock.mockImplementation(() => {
       throw new Error("Typst: erreur de test");
     });
@@ -101,6 +132,9 @@ describe("GET /api/manuscrit/couverture", () => {
     const bodyJson = await res.json();
 
     expect(res.status).toBe(500);
-    expect(bodyJson.details).toContain("Typst: erreur de test");
+    expect(bodyJson).toEqual({ error: "Échec de la génération de la couverture." });
+    expect(JSON.stringify(bodyJson)).not.toContain("Typst");
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Génération couverture échouée:", expect.any(Error));
+    consoleErrorSpy.mockRestore();
   });
 });
