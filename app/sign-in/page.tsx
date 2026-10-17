@@ -4,6 +4,9 @@ import { useSearchParams } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
 import { messageErreurAuth } from "@/lib/auth-erreurs"
 
+// Lu au build (NEXT_PUBLIC_*) : "1" seulement quand Google est configuré dans Supabase.
+const AUTH_GOOGLE_ACTIVE = process.env.NEXT_PUBLIC_AUTH_GOOGLE === "1"
+
 // Identifiant de version du texte de consentement (annexe du document
 // juridique du 30/07/2026) — à incrémenter si le texte de la case à cocher
 // change, pour pouvoir prouver quelle version exacte a été acceptée.
@@ -184,6 +187,12 @@ function SignInInner() {
           </button>
         </form>
 
+        {/* Connexion Google masquée tant que le fournisseur n'est pas activé
+            dans Supabase (constaté désactivé en production le 17/10/2026 :
+            le bouton menait à une erreur). À réafficher avec
+            NEXT_PUBLIC_AUTH_GOOGLE=1 une fois Google configuré. */}
+        {AUTH_GOOGLE_ACTIVE && (
+        <>
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-grege" />
           <span className="font-sans text-xs text-grege">ou</span>
@@ -204,6 +213,8 @@ function SignInInner() {
           </svg>
           Continuer avec Google
         </button>
+        </>
+        )}
 
         <div className="text-center">
           <button
