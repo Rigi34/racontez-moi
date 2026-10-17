@@ -94,6 +94,11 @@ export default function Confidentialite() {
               que votre parcours se poursuive d&apos;une séance à l&apos;autre et
               que votre livre puisse être assemblé.
             </p>
+            <p>
+              Racontez-moi ne fabrique jamais de fausse voix&nbsp;: aucune imitation,
+              aucun clonage.
+              {!voixChoisieActive() && <> Votre voix sert à écrire votre récit, rien d&apos;autre.</>}
+            </p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
               Sujets sensibles abordés pendant l&apos;entretien

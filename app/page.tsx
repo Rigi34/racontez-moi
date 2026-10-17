@@ -49,6 +49,12 @@ const FAQ_ACCUEIL = [
     reponse:
       "Non. 155\u00a0€ quelle que soit la longueur finale de votre histoire — livre imprimé et relié inclus. Jamais de palier, jamais de supplément découvert après coup. Payable en une fois ou en plusieurs fois via Klarna.",
   },
+  {
+    // Pérennité (étude des référents du 16/10/2026, validé par Régis le 17/10).
+    question: "Que devient mon récit si Racontez-moi s'arrête un jour ?",
+    reponse:
+      "Il reste à vous. Vous recevez votre livre imprimé et votre manuscrit en PDF et en ePub, et vous pouvez télécharger l'intégralité de vos données à tout moment depuis votre tableau de bord.",
+  },
 ];
 
 const objetsMemoire = [
