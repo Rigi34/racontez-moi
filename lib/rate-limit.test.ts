@@ -5,6 +5,7 @@ import {
   verifierQuota,
   LIMITES_QUOTIDIENNES,
   verifierQuotaAnonyme,
+  verifierQuotaNarrateur,
   extraireIp,
   LIMITES_QUOTIDIENNES_ANONYME,
 } from "./rate-limit";
@@ -106,5 +107,55 @@ describe("verifierQuotaAnonyme", () => {
   it("fail-closed : retourne false si la réponse est vide ou inattendue", async () => {
     const supabase = mockSupabase([]);
     await expect(verifierQuotaAnonyme(supabase, "203.0.113.4", "contact")).resolves.toBe(false);
+  });
+});
+
+// A-2026-09-12-02 : la séance gratuite anonyme ne doit plus repartir de zéro
+// à chaque nouvelle session anonyme — plafond par IP en plus du user_id.
+describe("verifierQuotaNarrateur", () => {
+  function mockRpc(parUtilisateur: boolean, parIp: boolean) {
+    const rpc = vi.fn((nom: string) =>
+      Promise.resolve({
+        data: [{ autorise: nom === "incrementer_et_verifier_usage" ? parUtilisateur : parIp, compteur: 1 }],
+        error: null,
+      })
+    );
+    return { rpc } as unknown as SupabaseClient;
+  }
+
+  it("compte réel : seul le quota par user_id s'applique", async () => {
+    const supabase = mockRpc(true, false);
+    await expect(
+      verifierQuotaNarrateur(supabase, { id: "u", is_anonymous: false }, mockRequest("203.0.113.4"), "seance")
+    ).resolves.toBe(true);
+    expect(supabase.rpc).toHaveBeenCalledTimes(1);
+  });
+
+  it("compte anonyme : refusé quand le plafond par IP est atteint, même avec un user_id neuf", async () => {
+    const supabase = mockRpc(true, false);
+    await expect(
+      verifierQuotaNarrateur(supabase, { id: "neuf", is_anonymous: true }, mockRequest("203.0.113.4"), "transcribe")
+    ).resolves.toBe(false);
+    expect(supabase.rpc).toHaveBeenCalledWith("incrementer_et_verifier_usage_anonyme", {
+      p_ip: "203.0.113.4",
+      p_route: "transcribe_anonyme",
+      p_limite: LIMITES_QUOTIDIENNES_ANONYME.transcribe_anonyme,
+    });
+  });
+
+  it("compte anonyme : autorisé quand les deux quotas le permettent", async () => {
+    const supabase = mockRpc(true, true);
+    await expect(
+      verifierQuotaNarrateur(supabase, { id: "u", is_anonymous: true }, mockRequest("203.0.113.4"), "seance")
+    ).resolves.toBe(true);
+    expect(supabase.rpc).toHaveBeenCalledTimes(2);
+  });
+
+  it("refusé sans consulter l'IP quand le quota par user_id est déjà atteint", async () => {
+    const supabase = mockRpc(false, true);
+    await expect(
+      verifierQuotaNarrateur(supabase, { id: "u", is_anonymous: true }, mockRequest("203.0.113.4"), "seance")
+    ).resolves.toBe(false);
+    expect(supabase.rpc).toHaveBeenCalledTimes(1);
   });
 });

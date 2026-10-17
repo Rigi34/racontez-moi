@@ -1144,3 +1144,57 @@ MOYEN :       3  (A-2026-09-12-01, -02, -04)
 FAIBLE :      5  (A-2026-09-12-03, -06, -07 ; A-2026-10-16-01, -02)
 INFORMATION : 2  (A-2026-09-12-08 ; axe 5 détection/traçabilité)
 ```
+
+---
+
+## Suivi du 17/10/2026 — Mise en production de la PR #5 ; correctifs A-02, A-03, A-2026-10-16-01
+
+**A-2026-09-12-04 et A-2026-09-12-06 : CORRIGÉ en production.** PR #5
+fusionnée (commit `562e18b`), déploiement de production Vercel réussi le
+17/10/2026. Vérifié en ligne sans session : `/api/manuscrit/couverture`,
+`/apercu` et `/epub` répondent 401 avec `{"error": "..."}` seul, sans
+`details`. Non vérifié en ligne : le cas « session sans abonnement → 403 »
+(pas de compte de production utilisé) ; il reste couvert par la validation
+contre TEST du 15/10 et par les tests de régression.
+
+**Correctifs préparés (branche `fix/securite-quotas-entetes`, non
+fusionnée à cette date)** — les statuts ne passeront à CORRIGÉ qu'après
+mise en production :
+- **A-2026-09-12-02** : nouvelle fonction `verifierQuotaNarrateur`
+  (`lib/rate-limit.ts`), utilisée par `/api/seance` (3 appels) et
+  `/api/transcribe`. Pour un compte anonyme, un plafond par IP
+  (`seance_anonyme`, `transcribe_anonyme` : 15 par jour) s'ajoute au
+  quota par user_id ; une nouvelle session anonyme ne remet donc plus le
+  compteur à zéro. Comptes réels inchangés. Aucune migration : la RPC
+  `incrementer_et_verifier_usage_anonyme` accepte toute route.
+- **A-2026-09-12-03** : plafond par IP (`certificat_code` : 30 par jour)
+  sur `/api/cadeau/certificat/[code]/image` et `/pdf`, compté avant la
+  recherche du code (borne aussi les essais de codes), fail-closed.
+- **A-2026-10-16-01** (partiel) : `headers()` dans `next.config.ts` —
+  X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy
+  strict-origin-when-cross-origin, Permissions-Policy (micro limité au
+  site, caméra, géolocalisation et paiement désactivés). CSP complète non
+  traitée (à construire en mode rapport seul).
+
+Vérifié : 7 nouveaux tests (cumul des quotas, blocage du certificat avant
+recherche et compilation), contre-épreuve faite (sans correctif, les tests
+du certificat échouent), suite 204/204, tsc, lint, build ; en-têtes lus
+sur un `next start` local (/, /offrir, une route API, /v/).
+Non vérifié : comportement réel contre Supabase TEST ; les valeurs 15 et
+30 sont proposées, pas mesurées.
+
+**Point à vérifier à la fusion de `voix-page-ecoute`** : la page d'écoute
+pose `Referrer-Policy: no-referrer` ; l'ordre de priorité avec l'en-tête
+global n'est pas documenté par Next. Dans les deux cas, aucun jeton ne
+fuit vers un autre site (la règle globale n'envoie que l'origine).
+
+### Compteurs mis à jour (17/10)
+
+```
+CRITIQUE :    0
+ÉLEVÉ :       1  (A-2026-09-12-05)
+MOYEN :       2  (A-2026-09-12-01, -02)
+FAIBLE :      4  (A-2026-09-12-03, -07 ; A-2026-10-16-01, -02)
+INFORMATION : 2  (A-2026-09-12-08 ; axe 5 détection/traçabilité)
+CORRIGÉ :     2  (A-2026-09-12-04, -06 — en production le 17/10/2026)
+```

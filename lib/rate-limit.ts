@@ -40,6 +40,21 @@ export async function verifierQuota(
   return data?.[0]?.autorise ?? false;
 }
 
+// Quota des routes de séance facturées (A-2026-09-12-02) : le quota par
+// user_id pour tous, plus un plafond par IP pour les comptes anonymes de la
+// séance gratuite, qui sinon repartiraient de zéro à chaque nouvelle session
+// anonyme. Même contrat fail-closed : une erreur de vérification lève.
+export async function verifierQuotaNarrateur(
+  supabase: SupabaseClient,
+  user: { id: string; is_anonymous?: boolean },
+  req: NextRequest,
+  route: RouteLimitee
+): Promise<boolean> {
+  if (!(await verifierQuota(supabase, user.id, route))) return false;
+  if (!user.is_anonymous) return true;
+  return verifierQuotaAnonyme(supabase, extraireIp(req), `${route}_anonyme`);
+}
+
 // Plafonds quotidiens sur les routes anonymes qui déclenchent un coût réel
 // (Brevo pour "contact", compilation Typst + sharp pour
 // "certificat_apercu") — A5, 21/08/2026. Clé de comptage : IP, pas
@@ -56,6 +71,15 @@ export const LIMITES_QUOTIDIENNES_ANONYME = {
   // par IP laisse toute la marge à un usage réel tout en bornant
   // l'énumération de jetons.
   ecoute_voix: 100,
+  // Séance gratuite anonyme (A-2026-09-12-02, 17/10/2026) : le quota par
+  // user_id se contourne en recréant une session anonyme, d'où ce second
+  // plafond par IP, appliqué aux seuls comptes anonymes. 15 appels ≈ 5
+  // séances d'essai complètes par jour et par adresse (un foyer, un bureau).
+  seance_anonyme: 15,
+  transcribe_anonyme: 15,
+  // Certificat cadeau par code, image et PDF (A-2026-09-12-03, 17/10/2026) :
+  // compté avant la recherche du code, donc borne aussi les essais de codes.
+  certificat_code: 30,
 } as const;
 
 export type RouteLimiteeAnonyme = keyof typeof LIMITES_QUOTIDIENNES_ANONYME;

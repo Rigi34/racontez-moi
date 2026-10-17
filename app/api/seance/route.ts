@@ -16,7 +16,7 @@ import {
 import { prochaineQuestionBanque, titreSection, TITRE_SECTION_A } from "@/lib/banque-questions";
 import { composerFragment, genererResumeSession } from "@/lib/redaction";
 import { calculerProgression } from "@/lib/progression";
-import { verifierQuota } from "@/lib/rate-limit";
+import { verifierQuotaNarrateur } from "@/lib/rate-limit";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -260,7 +260,7 @@ export async function POST(req: NextRequest) {
     // (réseau, base) : fail-closed délibéré, l'appel facturé n'a pas lieu
     // tant que le quota n'a pas pu être garanti (cf. lib/rate-limit.ts).
     try {
-      if (!(await verifierQuota(supabase, user.id, "seance"))) {
+      if (!(await verifierQuotaNarrateur(supabase, user, req, "seance"))) {
         return NextResponse.json({ error: "Quota quotidien atteint. Réessayez demain." }, { status: 429 });
       }
     } catch (e) {
@@ -356,7 +356,7 @@ export async function POST(req: NextRequest) {
     // Quota quotidien avant appel Anthropic — même compteur "seance" que
     // "relance"/"fragment" (cf. lib/rate-limit.ts).
     try {
-      if (!(await verifierQuota(supabase, user.id, "seance"))) {
+      if (!(await verifierQuotaNarrateur(supabase, user, req, "seance"))) {
         return NextResponse.json({ error: "Quota quotidien atteint. Réessayez demain." }, { status: 429 });
       }
     } catch (e) {
@@ -448,7 +448,7 @@ export async function POST(req: NextRequest) {
     // cf. lib/redaction.ts) mais ne consomme qu'1 unité de quota,
     // simplification assumée (cf. lib/rate-limit.ts).
     try {
-      if (!(await verifierQuota(supabase, user.id, "seance"))) {
+      if (!(await verifierQuotaNarrateur(supabase, user, req, "seance"))) {
         return NextResponse.json({ error: "Quota quotidien atteint. Réessayez demain." }, { status: 429 });
       }
     } catch (e) {

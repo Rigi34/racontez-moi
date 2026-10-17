@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import { verifierQuota } from "@/lib/rate-limit";
+import { verifierQuotaNarrateur } from "@/lib/rate-limit";
 
 type SegmentGroq = {
   start: number;
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
   // fail-closed que sur /api/seance (cf. lib/rate-limit.ts) : si la
   // vérification échoue, l'appel facturé n'a pas lieu.
   try {
-    if (!(await verifierQuota(supabase, user.id, "transcribe"))) {
+    if (!(await verifierQuotaNarrateur(supabase, user, req, "transcribe"))) {
       return NextResponse.json({ error: "Quota quotidien atteint. Réessayez demain." }, { status: 429 });
     }
   } catch (e) {
