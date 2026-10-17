@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { deflateSync } from "node:zlib";
 import { NodeCompiler } from "@myriaddreamin/typst-ts-node-compiler";
-import { gouttiereMm, preparerTexte, assemblerFragments, genererSourceTypst } from "./typst";
+import { gouttiereMm, preparerTexte, typographierFrancais, assemblerFragments, genererSourceTypst } from "./typst";
 
 describe("gouttiereMm", () => {
   it.each([
@@ -356,5 +356,15 @@ describe("genererSourceTypst + assemblerFragments (compilation réelle)", () => 
     ]);
     expect(resultat.hasError()).toBe(false);
     expect(resultat.result!.numOfPages).toBe(1);
+  });
+});
+
+// Questions de la séance (17/10/2026) : le « : » et le « ? » ne doivent plus
+// pouvoir passer seuls en début de ligne.
+describe("typographierFrancais (questions de la séance)", () => {
+  it("lie la ponctuation haute au mot précédent par une espace fine insécable", () => {
+    expect(typographierFrancais("Avant de commencer : pour qui racontez-vous votre histoire ?")).toBe(
+      "Avant de commencer : pour qui racontez-vous votre histoire ?"
+    );
   });
 });

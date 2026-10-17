@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { messageErreurAuth } from "@/lib/auth-erreurs";
 import { voixChoisieActive } from "@/lib/voix";
+import { typographierFrancais } from "@/lib/typst";
 import ChoixVoix, { type Enregistrement } from "./ChoixVoix";
 
 type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment" | "conversion";
@@ -80,6 +81,26 @@ const TEINTES_AMBIANCE = ["#EEF0DE", "#F7E9C7", "#F2DAB8", "#E6ECEF"];
 function teinteAmbiance(pourcentageCouverture: number): string {
   const index = Math.min(3, Math.floor(pourcentageCouverture / 25));
   return TEINTES_AMBIANCE[index];
+}
+
+// État de l'autorisation micro, quand le navigateur sait le dire (Chrome,
+// Safari récent, Firefox récent). "inconnu" ailleurs : on n'affiche alors rien.
+function usePermissionMicro(): PermissionState | "inconnu" {
+  const [etat, setEtat] = useState<PermissionState | "inconnu">("inconnu");
+  useEffect(() => {
+    let statut: PermissionStatus | null = null;
+    const maj = () => statut && setEtat(statut.state);
+    navigator.permissions
+      ?.query({ name: "microphone" as PermissionName })
+      .then((s) => {
+        statut = s;
+        maj();
+        s.addEventListener("change", maj);
+      })
+      .catch(() => {});
+    return () => statut?.removeEventListener("change", maj);
+  }, []);
+  return etat;
 }
 
 function IconeMicro({ souffle = false, className = "w-8 h-8" }: { souffle?: boolean; className?: string }) {
@@ -224,6 +245,7 @@ function ZoneEcoute({
 }) {
   const montrerTexte = ecrireForce || valeur.trim().length > 0;
   const [invitation] = useState(() => INVITATIONS[Math.floor(Math.random() * INVITATIONS.length)]);
+  const permissionMicro = usePermissionMicro();
 
   return (
     <div
@@ -243,13 +265,19 @@ function ZoneEcoute({
 
         {!montrerTexte ? (
           <div className="stage-fade-in mic-cta mt-16 space-y-5" style={{ animationDelay: "0.18s" }}>
-            <div
-              className={`mic-ring w-20 h-20 mx-auto rounded-full bg-blanc border flex items-center justify-center shadow-[0_1px_2px_rgba(36,34,32,0.06),0_8px_24px_-12px_rgba(36,34,32,0.2)] ${
-                isRecording ? "mic-ring--recording border-petrole text-petrole" : "border-sauge text-petrole"
+            {/* Le grand micro est lui-même un bouton (17/10/2026) : c'est là qu'on
+                appuie d'instinct. Même action que le bouton texte en dessous. */}
+            <button
+              type="button"
+              onClick={onToggleVoice}
+              disabled={transcribing}
+              aria-label={isRecording ? "J'ai fini de répondre" : "Commencer à parler"}
+              className={`mic-ring w-20 h-20 mx-auto rounded-full bg-blanc border flex items-center justify-center shadow-[0_1px_2px_rgba(36,34,32,0.06),0_8px_24px_-12px_rgba(36,34,32,0.2)] cursor-pointer disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-petrole ${
+                isRecording ? "mic-ring--recording border-petrole text-petrole" : "border-sauge text-petrole hover:border-petrole/50"
               }`}
             >
               <IconeMicro />
-            </div>
+            </button>
 
             {isRecording ? (
               <div className="space-y-5">
@@ -289,8 +317,17 @@ function ZoneEcoute({
                 }`}
               >
                 {isRecording ? <span className="rec-dot" /> : <IconeMicro souffle className="w-4 h-4" />}
-                {isRecording ? "Terminer la séance" : transcribing ? "Transcription…" : "Commencer à parler"}
+                {isRecording ? "J'ai fini de répondre" : transcribing ? "Transcription…" : "Commencer à parler"}
               </button>
+              {/* Prévenir avant la fenêtre du navigateur (17/10/2026, repris
+                  d'Eva / StoriedLife) : seulement si l'autorisation n'a pas
+                  encore été donnée. */}
+              {permissionMicro === "prompt" && !isRecording && !transcribing && (
+                <p className="font-sans text-xs text-grege max-w-[300px]">
+                  Votre appareil va vous demander la permission d&apos;utiliser le micro&nbsp;: choisissez
+                  «&nbsp;Autoriser&nbsp;».
+                </p>
+              )}
               {!isRecording && !transcribing && (
                 <button
                   onClick={() => setEcrireForce(true)}
@@ -551,8 +588,15 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
       setDureeEnregistrement(0);
       chronoRef.current = setInterval(() => setDureeEnregistrement((d) => d + 1), 1000);
       jouerCarillon(CARILLON_DEBUT);
-    } catch {
-      setError("Accès au microphone refusé. Vérifiez les permissions du navigateur.");
+    } catch (e) {
+      // Messages pensés pour un public âgé (17/10/2026) : dire quoi faire, et
+      // rappeler que l'écrit reste possible.
+      const nom = e instanceof DOMException ? e.name : "";
+      setError(
+        nom === "NotFoundError"
+          ? "Je ne trouve pas de micro sur cet appareil. Vous pouvez écrire votre réponse à la place."
+          : "Je n'ai pas accès à votre micro. Touchez le petit cadenas à gauche de l'adresse du site, autorisez le micro, puis réessayez. Vous pouvez aussi écrire votre réponse."
+      );
     }
   }, [garderVoixPossible]);
 
@@ -913,7 +957,7 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
             eyebrow={titreSection ? `Chapitre · ${titreSection}` : "Question du jour"}
             question={
               <h1 className="font-display font-normal text-3xl md:text-4xl text-encre leading-[1.28] text-balance">
-                {question}
+                {typographierFrancais(question)}
               </h1>
             }
             valeur={reponse}
@@ -942,7 +986,7 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
         {phase === "relance" && (
           <ZoneEcoute
             eyebrow="Vous continuez de raconter"
-            question={<p className="font-display italic text-xl md:text-2xl text-petrole text-balance">{relance}</p>}
+            question={<p className="font-display italic text-xl md:text-2xl text-petrole text-balance">{typographierFrancais(relance)}</p>}
             valeur={reponseRelance}
             setValeur={setReponseRelance}
             placeholder="Continuez, prenez votre temps…"
@@ -967,7 +1011,7 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
         {phase === "relance2" && (
           <ZoneEcoute
             eyebrow="Vous continuez de raconter"
-            question={<p className="font-display italic text-xl md:text-2xl text-petrole text-balance">{relance2}</p>}
+            question={<p className="font-display italic text-xl md:text-2xl text-petrole text-balance">{typographierFrancais(relance2)}</p>}
             valeur={reponseRelance2}
             setValeur={setReponseRelance2}
             placeholder="Continuez, prenez votre temps…"
