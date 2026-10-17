@@ -54,7 +54,8 @@ function chaineTypst(texte: string): string {
 // guillemets, ni avant ; : ! ? — vérifié empiriquement, ce n'est pas un réglage caché.
 // U+202F (espace fine insécable) est la convention typographique française standard ;
 // on l'utilise ici plutôt que U+00A0 pour rester cohérent avec l'usage imprimé.
-function typographierFrancais(texte: string): string {
+// Exportée aussi pour l'affichage des questions de la séance (17/10/2026).
+export function typographierFrancais(texte: string): string {
   return texte
     .replace(/«\s*([^»]*?)\s*»/g, "« $1 »")
     .replace(/"([^"]*)"/g, "« $1 »")
