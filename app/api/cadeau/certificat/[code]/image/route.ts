@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
+import { verifierQuotaAnonyme, extraireIp } from "@/lib/rate-limit";
 import { compilerCertificatImage } from "@/lib/certificat";
 
 const supabase = createServiceClient(
@@ -7,8 +8,19 @@ const supabase = createServiceClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
+
+  // Quota quotidien par IP avant la recherche du code et toute compilation
+  // (A-2026-09-12-03, 17/10/2026) — même modèle que la route sœur apercu.
+  try {
+    if (!(await verifierQuotaAnonyme(supabase, extraireIp(req), "certificat_code"))) {
+      return NextResponse.json({ error: "Trop de demandes. Réessayez plus tard." }, { status: 429 });
+    }
+  } catch (e) {
+    console.error("verifierQuotaAnonyme (certificat_code) échouée:", e);
+    return NextResponse.json({ error: "Vérification impossible. Réessayez plus tard." }, { status: 500 });
+  }
 
   const { data: ligne } = await supabase
     .from("codes_cadeau")
