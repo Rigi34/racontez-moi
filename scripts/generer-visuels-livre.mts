@@ -14,7 +14,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import sharp from "sharp";
+import sharp, { type Sharp } from "sharp";
 import { compilerInterieur, type FragmentAvecPhotos } from "../lib/manuscrit";
 import { genererSourceCouverture, geometrieCouverture, PALETTE_COUVERTURE } from "../lib/couverture";
 import { dimensionsCouverture } from "../lib/lulu";
@@ -43,7 +43,7 @@ const livre: DonneesLivre = JSON.parse(readFileSync(join(RACINE, "scripts/data/l
 rmSync(SORTIE, { recursive: true, force: true });
 mkdirSync(SORTIE, { recursive: true });
 const manifeste: { pages: Record<string, string>; couvertures: Record<string, string> } = { pages: {}, couvertures: {} };
-async function ecrireVersionne(image: sharp.Sharp, nom: string): Promise<string> {
+async function ecrireVersionne(image: Sharp, nom: string): Promise<string> {
   const octets = await image.toBuffer();
   const empreinte = createHash("sha256").update(octets).digest("hex").slice(0, 10);
   const fichier = `${nom}.${empreinte}.webp`;
