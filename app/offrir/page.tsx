@@ -4,6 +4,7 @@ import FormulaireCadeau from "./FormulaireCadeau";
 import EnTeteSite from "../components/EnTeteSite";
 import BarreCTAMobile from "../components/BarreCTAMobile";
 import { ListeCompris } from "../components/OffreParcours";
+import FondVivant from "@/app/components/FondVivant";
 
 export const metadata: Metadata = {
   title: "Cadeau Mémoire — Racontez-moi",
@@ -15,16 +16,18 @@ export default function OffrirPage() {
   return (
     <main className="min-h-screen">
       {/* En-tête commun (02/10/2026) : /offrir n'avait ni logo ni navigation. */}
+      <div className="relative">
+      <FondVivant />
       <EnTeteSite />
 
       {/* ─── HERO /OFFRIR ─────────────────────────────────────────────── */}
       {/* Hauteur ramenée au contenu (02/10/2026) : le min-h-[80vh] repoussait
           prix et garantie hors du premier écran mobile. */}
-      <section className="flex flex-col items-center justify-center px-6 pt-12 pb-16 md:pt-24 md:pb-24 text-center">
+      <section className="relative flex flex-col items-center justify-center px-6 pt-12 pb-16 md:pt-24 md:pb-24 text-center">
         <h1 className="font-display font-normal text-4xl md:text-5xl lg:text-6xl leading-[1.15] text-encre max-w-3xl mb-6">
           Vos parents ont une histoire.
           <br />
-          Offrez-leur quelqu&apos;un pour la raconter.
+          Offrez-leur <em className="italic text-ambre-texte">quelqu&apos;un pour la raconter.</em>
         </h1>
 
         <p className="font-serif text-lg md:text-xl text-grege max-w-xl mb-10 leading-relaxed italic">
@@ -44,6 +47,7 @@ export default function OffrirPage() {
           paiement.
         </p>
       </section>
+      </div>
 
       {/* ─── LEAD ─────────────────────────────────────────────────────── */}
       <section className="bg-sauge py-20 px-6">
@@ -100,7 +104,7 @@ export default function OffrirPage() {
       <section className="bg-petrole-fonce text-papier py-20 px-6">
         <div className="max-w-3xl mx-auto">
           <h2 className="font-display font-normal text-3xl text-papier text-center mb-14">
-            En trois temps
+            En trois <em className="italic text-ambre-doux">temps</em>
           </h2>
           <div className="grid md:grid-cols-3 gap-10">
             <div className="text-center">
@@ -145,7 +149,7 @@ export default function OffrirPage() {
       <section className="py-20 px-6 bg-blanc">
         <div className="max-w-2xl mx-auto space-y-10">
           <h2 className="font-display font-normal text-3xl text-encre">
-            Vous vous demandez peut-être…
+            Vous vous demandez <em className="italic text-ambre-texte">peut-être…</em>
           </h2>
 
           <div className="space-y-8">

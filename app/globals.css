@@ -297,6 +297,13 @@ body {
   animation: tache-derive-b 29s ease-in-out infinite alternate-reverse;
 }
 
+/* Pages de lecture : le fond ne couvre que le haut de page. */
+.fond-vivant--entete {
+  z-index: -1; /* derrière le texte ; le parent porte `isolate` */
+  bottom: auto;
+  height: min(900px, 100%);
+}
+
 /* Lueur ambrée sur l'aplat pétrole du prix (pas de fondu vers le bas). */
 .tache--lueur {
   width: clamp(320px, 50vw, 760px); aspect-ratio: 1;

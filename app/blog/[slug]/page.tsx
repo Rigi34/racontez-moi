@@ -10,6 +10,7 @@ import {
   splitSources,
   slugify,
 } from "@/lib/blog";
+import FondVivant from "@/app/components/FondVivant";
 
 export function generateStaticParams() {
   return getAllSlugs().map((slug) => ({ slug }));
@@ -48,9 +49,10 @@ export default async function BlogPostPage({
   const toc = extractToc(main);
 
   return (
-    <main className="min-h-screen bg-blanc">
+    <main className="relative isolate min-h-screen bg-blanc">
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
-      <header className="px-6 py-8 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
+      <FondVivant entete />
+      <header className="relative px-6 py-8">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
@@ -73,7 +75,7 @@ export default async function BlogPostPage({
           {toc.length > 0 && (
             <nav
               aria-label="Sommaire de l'article"
-              className="mb-16 bg-sauge p-6 shadow-[4px_4px_0px_#DAD4C5]"
+              className="mb-16 rounded-[22px] bg-sauge-clair p-6 md:p-7"
             >
               <p className="font-sans text-sm text-encre tracking-widest uppercase mb-4">
                 Dans cet article
