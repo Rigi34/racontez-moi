@@ -313,8 +313,11 @@ export default function Home() {
       {/* ─── LE VERROU NARRATIF (épigraphe + texte découpé) ──────────── */}
       <section className="py-16 md:py-24 px-6 bg-blanc">
         <div className="max-w-2xl mx-auto">
-          <figure className="mb-14 md:mb-16">
-            <blockquote className="font-display italic text-xl md:text-[22px] leading-[1.6] text-encre">
+          <figure className="relative mb-14 md:mb-16">
+            <span aria-hidden="true" className="absolute -left-1 -top-20 md:-left-16 md:-top-16 font-display italic text-[7rem] md:text-[9rem] leading-none text-ambre/35 select-none">
+              «
+            </span>
+            <blockquote className="relative font-display italic text-xl md:text-[22px] leading-[1.6] text-encre">
               «&nbsp;Dès qu&apos;on en fait un récit, on donne sens à nos souffrances, on comprend,
               longtemps après, comment on a pu changer un malheur en merveille.&nbsp;»
             </blockquote>
@@ -339,7 +342,7 @@ export default function Home() {
           <div className="max-w-2xl">
             <p className="font-sans text-xs tracking-widest uppercase text-sauge mb-4">La séance</p>
             <h2 className="font-display font-normal text-3xl md:text-4xl leading-[1.2] mb-6 text-balance">
-              Une question à la fois. Quelqu&apos;un qui écoute vraiment.
+              Une question à la fois. Quelqu&apos;un qui écoute <em className="italic text-ambre-doux">vraiment.</em>
             </h2>
             <p className="font-serif text-lg leading-[1.8] text-papier/85">
               Vous répondez à voix haute, sans vous presser&nbsp;: un silence n&apos;est jamais pris
@@ -353,7 +356,7 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-3 sm:gap-6 md:gap-8 mt-12 md:mt-14 max-w-3xl">
             {objetsMemoire.map((objet) => (
               <figure key={objet.caption}>
-                <div className="relative aspect-[4/5] overflow-hidden bg-petrole">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[22px] bg-petrole">
                   <Image
                     src={objet.src}
                     alt={objet.alt}
@@ -395,7 +398,7 @@ export default function Home() {
       <section className="py-20 md:py-24 px-6 bg-blanc">
         <div className="max-w-5xl mx-auto">
           <div className="max-w-2xl">
-            <h2 className="font-display text-3xl text-encre mb-8">Rien n&apos;est improvisé</h2>
+            <h2 className="font-display text-3xl md:text-4xl text-encre mb-8">Rien n&apos;est <em className="italic text-ambre-texte">improvisé</em></h2>
             <div className="space-y-6 font-serif text-lg leading-[1.85] text-encre">
               <p>
                 Les questions qui vous seront posées, le rythme des séances, la façon dont vos mots
@@ -413,10 +416,10 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-10 mt-16 pt-10 border-t border-grege/30">
-            {piliers.map((pilier) => (
-              <div key={pilier.titre}>
-                <p className="font-display text-xl text-encre mb-2">{pilier.titre}</p>
+          <div className="grid md:grid-cols-3 gap-5 md:gap-6 mt-16">
+            {piliers.map((pilier, i) => (
+              <div key={pilier.titre} className={`rounded-[22px] px-6 py-7 ${["bg-ambre-clair", "bg-sauge-clair", "bg-petrole-clair"][i % 3]}`}>
+                <p className="font-display italic text-2xl text-encre mb-2">{pilier.titre}</p>
                 <p className="font-serif text-base leading-relaxed text-encre/85">{pilier.texte}</p>
                 <p className="font-sans text-xs text-grege mt-3 tracking-widest uppercase">{pilier.source}</p>
               </div>
@@ -436,8 +439,11 @@ export default function Home() {
       </section>
 
       {/* ─── PRIX, CONTENU ET GARANTIE (aplat pétrole) ───────────────── */}
-      <section id="prix" className="py-20 md:py-24 px-6 bg-petrole text-papier scroll-mt-6">
-        <div className="max-w-4xl mx-auto">
+      <section id="prix" className="relative overflow-hidden py-20 md:py-24 px-6 bg-petrole text-papier scroll-mt-6">
+        <div className="fond-vivant" aria-hidden="true">
+          <div className="tache tache--lueur" />
+        </div>
+        <div className="relative max-w-4xl mx-auto">
           <div className="text-center max-w-2xl mx-auto">
             <p className="font-display text-6xl md:text-7xl font-normal">155&nbsp;€</p>
             <p className="font-display text-xl md:text-2xl mt-4 text-balance">
@@ -483,7 +489,7 @@ export default function Home() {
       <section className="py-20 px-6 bg-papier">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-display text-3xl text-encre mb-10 text-center">
-            Vous vous demandez sans doute...
+            Vous vous demandez <em className="italic text-ambre-texte">sans doute…</em>
           </h2>
           <FAQAccordion items={FAQ_ACCUEIL} />
           <p className="text-center mt-8 font-sans text-sm text-grege">

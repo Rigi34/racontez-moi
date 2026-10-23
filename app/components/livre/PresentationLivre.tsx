@@ -107,7 +107,7 @@ export function SectionVotreLivre() {
             id="titre-votre-livre"
             className="font-display font-normal text-3xl md:text-4xl leading-[1.2] text-encre mb-5 text-balance"
           >
-            Votre histoire, reliée.
+            Votre histoire, <em className="italic text-ambre-texte">reliée.</em>
           </h2>
           <p className="font-serif text-lg leading-[1.8] text-encre/85">
             Un livre à couverture rigide, vos souvenirs en chapitres, vos photos au fil des pages. Voici
@@ -179,7 +179,7 @@ export function SectionVotreLivre() {
 function Etape({ numero, titre, children }: { numero: string; titre: string; children: React.ReactNode }) {
   return (
     <li className="relative pl-10 md:pl-0">
-      <p className="absolute left-0 top-0 md:static font-display text-2xl text-sauge leading-none md:mb-3">
+      <p className="absolute left-0 top-0 md:static font-display italic text-3xl md:text-5xl text-ambre-doux leading-none md:mb-3">
         {numero}
       </p>
       <p className={`${etiquette} text-sauge mb-3`}>{titre}</p>
@@ -219,7 +219,7 @@ export function SectionDeLaVoixAuLivre() {
         <div className="max-w-2xl mb-12">
           <p className={`${etiquette} text-sauge mb-4`}>De la voix au livre</p>
           <h2 id="titre-voix-livre" className="font-display font-normal text-3xl md:text-4xl leading-[1.2] mb-5 text-balance">
-            Vous racontez. Le souvenir s&apos;écrit. Il devient une page.
+            Vous racontez. Le souvenir s&apos;écrit. Il devient <em className="italic text-ambre-doux">une page.</em>
           </h2>
           <p className="font-sans text-sm text-papier/70">
             Extrait d&apos;une vraie séance de test, le {SEANCE_REELLE.date}&nbsp;: les réponses sont

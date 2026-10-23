@@ -16,6 +16,8 @@
   --color-sauge-clair: #ECE6CF;
   --color-petrole-clair: #DCE8E6;
   --color-ambre-texte: #8F5F22;
+  /* ambre doux : le mot en italique sur les aplats pétrole */
+  --color-ambre-doux: #E7BB7C;
 
   --font-display: var(--font-fraunces);
   --font-serif: var(--font-source-serif);
@@ -294,6 +296,16 @@ body {
   background: rgba(184, 130, 61, 0.2);
   animation: tache-derive-b 29s ease-in-out infinite alternate-reverse;
 }
+
+/* Lueur ambrée sur l'aplat pétrole du prix (pas de fondu vers le bas). */
+.tache--lueur {
+  width: clamp(320px, 50vw, 760px); aspect-ratio: 1;
+  top: -30%; right: -15%;
+  background: rgba(231, 187, 124, 0.16);
+  animation: tache-derive-a 30s ease-in-out infinite alternate;
+}
+
+#prix .fond-vivant { -webkit-mask-image: none; mask-image: none; }
 
 @keyframes tache-derive-a { to { transform: translate(-60px, 50px) scale(1.08); } }
 @keyframes tache-derive-b { to { transform: translate(70px, -40px) scale(1.1); } }
