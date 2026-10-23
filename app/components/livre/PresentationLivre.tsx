@@ -99,8 +99,11 @@ function FicheLivre() {
 
 export function SectionVotreLivre() {
   return (
-    <section className="py-20 md:py-24 px-6 bg-papier" aria-labelledby="titre-votre-livre">
-      <div className="max-w-6xl mx-auto">
+    <section className="relative overflow-hidden py-20 md:py-24 px-6 bg-papier" aria-labelledby="titre-votre-livre">
+      <div className="fond-vivant fond-vivant--plein" aria-hidden="true">
+          <div className="tache tache--lueur" />
+        </div>
+      <div className="relative max-w-6xl mx-auto">
         <div className="max-w-2xl">
           <p className={`${etiquette} text-grege mb-4`}>Ce que vous recevez</p>
           <h2

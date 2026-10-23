@@ -101,8 +101,11 @@ export default function OffrirPage() {
       {/* ─── COMMENT ÇA MARCHE ────────────────────────────────────────── */}
       {/* Aplat pétrole foncé (03/10/2026), cohérent avec la section « La
           séance » de l'accueil. */}
-      <section className="bg-petrole-fonce text-papier py-20 px-6">
-        <div className="max-w-3xl mx-auto">
+      <section className="relative overflow-hidden bg-petrole-fonce text-papier py-20 px-6">
+        <div className="fond-vivant fond-vivant--plein" aria-hidden="true">
+          <div className="tache tache--lueur" />
+        </div>
+        <div className="relative max-w-3xl mx-auto">
           <h2 className="font-display font-normal text-3xl text-papier text-center mb-14">
             En trois <em className="italic text-ambre-doux">temps</em>
           </h2>

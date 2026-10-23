@@ -440,7 +440,7 @@ export default function Home() {
 
       {/* ─── PRIX, CONTENU ET GARANTIE (aplat pétrole) ───────────────── */}
       <section id="prix" className="relative overflow-hidden py-20 md:py-24 px-6 bg-petrole text-papier scroll-mt-6">
-        <div className="fond-vivant" aria-hidden="true">
+        <div className="fond-vivant fond-vivant--plein" aria-hidden="true">
           <div className="tache tache--lueur" />
         </div>
         <div className="relative max-w-4xl mx-auto">

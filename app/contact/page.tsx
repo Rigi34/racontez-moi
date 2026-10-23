@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import FormulaireContact from "./FormulaireContact";
+import FondVivant from "@/app/components/FondVivant";
 
 export const metadata: Metadata = {
   title: "Contact — Racontez-moi",
@@ -9,9 +10,10 @@ export const metadata: Metadata = {
 
 export default function Contact() {
   return (
-    <main className="min-h-screen bg-blanc">
+    <main className="relative isolate min-h-screen bg-blanc">
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
-      <header className="px-6 py-8 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
+      <FondVivant entete />
+      <header className="relative px-6 py-8">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
@@ -31,7 +33,7 @@ export default function Contact() {
       <article className="py-20 px-6">
         <div className="max-w-2xl mx-auto text-center">
           <h1 className="font-display font-normal text-4xl md:text-5xl text-encre mb-6 leading-[1.2]">
-            Une question ?
+            Une <em className="italic text-ambre-texte">question</em>&nbsp;?
           </h1>
           <p className="font-serif text-lg leading-[1.85] text-encre mb-10 max-w-lg mx-auto">
             Écrivez-nous directement — nous répondons personnellement à chaque
