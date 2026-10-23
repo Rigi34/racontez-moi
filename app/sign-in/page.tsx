@@ -3,6 +3,7 @@ import { Suspense, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
 import { messageErreurAuth } from "@/lib/auth-erreurs"
+import FondVivant from "@/app/components/FondVivant"
 
 // Identifiant de version du texte de consentement (annexe du document
 // juridique du 30/07/2026) — à incrémenter si le texte de la case à cocher
@@ -95,14 +96,23 @@ function SignInInner() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-papier px-6">
-      <div className="w-full max-w-sm space-y-8">
+    <div className="relative isolate min-h-screen flex flex-col items-center justify-center bg-papier px-6">
+      <FondVivant fixe />
+      <div className="relative w-full max-w-sm space-y-8">
         <div className="text-center">
           <p className="font-display text-lg italic text-petrole tracking-wide">
             Racontez-moi
           </p>
           <h1 className="font-display text-2xl text-encre mt-2">
-            {mode === "signup" ? "Créer votre espace" : "Votre espace narrateur"}
+            {mode === "signup" ? (
+              <>
+                Créer votre <em className="italic text-ambre-texte">espace</em>
+              </>
+            ) : (
+              <>
+                Votre espace <em className="italic text-ambre-texte">narrateur</em>
+              </>
+            )}
           </h1>
           <p className="font-sans text-sm text-grege mt-2">
             {mode === "signup"

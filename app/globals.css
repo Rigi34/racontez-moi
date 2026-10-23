@@ -312,6 +312,9 @@ body {
   animation: tache-derive-a 30s ease-in-out infinite alternate;
 }
 
+/* Espace personnel : mêmes couleurs, sans mouvement. */
+.fond-vivant--fixe .tache { animation: none; }
+
 /* Lueur sur une section entière : pas de fondu vers le bas. */
 .fond-vivant--plein { -webkit-mask-image: none; mask-image: none; }
 

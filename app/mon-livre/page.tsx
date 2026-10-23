@@ -7,6 +7,7 @@ import BoutonCommande from "./BoutonCommande";
 import { compilerInterieur } from "@/lib/manuscrit";
 import { chargerFragmentsAvecPhotos } from "@/lib/photos";
 import { PAGES_MINIMUM_RELIE } from "@/lib/lulu";
+import FondVivant from "@/app/components/FondVivant";
 
 export default async function MonLivrePage() {
   const supabase = await createClient();
@@ -36,8 +37,9 @@ export default async function MonLivrePage() {
   const assezDePages = nombrePages >= PAGES_MINIMUM_RELIE;
 
   return (
-    <div className="min-h-screen bg-papier flex flex-col">
-      <header className="px-8 py-6 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)] flex items-center justify-between">
+    <div className="relative isolate min-h-screen bg-papier flex flex-col">
+      <FondVivant entete fixe />
+      <header className="relative px-8 py-6 flex items-center justify-between">
         <Link href="/" className="font-display text-xl italic text-petrole tracking-wide">
           Racontez-moi
         </Link>
@@ -48,7 +50,7 @@ export default async function MonLivrePage() {
 
       <main className="flex-1 max-w-2xl mx-auto w-full px-8 py-16 space-y-12">
         <div>
-          <h1 className="font-display text-3xl text-encre">Mon livre</h1>
+          <h1 className="font-display text-3xl text-encre">Mon <em className="italic text-ambre-texte">livre</em></h1>
           <p className="font-sans text-base text-grege mt-2">
             {nombreFragments ?? 0} fragment{(nombreFragments ?? 0) > 1 ? "s" : ""} prêt{(nombreFragments ?? 0) > 1 ? "s" : ""} pour votre manuscrit.
           </p>

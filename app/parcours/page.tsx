@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import BoutonParcours from "./BoutonParcours";
+import FondVivant from "@/app/components/FondVivant";
 
 export default async function ParcoursPage() {
   const supabase = await createClient();
@@ -17,8 +18,9 @@ export default async function ParcoursPage() {
   if (abonnement?.status === "active") redirect("/tableau-de-bord");
 
   return (
-    <div className="min-h-screen bg-papier flex flex-col">
-      <header className="px-8 py-6 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)] flex items-center justify-between">
+    <div className="relative isolate min-h-screen bg-papier flex flex-col">
+      <FondVivant entete fixe />
+      <header className="relative px-8 py-6 flex items-center justify-between">
         <Link href="/" className="font-display text-xl italic text-petrole tracking-wide">
           Racontez-moi
         </Link>
@@ -27,7 +29,7 @@ export default async function ParcoursPage() {
       <main className="flex-1 max-w-xl mx-auto w-full px-6 py-20 text-center space-y-10">
         <div className="space-y-4">
           <h1 className="font-display text-3xl md:text-4xl text-encre leading-[1.25]">
-            Le Parcours
+            Le <em className="italic text-ambre-texte">Parcours</em>
           </h1>
           <p className="font-serif text-lg text-grege leading-relaxed">
             Un interlocuteur mémorial à votre rythme, séance après séance, pour composer le récit de votre vie.
