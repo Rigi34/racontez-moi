@@ -9,6 +9,13 @@
   --color-petrole-fonce: #17393A;
   --color-ambre: #B8823D;
   --color-grege: #6B6660;
+  /* Teintes claires (23/10/2026, « plus vivant ») : fonds de cartes et de
+     scène dérivés de la charte ; ambre-texte = ambre assez foncé pour un mot
+     en italique lisible sur papier. */
+  --color-ambre-clair: #F4E6D0;
+  --color-sauge-clair: #ECE6CF;
+  --color-petrole-clair: #DCE8E6;
+  --color-ambre-texte: #8F5F22;
 
   --font-display: var(--font-fraunces);
   --font-serif: var(--font-source-serif);
@@ -238,7 +245,87 @@ body {
   opacity: 1;
 }
 
+/* ─── Accueil « plus vivant » (23/10/2026) ───────────────────────────
+   Taches floues qui dérivent derrière le premier écran, étiquettes qui
+   flottent autour du livre, petite onde sur la pastille vidéo. Lent et
+   discret ; tout s'arrête avec prefers-reduced-motion (plus bas). */
+.fond-vivant {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* fondu vers le bas : pas de bord net avec la section suivante */
+  -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent);
+  mask-image: linear-gradient(to bottom, #000 65%, transparent);
+}
+
+.tache {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+}
+
+/* Tailles et positions relatives à la largeur : sur grand écran, les taches
+   se répartissent sur toute la page au lieu de rester dans un coin. */
+.tache--ambre {
+  width: clamp(360px, 48vw, 760px); aspect-ratio: 1;
+  top: -6%; right: -10%;
+  background: rgba(184, 130, 61, 0.24);
+  animation: tache-derive-a 26s ease-in-out infinite alternate;
+}
+
+.tache--sauge {
+  width: clamp(300px, 40vw, 620px); aspect-ratio: 1;
+  top: 4%; left: 8%;
+  background: rgba(217, 207, 169, 0.6);
+  animation: tache-derive-a 35s ease-in-out infinite alternate-reverse;
+}
+
+.tache--petrole {
+  width: clamp(320px, 44vw, 700px); aspect-ratio: 1;
+  top: 34%; left: -12%;
+  background: rgba(31, 75, 76, 0.17);
+  animation: tache-derive-b 31s ease-in-out infinite alternate;
+}
+
+.tache--ambre-bas {
+  width: clamp(280px, 38vw, 600px); aspect-ratio: 1;
+  top: 48%; right: -6%;
+  background: rgba(184, 130, 61, 0.2);
+  animation: tache-derive-b 29s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes tache-derive-a { to { transform: translate(-60px, 50px) scale(1.08); } }
+@keyframes tache-derive-b { to { transform: translate(70px, -40px) scale(1.1); } }
+
+.etiquette-flottante {
+  animation: etiquette-flotte 6s ease-in-out infinite;
+}
+
+.etiquette-flottante--lente {
+  animation-duration: 7.2s;
+  animation-delay: -2s;
+}
+
+@keyframes etiquette-flotte { 50% { transform: translateY(-7px); } }
+
+.onde-pastille i {
+  display: block;
+  width: 3px;
+  height: 40%;
+  border-radius: 2px;
+  background: #B8823D;
+  animation: onde-pastille 1.2s ease-in-out infinite;
+}
+
+.onde-pastille i:nth-child(2) { animation-delay: -0.3s; }
+.onde-pastille i:nth-child(3) { animation-delay: -0.6s; }
+.onde-pastille i:nth-child(4) { animation-delay: -0.9s; }
+
+@keyframes onde-pastille { 50% { height: 100%; } }
+
 @media (prefers-reduced-motion: reduce) {
+  .tache, .etiquette-flottante, .onde-pastille i { animation: none; }
   .stage-fade-in { animation: none; opacity: 1; }
   .stage-light { animation: none; }
   .mic-ring::before { animation: none; }
