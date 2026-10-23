@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/blog";
+import FondVivant from "@/app/components/FondVivant";
 
 export const metadata: Metadata = {
   title: "Journal — Racontez-moi",
@@ -12,9 +13,10 @@ export default function BlogIndex() {
   const posts = getAllPosts();
 
   return (
-    <main className="min-h-screen bg-papier">
+    <main className="relative isolate min-h-screen bg-papier">
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
-      <header className="px-6 py-8 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
+      <FondVivant entete />
+      <header className="relative px-6 py-8">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
@@ -34,17 +36,17 @@ export default function BlogIndex() {
       <section className="py-20 px-6">
         <div className="max-w-2xl mx-auto">
           <h1 className="font-display font-normal text-4xl md:text-5xl text-encre mb-4 leading-[1.2]">
-            Journal
+            <em className="italic text-ambre-texte">Journal</em>
           </h1>
           <p className="font-serif text-lg leading-[1.85] text-grege mb-16">
             Ce que la recherche dit sur l&apos;écriture de ses mémoires.
           </p>
 
           <div className="space-y-6">
-            {posts.map((post) => (
+            {posts.map((post, i) => (
               <article
                 key={post.slug}
-                className="bg-blanc p-8 shadow-[5px_5px_0px_#DAD4C5]"
+                className={`rounded-[22px] p-8 ${["bg-ambre-clair", "bg-sauge-clair", "bg-petrole-clair"][i % 3]}`}
               >
                 <h2 className="font-display font-normal text-2xl mb-3 leading-[1.3]">
                   <Link

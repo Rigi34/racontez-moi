@@ -158,16 +158,27 @@ const lienDiscret =
 export default function Home() {
   return (
     <main className="min-h-screen">
-      <EnTeteSite />
 
       {/* ─── PROMESSE ─────────────────────────────────────────────────── */}
-      <section className="px-6 pt-6 pb-16 md:pt-20 md:pb-28">
-        <div className="max-w-6xl mx-auto w-full lg:grid lg:grid-cols-[1fr_420px] lg:gap-20 items-center">
+      {/* 23/10/2026 « plus vivant » : fond qui dérive, mot en italique
+          ambré, pastille vidéo (maquette validée par Régis). Le fond couvre
+          le premier écran ET la présentation, pour ne pas rester coincé
+          dans un coin sur grand écran (retour de Régis, 23/10). */}
+      <div className="relative">
+      <div className="fond-vivant" aria-hidden="true">
+        <div className="tache tache--ambre" />
+        <div className="tache tache--sauge" />
+        <div className="tache tache--petrole" />
+        <div className="tache tache--ambre-bas" />
+      </div>
+      <EnTeteSite />
+      <section className="relative px-6 pt-6 pb-16 md:pt-20 md:pb-28">
+        <div className="relative max-w-6xl mx-auto w-full lg:grid lg:grid-cols-[1fr_420px] lg:gap-20 items-center">
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
             <h1 className="font-display font-normal text-[2.15rem] leading-[1.12] md:text-5xl lg:text-6xl md:leading-[1.15] text-encre max-w-3xl mb-6 text-balance">
               Votre histoire n&apos;attend pas l&apos;inspiration.
               <br />
-              Elle attend un interlocuteur.
+              Elle attend un <em className="italic text-ambre-texte">interlocuteur.</em>
             </h1>
 
             <p className="font-sans text-base md:text-xl text-grege max-w-2xl mb-7 md:mb-8 leading-relaxed">
@@ -200,11 +211,24 @@ export default function Home() {
                 Le détail
               </a>
             </p>
-            <p className="font-sans text-sm text-grege mt-3">
-              <a href="#presentation" className={lienDiscret}>
-                ▶ Voir la présentation (2&nbsp;min&nbsp;44)
-              </a>
-            </p>
+            <a
+              href="#presentation"
+              className="mt-4 inline-flex items-center gap-3 rounded-full border border-grege/20 bg-blanc py-2 pl-2 pr-5 text-left text-encre hover:border-grege/40 transition-colors duration-200"
+            >
+              <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-full bg-petrole text-papier text-xs">
+                ▶
+              </span>
+              <span className="flex flex-col leading-tight">
+                <span className="font-sans text-sm font-semibold">Voir la présentation</span>
+                <span className="font-sans text-xs text-grege">2&nbsp;min&nbsp;44, sous-titrée</span>
+              </span>
+              <span aria-hidden="true" className="onde-pastille ml-1 flex h-[18px] items-end gap-[3px]">
+                <i />
+                <i />
+                <i />
+                <i />
+              </span>
+            </a>
           </div>
 
           {/* 04/10/2026 : vrais rendus du moteur (couverture + ouverture de
@@ -222,7 +246,7 @@ export default function Home() {
           lecture automatique, rien n'est chargé avant le clic (preload="none"),
           image d'attente et sous-titres. Fichier servi par le site lui-même
           (pas de YouTube, donc pas de cookies tiers). */}
-      <section id="presentation" className="px-6 pb-16 md:pb-24 scroll-mt-6">
+      <section id="presentation" className="relative px-6 pb-16 md:pb-24 scroll-mt-6">
         <div className="max-w-4xl mx-auto">
           <p className="font-sans text-center text-encre/70 text-xs tracking-widest uppercase mb-6">
             La présentation, en images
@@ -249,31 +273,34 @@ export default function Home() {
           </p>
         </div>
       </section>
+      </div>
 
       {/* ─── COMMENT ÇA MARCHE ───────────────────────────────────────── */}
-      <section className="py-16 md:py-20 px-6 bg-sauge">
-        <div className="max-w-4xl mx-auto">
-          <p className="font-sans text-center text-encre/70 text-xs tracking-widest uppercase mb-10">
-            Comment ça se passe
-          </p>
-          <div className="grid md:grid-cols-3 gap-10">
-            <div className="relative px-2">
-              <p className="font-display text-6xl md:text-7xl text-encre/15 leading-none mb-2">01</p>
+      {/* 23/10/2026 « plus vivant » : une teinte par étape, numéros en
+          italique coloré. */}
+      <section className="py-16 md:py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-display font-normal text-3xl md:text-4xl text-encre text-center mb-10 text-balance">
+            Comment ça <em className="italic text-ambre-texte">se passe</em>
+          </h2>
+          <div className="grid md:grid-cols-3 gap-5 md:gap-6">
+            <div className="relative rounded-[22px] bg-ambre-clair px-6 py-7">
+              <p className="font-display italic text-6xl md:text-7xl text-ambre-texte leading-none mb-2">01</p>
               <p className="font-display text-2xl text-encre mb-3">Vous commencez.</p>
               <p className="font-sans text-base text-encre/80 leading-relaxed">
                 Une première séance offerte, sans engagement&nbsp;— vous verrez tout de suite
                 si cette voix vous convient.
               </p>
             </div>
-            <div className="relative px-2">
-              <p className="font-display text-6xl md:text-7xl text-encre/15 leading-none mb-2">02</p>
+            <div className="relative rounded-[22px] bg-sauge-clair px-6 py-7">
+              <p className="font-display italic text-6xl md:text-7xl text-[#7A6E3E] leading-none mb-2">02</p>
               <p className="font-display text-2xl text-encre mb-3">Vous racontez.</p>
               <p className="font-sans text-base text-encre/80 leading-relaxed">
                 Trente à quarante-cinq minutes, une à deux fois par semaine, à votre rythme, pendant deux à quatre mois.
               </p>
             </div>
-            <div className="relative px-2">
-              <p className="font-display text-6xl md:text-7xl text-encre/15 leading-none mb-2">03</p>
+            <div className="relative rounded-[22px] bg-petrole-clair px-6 py-7">
+              <p className="font-display italic text-6xl md:text-7xl text-petrole leading-none mb-2">03</p>
               <p className="font-display text-2xl text-encre mb-3">Le livre arrive.</p>
               <p className="font-sans text-base text-encre/80 leading-relaxed">
                 Composé séance après séance, imprimé, relié. Le vôtre.
@@ -286,8 +313,11 @@ export default function Home() {
       {/* ─── LE VERROU NARRATIF (épigraphe + texte découpé) ──────────── */}
       <section className="py-16 md:py-24 px-6 bg-blanc">
         <div className="max-w-2xl mx-auto">
-          <figure className="mb-14 md:mb-16">
-            <blockquote className="font-display italic text-xl md:text-[22px] leading-[1.6] text-encre">
+          <figure className="relative mb-14 md:mb-16">
+            <span aria-hidden="true" className="absolute -left-1 -top-20 md:-left-16 md:-top-16 font-display italic text-[7rem] md:text-[9rem] leading-none text-ambre/35 select-none">
+              «
+            </span>
+            <blockquote className="relative font-display italic text-xl md:text-[22px] leading-[1.6] text-encre">
               «&nbsp;Dès qu&apos;on en fait un récit, on donne sens à nos souffrances, on comprend,
               longtemps après, comment on a pu changer un malheur en merveille.&nbsp;»
             </blockquote>
@@ -312,7 +342,7 @@ export default function Home() {
           <div className="max-w-2xl">
             <p className="font-sans text-xs tracking-widest uppercase text-sauge mb-4">La séance</p>
             <h2 className="font-display font-normal text-3xl md:text-4xl leading-[1.2] mb-6 text-balance">
-              Une question à la fois. Quelqu&apos;un qui écoute vraiment.
+              Une question à la fois. Quelqu&apos;un qui écoute <em className="italic text-ambre-doux">vraiment.</em>
             </h2>
             <p className="font-serif text-lg leading-[1.8] text-papier/85">
               Vous répondez à voix haute, sans vous presser&nbsp;: un silence n&apos;est jamais pris
@@ -326,7 +356,7 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-3 sm:gap-6 md:gap-8 mt-12 md:mt-14 max-w-3xl">
             {objetsMemoire.map((objet) => (
               <figure key={objet.caption}>
-                <div className="relative aspect-[4/5] overflow-hidden bg-petrole">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[22px] bg-petrole">
                   <Image
                     src={objet.src}
                     alt={objet.alt}
@@ -368,7 +398,7 @@ export default function Home() {
       <section className="py-20 md:py-24 px-6 bg-blanc">
         <div className="max-w-5xl mx-auto">
           <div className="max-w-2xl">
-            <h2 className="font-display text-3xl text-encre mb-8">Rien n&apos;est improvisé</h2>
+            <h2 className="font-display text-3xl md:text-4xl text-encre mb-8">Rien n&apos;est <em className="italic text-ambre-texte">improvisé</em></h2>
             <div className="space-y-6 font-serif text-lg leading-[1.85] text-encre">
               <p>
                 Les questions qui vous seront posées, le rythme des séances, la façon dont vos mots
@@ -386,10 +416,10 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-10 mt-16 pt-10 border-t border-grege/30">
-            {piliers.map((pilier) => (
-              <div key={pilier.titre}>
-                <p className="font-display text-xl text-encre mb-2">{pilier.titre}</p>
+          <div className="grid md:grid-cols-3 gap-5 md:gap-6 mt-16">
+            {piliers.map((pilier, i) => (
+              <div key={pilier.titre} className={`rounded-[22px] px-6 py-7 ${["bg-ambre-clair", "bg-sauge-clair", "bg-petrole-clair"][i % 3]}`}>
+                <p className="font-display italic text-2xl text-encre mb-2">{pilier.titre}</p>
                 <p className="font-serif text-base leading-relaxed text-encre/85">{pilier.texte}</p>
                 <p className="font-sans text-xs text-grege mt-3 tracking-widest uppercase">{pilier.source}</p>
               </div>
@@ -409,8 +439,11 @@ export default function Home() {
       </section>
 
       {/* ─── PRIX, CONTENU ET GARANTIE (aplat pétrole) ───────────────── */}
-      <section id="prix" className="py-20 md:py-24 px-6 bg-petrole text-papier scroll-mt-6">
-        <div className="max-w-4xl mx-auto">
+      <section id="prix" className="relative overflow-hidden py-20 md:py-24 px-6 bg-petrole text-papier scroll-mt-6">
+        <div className="fond-vivant fond-vivant--plein" aria-hidden="true">
+          <div className="tache tache--lueur" />
+        </div>
+        <div className="relative max-w-4xl mx-auto">
           <div className="text-center max-w-2xl mx-auto">
             <p className="font-display text-6xl md:text-7xl font-normal">155&nbsp;€</p>
             <p className="font-display text-xl md:text-2xl mt-4 text-balance">
@@ -456,7 +489,7 @@ export default function Home() {
       <section className="py-20 px-6 bg-papier">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-display text-3xl text-encre mb-10 text-center">
-            Vous vous demandez sans doute...
+            Vous vous demandez <em className="italic text-ambre-texte">sans doute…</em>
           </h2>
           <FAQAccordion items={FAQ_ACCUEIL} />
           <p className="text-center mt-8 font-sans text-sm text-grege">

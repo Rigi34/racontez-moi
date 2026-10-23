@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import FondVivant from "@/app/components/FondVivant";
 
 export const metadata: Metadata = {
   title: "Sujets sensibles et données de santé — Racontez-moi",
@@ -12,9 +13,10 @@ export const metadata: Metadata = {
 // modification de ce texte doit être répercutée dans les deux endroits.
 export default function SujetsSensibles() {
   return (
-    <main className="min-h-screen bg-blanc">
+    <main className="relative isolate min-h-screen bg-blanc">
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
-      <header className="px-6 py-8 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
+      <FondVivant entete />
+      <header className="relative px-6 py-8">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link href="/" className="font-display italic text-xl text-encre hover:text-grege transition-colors">
             Racontez-moi
@@ -28,7 +30,7 @@ export default function SujetsSensibles() {
       <article className="py-20 px-6">
         <div className="max-w-2xl mx-auto">
           <h1 className="font-display font-normal text-4xl md:text-5xl text-encre mb-3 leading-[1.2]">
-            Sujets sensibles et données de santé
+            Sujets sensibles et <em className="italic text-ambre-texte">données de santé</em>
           </h1>
           <p className="font-sans text-sm text-grege mb-14">Dernière mise à jour : 30 juillet 2026</p>
 

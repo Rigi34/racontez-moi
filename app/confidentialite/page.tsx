@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { voixChoisieActive } from "@/lib/voix";
 import Link from "next/link";
+import FondVivant from "@/app/components/FondVivant";
 
 export const metadata: Metadata = {
   title: "Confidentialité — Racontez-moi",
@@ -10,9 +11,10 @@ export const metadata: Metadata = {
 
 export default function Confidentialite() {
   return (
-    <main className="min-h-screen bg-blanc">
+    <main className="relative isolate min-h-screen bg-blanc">
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
-      <header className="px-6 py-8 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
+      <FondVivant entete />
+      <header className="relative px-6 py-8">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/"
@@ -32,7 +34,7 @@ export default function Confidentialite() {
       <article className="py-20 px-6">
         <div className="max-w-2xl mx-auto">
           <h1 className="font-display font-normal text-4xl md:text-5xl text-encre mb-10 leading-[1.2]">
-            Confidentialité
+            <em className="italic text-ambre-texte">Confidentialité</em>
           </h1>
 
           <div className="space-y-7 font-serif text-lg leading-[1.85] text-encre">

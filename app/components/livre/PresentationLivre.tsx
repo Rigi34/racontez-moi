@@ -23,32 +23,46 @@ const etiquette = "font-sans text-xs tracking-widest uppercase";
 
 // Image du premier écran : la couverture et l'ouverture du premier chapitre,
 // posées à plat. Remplace une image générée qui montrait un autre livre.
+// 23/10/2026 « plus vivant » : les mêmes rendus réels, posés sur un fond
+// pétrole clair avec un signet ambré et deux étiquettes qui flottent.
 export function VisuelLivre() {
   return (
     <figure>
-      <div className="relative mx-auto w-full max-w-[420px] aspect-[4/3.4]">
-        <div className="absolute right-0 top-[6%] w-[52%] shadow-[6px_6px_0px_#DAD4C5] ring-1 ring-grege/20">
-          <Image
-            src={SEANCE_REELLE.page}
-            alt="Ouverture du chapitre « Racines et petite enfance » du livre d'exemple"
-            width={PAGE.largeur}
-            height={PAGE.hauteur}
-            sizes="(max-width: 1024px) 50vw, 220px"
-            className="w-full h-auto"
-            loading="eager"
-          />
-        </div>
-        <div className="absolute left-[4%] top-0 w-[50%] shadow-[6px_6px_0px_#DAD4C5]">
-          <Image
-            src={COULEURS_COUVERTURE.find((c) => c.cle === "petrole")!.src}
-            alt="Couverture du livre d'exemple « Le figuier au fond du jardin », couleur pétrole"
-            width={COUVERTURE.largeur}
-            height={COUVERTURE.hauteur}
-            sizes="(max-width: 1024px) 50vw, 210px"
-            className="w-full h-auto"
-            loading="eager"
-            fetchPriority="high"
-          />
+      <div className="relative mx-auto w-full max-w-[420px] rounded-[26px] bg-petrole-clair px-5 pt-10 pb-8">
+        <span
+          aria-hidden="true"
+          className="absolute -top-1.5 right-10 h-[70px] w-[22px] bg-ambre [clip-path:polygon(0_0,100%_0,100%_100%,50%_80%,0_100%)]"
+        />
+        <span className="etiquette-flottante absolute -left-2 top-2 z-10 whitespace-nowrap rounded-full bg-blanc px-3.5 py-1.5 font-sans text-xs font-medium text-encre shadow-[0_10px_24px_-14px_rgba(0,0,0,0.35)]">
+          <span className="text-ambre-texte">✦</span> Première séance offerte
+        </span>
+        <span className="etiquette-flottante etiquette-flottante--lente absolute -right-2 bottom-3 z-10 whitespace-nowrap rounded-full bg-blanc px-3.5 py-1.5 font-sans text-xs font-medium text-encre shadow-[0_10px_24px_-14px_rgba(0,0,0,0.35)]">
+          Un vrai livre, relié
+        </span>
+        <div className="relative w-full aspect-[4/3.4]">
+          <div className="absolute right-0 top-[6%] w-[52%] shadow-[6px_6px_0px_#DAD4C5] ring-1 ring-grege/20">
+            <Image
+              src={SEANCE_REELLE.page}
+              alt="Ouverture du chapitre « Racines et petite enfance » du livre d'exemple"
+              width={PAGE.largeur}
+              height={PAGE.hauteur}
+              sizes="(max-width: 1024px) 50vw, 220px"
+              className="w-full h-auto"
+              loading="eager"
+            />
+          </div>
+          <div className="absolute left-[4%] top-0 w-[50%] shadow-[6px_6px_0px_#DAD4C5]">
+            <Image
+              src={COULEURS_COUVERTURE.find((c) => c.cle === "petrole")!.src}
+              alt="Couverture du livre d'exemple « Le figuier au fond du jardin », couleur pétrole"
+              width={COUVERTURE.largeur}
+              height={COUVERTURE.hauteur}
+              sizes="(max-width: 1024px) 50vw, 210px"
+              className="w-full h-auto"
+              loading="eager"
+              fetchPriority="high"
+            />
+          </div>
         </div>
       </div>
       <figcaption className="mt-4 font-sans text-[11px] text-grege tracking-wide text-center lg:text-right">
@@ -85,15 +99,18 @@ function FicheLivre() {
 
 export function SectionVotreLivre() {
   return (
-    <section className="py-20 md:py-24 px-6 bg-papier" aria-labelledby="titre-votre-livre">
-      <div className="max-w-6xl mx-auto">
+    <section className="relative overflow-hidden py-20 md:py-24 px-6 bg-papier" aria-labelledby="titre-votre-livre">
+      <div className="fond-vivant fond-vivant--plein" aria-hidden="true">
+          <div className="tache tache--lueur" />
+        </div>
+      <div className="relative max-w-6xl mx-auto">
         <div className="max-w-2xl">
           <p className={`${etiquette} text-grege mb-4`}>Ce que vous recevez</p>
           <h2
             id="titre-votre-livre"
             className="font-display font-normal text-3xl md:text-4xl leading-[1.2] text-encre mb-5 text-balance"
           >
-            Votre histoire, reliée.
+            Votre histoire, <em className="italic text-ambre-texte">reliée.</em>
           </h2>
           <p className="font-serif text-lg leading-[1.8] text-encre/85">
             Un livre à couverture rigide, vos souvenirs en chapitres, vos photos au fil des pages. Voici
@@ -165,7 +182,7 @@ export function SectionVotreLivre() {
 function Etape({ numero, titre, children }: { numero: string; titre: string; children: React.ReactNode }) {
   return (
     <li className="relative pl-10 md:pl-0">
-      <p className="absolute left-0 top-0 md:static font-display text-2xl text-sauge leading-none md:mb-3">
+      <p className="absolute left-0 top-0 md:static font-display italic text-3xl md:text-5xl text-ambre-doux leading-none md:mb-3">
         {numero}
       </p>
       <p className={`${etiquette} text-sauge mb-3`}>{titre}</p>
@@ -205,7 +222,7 @@ export function SectionDeLaVoixAuLivre() {
         <div className="max-w-2xl mb-12">
           <p className={`${etiquette} text-sauge mb-4`}>De la voix au livre</p>
           <h2 id="titre-voix-livre" className="font-display font-normal text-3xl md:text-4xl leading-[1.2] mb-5 text-balance">
-            Vous racontez. Le souvenir s&apos;écrit. Il devient une page.
+            Vous racontez. Le souvenir s&apos;écrit. Il devient <em className="italic text-ambre-doux">une page.</em>
           </h2>
           <p className="font-sans text-sm text-papier/70">
             Extrait d&apos;une vraie séance de test, le {SEANCE_REELLE.date}&nbsp;: les réponses sont

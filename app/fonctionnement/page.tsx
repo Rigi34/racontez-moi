@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import FAQAccordion from "../components/FAQAccordion";
 import { voixChoisieActive } from "@/lib/voix";
+import FondVivant from "@/app/components/FondVivant";
 
 export const metadata: Metadata = {
   title: "Comment fonctionne Racontez-moi",
@@ -190,9 +191,10 @@ const FAQ_FONCTIONNEMENT = [
 
 export default function Fonctionnement() {
   return (
-    <main className="min-h-screen bg-blanc">
+    <main className="relative isolate min-h-screen bg-blanc">
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
-      <header className="px-6 py-8 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)]">
+      <FondVivant entete />
+      <header className="relative px-6 py-8">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link href="/" className="font-display italic text-xl text-encre hover:text-grege transition-colors">
             Racontez-moi
@@ -206,7 +208,7 @@ export default function Fonctionnement() {
       <article className="py-20 px-6">
         <div className="max-w-2xl mx-auto">
           <h1 className="font-display font-normal text-4xl md:text-5xl text-encre mb-16 leading-[1.2]">
-            Comment fonctionne Racontez-moi
+            Comment fonctionne <em className="italic text-ambre-texte">Racontez-moi</em>
           </h1>
 
           {/* Paragraphe d'ouverture — prose, pas des questions-réponses */}

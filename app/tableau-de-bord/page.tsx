@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server"
 import Link from "next/link"
 import GestionCompte from "./GestionCompte"
 import FragmentCard from "./FragmentCard"
+import FondVivant from "@/app/components/FondVivant"
 
 export default async function TableauDeBord() {
   const supabase = await createClient()
@@ -25,8 +26,9 @@ export default async function TableauDeBord() {
   const prenom = profil?.prenom_choisi?.trim() || null
 
   return (
-    <div className="min-h-screen bg-papier flex flex-col">
-      <header className="px-8 py-6 bg-sauge shadow-[0_1px_3px_rgba(28,25,23,0.08)] flex items-center justify-between">
+    <div className="relative isolate min-h-screen bg-papier flex flex-col">
+      <FondVivant entete fixe />
+      <header className="relative px-8 py-6 flex items-center justify-between">
         <Link href="/" className="font-display text-xl italic text-petrole tracking-wide">
           Racontez-moi
         </Link>
@@ -43,7 +45,15 @@ export default async function TableauDeBord() {
       <main className="flex-1 max-w-3xl mx-auto w-full px-8 py-16 space-y-12">
         <div>
           <h1 className="font-display text-3xl text-encre">
-            {prenom ? `Bonjour ${prenom}` : "Votre parcours"}
+            {prenom ? (
+              <>
+                Bonjour <em className="italic text-ambre-texte">{prenom}</em>
+              </>
+            ) : (
+              <>
+                Votre <em className="italic text-ambre-texte">parcours</em>
+              </>
+            )}
           </h1>
           <p className="font-sans text-base text-grege mt-2">
             {user.email}

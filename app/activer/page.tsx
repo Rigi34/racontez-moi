@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import FondVivant from "@/app/components/FondVivant";
 
 function ActiverInner() {
   const router = useRouter();
@@ -49,11 +50,12 @@ function ActiverInner() {
   if (!verifieAuth) return null;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-papier px-6">
-      <div className="w-full max-w-sm space-y-8">
+    <div className="relative isolate min-h-screen flex flex-col items-center justify-center bg-papier px-6">
+      <FondVivant fixe />
+      <div className="relative w-full max-w-sm space-y-8">
         <div className="text-center">
           <p className="font-display text-lg italic text-petrole tracking-wide">Racontez-moi</p>
-          <h1 className="font-display text-2xl text-encre mt-2">Activer votre cadeau</h1>
+          <h1 className="font-display text-2xl text-encre mt-2">Activer votre <em className="italic text-ambre-texte">cadeau</em></h1>
           <p className="font-sans text-sm text-grege mt-2">
             Saisissez le code d&apos;activation reçu avec votre certificat.
           </p>

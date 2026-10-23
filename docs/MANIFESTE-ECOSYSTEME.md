@@ -28,7 +28,7 @@ Un export ebook (EPUB) et un parcours cadeau (code d'activation à 8 caractères
 | Domaine | Choix | Rôle |
 |---|---|---|
 | Framework | Next.js 16.2.10 (App Router) + React 19.2.4, TypeScript strict | Application web |
-| Style | Tailwind CSS 4 | Palette éditoriale (ivoire/terracotta/forêt), polices Fraunces/Source Serif/IBM Plex/Caveat |
+| Style | Tailwind CSS 4 | Palette éditoriale papier/encre/pétrole/ambre/sauge/grège (`app/globals.css`), polices Fraunces/Source Serif/IBM Plex (Caveat retirée le 02/10/2026). Depuis le 23/10/2026, direction « plus vivante » appliquée page par page : teintes claires (ambre/sauge/pétrole), un mot en italique ambré dans les titres, fond qui dérive lentement, tout arrêté par `prefers-reduced-motion` ; l'écran de séance reste volontairement sans ces effets |
 | Données | Supabase (Postgres + pgvector + Auth + Storage), client SSR `@supabase/ssr` | Persistance, RAG, authentification, stockage photos |
 | IA rédaction | Anthropic SDK — `claude-sonnet-4-6` (fragments), `claude-haiku-4-5` (relances, extraction de profil, résumé) | Cœur du produit |
 | Transcription | Groq (Whisper `large-v3`) | Voix → texte |
