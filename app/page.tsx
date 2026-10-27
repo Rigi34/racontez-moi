@@ -506,6 +506,7 @@ export default function Home() {
         <p className="font-sans text-center text-grege text-sm tracking-widest uppercase mb-8 px-6">
           Ne nous croyez pas sur parole. Faites une vraie séance, gratuitement.
         </p>
+        <EncartEcoute />
         <Seance modeInvite />
       </section>
 
@@ -555,5 +556,49 @@ export default function Home() {
 
       <BarreCTAMobile />
     </main>
+  );
+}
+
+// 27/10/2026 : encart « ce n'est pas un dictaphone » (demande de Régis) —
+// juste avant la séance d'essai, là où l'on décide de parler. Chaque point
+// décrit ce que fait réellement le moteur : transcription (/api/transcribe),
+// silences et bruits écartés (filtre no_speech_prob), relances tirées de la
+// réponse (/api/seance), mémoire d'une séance à l'autre (profil + résumés).
+const POINTS_ECOUTE = [
+  ["Il comprend", "Votre voix devient du texte, phrase après phrase."],
+  ["Il fait le tri", "Les silences et les bruits de fond sont écartés."],
+  ["Il rebondit", "La question suivante part de ce que vous venez de raconter."],
+  ["Il se souvient", "D'une séance à l'autre, il garde le fil de votre histoire."],
+] as const;
+
+function EncartEcoute() {
+  return (
+    <div className="max-w-2xl mx-auto mb-10 px-6">
+      <div className="rounded-2xl border border-grege/20 bg-blanc/80 p-5 md:p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-petrole text-papier">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+              <path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2" />
+            </svg>
+          </span>
+          <p className="font-display text-xl md:text-2xl text-encre leading-tight">
+            Ce n&apos;est pas un dictaphone. <em className="italic text-ambre-texte">Il écoute.</em>
+          </p>
+        </div>
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {POINTS_ECOUTE.map(([titre, texte]) => (
+            <li key={titre} className="font-sans text-sm leading-snug">
+              <span className="font-semibold text-encre">{titre}.</span>{" "}
+              <span className="text-grege">{texte}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 font-sans text-sm">
+          <Link href="/fonctionnement" className={lienDiscret}>
+            Comment ça marche, en deux minutes
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }
