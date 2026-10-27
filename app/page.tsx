@@ -211,9 +211,13 @@ export default function Home() {
                 Le détail
               </a>
             </p>
+            {/* 26/10/2026 : pastille cadeau à côté de la pastille vidéo
+                (option A validée par Régis) — l'offre /offrir n'était visible
+                qu'au menu, aux prix et au pied de page. */}
+            <div className="mt-4 flex flex-wrap justify-center lg:justify-start gap-3">
             <a
               href="#presentation"
-              className="mt-4 inline-flex items-center gap-3 rounded-full border border-grege/20 bg-blanc py-2 pl-2 pr-5 text-left text-encre hover:border-grege/40 transition-colors duration-200"
+              className="inline-flex items-center gap-3 rounded-full border border-grege/20 bg-blanc py-2 pl-2 pr-5 text-left text-encre hover:border-grege/40 transition-colors duration-200"
             >
               <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-full bg-petrole text-papier text-xs">
                 ▶
@@ -229,6 +233,23 @@ export default function Home() {
                 <i />
               </span>
             </a>
+            <Link
+              href="/offrir"
+              className="inline-flex items-center gap-3 rounded-full border border-grege/20 bg-blanc py-2 pl-2 pr-5 text-left text-encre hover:border-grege/40 transition-colors duration-200"
+            >
+              <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-full bg-ambre-clair text-ambre-texte">
+                <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3.5" y="9" width="17" height="11.5" rx="1.5" />
+                  <path d="M2.5 9h19M12 9v11.5" />
+                  <path d="M12 9c-1.6-3.6-5.5-4.2-5.5-1.8C6.5 8.6 9.5 9 12 9Zm0 0c1.6-3.6 5.5-4.2 5.5-1.8 0 1.4-3 1.8-5.5 1.8Z" />
+                </svg>
+              </span>
+              <span className="flex flex-col leading-tight">
+                <span className="font-sans text-sm font-semibold">Pour un parent, un grand-parent&nbsp;? Offrez-le.</span>
+                <span className="font-sans text-xs text-grege">Le certificat arrive aussitôt →</span>
+              </span>
+            </Link>
+            </div>
           </div>
 
           {/* 04/10/2026 : vrais rendus du moteur (couverture + ouverture de
