@@ -3,7 +3,20 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // Audit de clôture du 27/10/2026, constat B-5 : les écritures qui portent le
 // récit ne doivent plus échouer en silence. Ces tests couvrent l'étape
 // "fragment" (souvenir composé), la plus coûteuse à perdre.
-const { getUserMock, sessionLueMock, sessionsUpdateMock, fragmentsSingleMock, toursInsertMock, anthropicCreateMock } = vi.hoisted(() => ({
+const {
+  getUserMock,
+  sessionLueMock,
+  sessionsUpdateMock,
+  fragmentsSingleMock,
+  toursInsertMock,
+  anthropicCreateMock,
+  abonnementLuMock,
+  nombreFragmentsMock,
+  sessionsInsertMock,
+} = vi.hoisted(() => ({
+  abonnementLuMock: vi.fn(),
+  nombreFragmentsMock: vi.fn(),
+  sessionsInsertMock: vi.fn(),
   getUserMock: vi.fn(),
   anthropicCreateMock: vi.fn(),
   sessionLueMock: vi.fn(),
@@ -40,18 +53,29 @@ vi.mock("@/utils/supabase/server", () => ({
         return {
           select: chaineLecture,
           update: (valeurs: unknown) => ({ eq: () => sessionsUpdateMock(valeurs) }),
+          insert: () => ({ select: () => ({ single: sessionsInsertMock }) }),
         };
       }
       if (table === "fragments") {
-        return { insert: () => ({ select: () => ({ single: fragmentsSingleMock }) }) };
+        return {
+          insert: () => ({ select: () => ({ single: fragmentsSingleMock }) }),
+          select: () => ({ eq: nombreFragmentsMock }),
+        };
       }
       if (table === "tours_conversation") return { insert: toursInsertMock };
+      if (table === "abonnements") return { select: () => ({ eq: () => ({ maybeSingle: abonnementLuMock }) }) };
       throw new Error(`Table inattendue dans le mock: ${table}`);
     }),
   })),
 }));
 
 vi.mock("@/lib/rate-limit", () => ({ verifierQuotaNarrateur: vi.fn().mockResolvedValue(true) }));
+vi.mock("@/lib/banque-questions", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/banque-questions")>()),
+  prochaineQuestionBanque: vi.fn().mockResolvedValue(null),
+  titreSection: vi.fn().mockResolvedValue(null),
+}));
+vi.mock("@/lib/progression", () => ({ calculerProgression: vi.fn().mockResolvedValue(null) }));
 vi.mock("@/lib/embeddings", () => ({ embedText: vi.fn().mockResolvedValue(null) }));
 vi.mock("@/lib/retrieval", () => ({ retrieverTechniques: vi.fn().mockResolvedValue([]) }));
 vi.mock("@/lib/redaction", () => ({
@@ -94,6 +118,9 @@ beforeEach(() => {
   sessionsUpdateMock.mockResolvedValue({ error: null });
   fragmentsSingleMock.mockResolvedValue({ data: { id: "frag-1" }, error: null });
   toursInsertMock.mockResolvedValue({ error: null });
+  abonnementLuMock.mockResolvedValue({ data: null });
+  nombreFragmentsMock.mockResolvedValue({ count: 0 });
+  sessionsInsertMock.mockResolvedValue({ data: { id: "s-nouvelle" }, error: null });
 });
 
 describe("POST /api/seance — étape fragment", () => {
@@ -169,5 +196,59 @@ describe("POST /api/seance — étape relance2", () => {
     expect(res.status).toBe(502);
     expect((await res.json()).error).toMatch(/bien enregistrée/);
     expect(sessionsUpdateMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+function requeteStart() {
+  return new Request("http://localhost/api/seance", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ step: "start" }),
+  }) as unknown as Parameters<typeof POST>[0];
+}
+
+// Constat I-5, décision de Régis du 27/10/2026 : une seule séance offerte.
+describe("POST /api/seance — étape start, séance offerte", () => {
+  beforeEach(() => {
+    sessionLueMock.mockResolvedValue({ data: null });
+  });
+
+  it("ouvre la première séance d'un compte sans Parcours", async () => {
+    const res = await POST(requeteStart());
+
+    expect(res.status).toBe(200);
+    expect((await res.json()).session_id).toBe("s-nouvelle");
+  });
+
+  it("refuse une deuxième séance (402) à un compte sans Parcours qui a déjà un souvenir", async () => {
+    nombreFragmentsMock.mockResolvedValue({ count: 1 });
+
+    const res = await POST(requeteStart());
+
+    expect(res.status).toBe(402);
+    expect((await res.json()).code).toBe("seance_offerte_terminee");
+    expect(sessionsInsertMock).not.toHaveBeenCalled();
+  });
+
+  it("ouvre une nouvelle séance pour un Parcours actif, quel que soit le nombre de souvenirs", async () => {
+    nombreFragmentsMock.mockResolvedValue({ count: 12 });
+    abonnementLuMock.mockResolvedValue({ data: { status: "active" } });
+
+    const res = await POST(requeteStart());
+
+    expect(res.status).not.toBe(402);
+    expect(sessionsInsertMock).toHaveBeenCalled();
+  });
+
+  it("laisse reprendre une séance en cours même sans Parcours", async () => {
+    nombreFragmentsMock.mockResolvedValue({ count: 1 });
+    sessionLueMock.mockResolvedValue({
+      data: { id: "s-1", transcript: [], question_ouverture: "Q ?", section_ouverture: "A" },
+    });
+
+    const res = await POST(requeteStart());
+
+    expect(res.status).toBe(200);
+    expect((await res.json()).session_id).toBe("s-1");
   });
 });

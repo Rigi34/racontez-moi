@@ -8,7 +8,11 @@ import { voixChoisieActive } from "@/lib/voix";
 import { typographierFrancais } from "@/lib/typst";
 import ChoixVoix, { type Enregistrement } from "./ChoixVoix";
 
-type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment" | "conversion";
+type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment" | "conversion" | "offerteTerminee";
+
+// 402 de /api/seance : la séance offerte est déjà faite et aucun Parcours
+// n'est actif (décision de Régis du 27/10/2026, une seule séance offerte).
+const seanceOfferteTerminee = (res: Response) => res.status === 402;
 
 // Repli affiché si jamais la question n'a pas pu être récupérée du serveur
 // (erreur réseau au chargement) — le serveur reste la source de vérité :
@@ -507,6 +511,10 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ step: "start" }),
             });
+            if (seanceOfferteTerminee(startRes)) {
+              setPhase("offerteTerminee");
+              return;
+            }
             if (!startRes.ok) throw new Error();
             const startData = await startRes.json();
             const etape = startData.type === "pour_qui" || startData.type === "prenom" ? startData.type : null;
@@ -666,6 +674,10 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step: "start", fresh: true }),
       });
+      if (seanceOfferteTerminee(res)) {
+        setPhase("offerteTerminee");
+        return;
+      }
       if (!res.ok) throw new Error();
       const data = await res.json();
       setSessionId(data.session_id);
@@ -701,6 +713,10 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ step: etapeSpeciale, reponse }),
         });
+        if (seanceOfferteTerminee(res)) {
+          setPhase("offerteTerminee");
+          return;
+        }
         if (!res.ok) throw new Error();
         const data = await res.json();
         const prochaineEtape = data.type === "pour_qui" || data.type === "prenom" ? data.type : null;
@@ -722,6 +738,10 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ step: "start" }),
         });
+        if (seanceOfferteTerminee(startRes)) {
+          setPhase("offerteTerminee");
+          return;
+        }
         if (!startRes.ok) throw new Error();
         const startData = await startRes.json();
         currentSessionId = startData.session_id;
@@ -1131,6 +1151,28 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
               </p>
               {error && <p className="font-sans text-sm text-red-700">{error}</p>}
             </div>
+          </div>
+        )}
+
+        {/* Séance offerte déjà faite, sans Parcours actif (27/10/2026) :
+            même suite que la fin de l'essai — compte, puis paiement. */}
+        {phase === "offerteTerminee" && (
+          <div className="text-center space-y-6 max-w-md mx-auto">
+            <h2 className="font-display font-normal text-2xl md:text-3xl text-encre leading-[1.3]">
+              Votre séance offerte est faite.
+            </h2>
+            <p className="font-serif text-lg text-grege">
+              Votre premier souvenir est enregistré. Pour poursuivre le récit, séance après séance,
+              jusqu&apos;au livre relié, continuez avec le Parcours.
+            </p>
+            <button
+              onClick={demarrerConversion}
+              disabled={verificationCompte}
+              className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-base px-8 py-3 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
+            >
+              {verificationCompte ? "Un instant…" : "Continuer mon histoire →"}
+            </button>
+            {error && <p className="font-sans text-sm text-red-700">{error}</p>}
           </div>
         )}
 
