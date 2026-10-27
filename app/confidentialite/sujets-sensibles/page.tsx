@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import FondVivant from "@/app/components/FondVivant";
+import { voixChoisieActive } from "@/lib/voix";
 
 export const metadata: Metadata = {
   title: "Sujets sensibles et données de santé — Racontez-moi",
@@ -210,7 +211,15 @@ export default function SujetsSensibles() {
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">7. Combien de temps nous les conservons</h2>
             <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Enregistrements audio</strong> : conservés jusqu&apos;à la validation de votre manuscrit, puis douze mois après la livraison de votre livre, afin de pouvoir vérifier ou corriger un passage. Ils sont ensuite supprimés.</li>
+              {/* 27/10/2026 : l'ancienne durée (« conservés jusqu'à la validation
+                  du manuscrit, puis douze mois ») ne correspondait pas au
+                  fonctionnement réel ni à /confidentialite — aucun audio n'est
+                  stocké. Même interrupteur que /confidentialite (VOIX-CHOISIE). */}
+              {voixChoisieActive() ? (
+                <li><strong>Enregistrements audio</strong> : seuls les extraits de voix que vous choisissez de garder sont conservés, jusqu&apos;à ce que vous les supprimiez ou supprimiez votre compte. Le reste est transcrit en texte, puis supprimé.</li>
+              ) : (
+                <li><strong>Enregistrements audio</strong> : non conservés. Votre voix est envoyée à Groq pour être transcrite en texte, puis supprimée&nbsp;; seul le texte est gardé.</li>
+              )}
               <li><strong>Transcriptions et texte de votre récit</strong> : conservés pendant toute la durée de votre projet, puis trois ans après la livraison de votre livre, afin de pouvoir rééditer, compléter ou réimprimer l&apos;ouvrage à votre demande. Ils sont ensuite supprimés.</li>
               <li><strong>Preuve de votre consentement</strong> : conservée cinq ans à compter de son recueil, pour répondre à une éventuelle demande de justification.</li>
               <li><strong>Documents comptables liés à votre commande</strong> : conservés dix ans, en application des obligations légales de conservation.</li>
