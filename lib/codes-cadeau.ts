@@ -33,3 +33,29 @@ export async function creerCodeCadeau(
   }
   throw new Error("Impossible de générer un code cadeau unique après plusieurs tentatives.");
 }
+
+// Remboursement d'un achat-cadeau (garantie, CGV art. 6) : rend le code
+// inutilisable et, s'il était déjà activé, coupe l'accès qu'il avait ouvert
+// (abonnement identifié par stripe_customer_id = "cadeau:<code>", cf.
+// /api/cadeau/activer). Renvoie un message d'erreur plutôt que de lever, pour
+// que le webhook réponde 500 et que Stripe retente — jamais un 200 silencieux.
+export async function revoquerCodeCadeau(
+  supabase: SupabaseClient,
+  stripeSessionId: string
+): Promise<string | null> {
+  const { data: ligne, error } = await supabase
+    .from("codes_cadeau")
+    .update({ statut: "rembourse" })
+    .eq("stripe_session_id", stripeSessionId)
+    .select("code")
+    .maybeSingle();
+  if (error) return "Révocation du code cadeau échouée: " + error.message;
+  if (!ligne) return null;
+
+  const { error: erreurAbonnement } = await supabase
+    .from("abonnements")
+    .update({ status: "rembourse", updated_at: new Date().toISOString() })
+    .eq("stripe_customer_id", `cadeau:${ligne.code}`);
+  if (erreurAbonnement) return "Révocation de l'accès cadeau échouée: " + erreurAbonnement.message;
+  return null;
+}

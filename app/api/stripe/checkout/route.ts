@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { stripe } from "@/lib/stripe";
+import { origineRetourStripe } from "@/lib/origine-site";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
 
-  const origin = req.headers.get("origin") ?? "https://racontez-moi.com";
+  const origin = origineRetourStripe(req.headers.get("origin"));
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",

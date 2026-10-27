@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/utils/supabase/server"
+import { destinationInterne } from "@/lib/redirection"
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
-  const next = searchParams.get("next") ?? "/tableau-de-bord"
+  const next = destinationInterne(searchParams.get("next"))
   const consent = searchParams.get("consent") === "1"
 
   if (code) {

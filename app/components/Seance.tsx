@@ -192,6 +192,17 @@ function BarreProgression({
   );
 }
 
+// Message renvoyé par /api/seance (quota, séance introuvable, réponse non
+// enregistrée, suite non préparée…) : on l'affiche tel quel plutôt qu'un
+// « Une erreur s'est produite » indistinct — audit de clôture du 27/10/2026,
+// constat I-4. Une panne réseau garde le message générique.
+class ErreurServeur extends Error {}
+
+async function erreurServeur(res: Response): Promise<Error> {
+  const data = await res.json().catch(() => null);
+  return typeof data?.error === "string" && data.error ? new ErreurServeur(data.error) : new Error();
+}
+
 function ZoneEcoute({
   eyebrow,
   question,
@@ -373,7 +384,7 @@ function ZoneEcoute({
               </button>
               <button
                 onClick={onContinuer}
-                disabled={!valeur.trim() || loading || transcribing}
+                disabled={!valeur.trim() || loading || transcribing || isRecording}
                 className="bg-encre text-blanc rounded-full font-sans font-medium px-7 py-3 hover:bg-[#3A3632] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading ? continuerLoadingLabel : continuerLabel}
@@ -573,6 +584,14 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
           const res = await fetch("/api/transcribe", { method: "POST", body: form });
           if (!res.ok) throw new Error();
           const data = await res.json();
+          // Rien d'audible (texte vide, cf. /api/transcribe) : on le dit
+          // plutôt que d'insérer un mot inventé dans le récit.
+          if (!data.text?.trim()) {
+            setError(
+              "Je n'ai rien entendu. Vérifiez que le micro est autorisé, rapprochez le téléphone de votre bouche, puis réessayez. Vous pouvez aussi écrire votre réponse."
+            );
+            return;
+          }
           setter((prev) => (prev ? prev + " " + data.text : data.text));
           dureeSilenceRef.current = data.duree_silence_ms ?? null;
         } catch {
@@ -719,14 +738,14 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
           duree_silence_ms: dureeSilenceReponseRef.current,
         }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw await erreurServeur(res);
       const data = await res.json();
       setRelance(data.relance);
       chunksRagRef.current = data.chunks_rag_utilises ?? [];
       setEcrireForce(false);
       setPhase("relance");
-    } catch {
-      setError("Une erreur s'est produite. Veuillez réessayer.");
+    } catch (e) {
+      setError(e instanceof ErreurServeur ? e.message : "Une erreur s'est produite. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
@@ -748,14 +767,14 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
           chunks_rag_utilises: chunksRagRef.current,
         }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw await erreurServeur(res);
       const data = await res.json();
       setRelance2(data.relance);
       chunksRagRef2.current = data.chunks_rag_utilises ?? [];
       setEcrireForce(false);
       setPhase("relance2");
-    } catch {
-      setError("Une erreur s'est produite. Veuillez réessayer.");
+    } catch (e) {
+      setError(e instanceof ErreurServeur ? e.message : "Une erreur s'est produite. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
@@ -777,7 +796,7 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
           chunks_rag_utilises: chunksRagRef2.current,
         }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw await erreurServeur(res);
       const data = await res.json();
       setFragment(data.fragment);
       setFragmentId(data.fragment_id ?? null);
@@ -785,8 +804,8 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
       setEnregistrementsSeance([...enregistrementsRef.current]);
       enregistrementsRef.current = [];
       setPhase("fragment");
-    } catch {
-      setError("Une erreur s'est produite. Veuillez réessayer.");
+    } catch (e) {
+      setError(e instanceof ErreurServeur ? e.message : "Une erreur s'est produite. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
