@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { PHOTOS_MAX_PAR_FRAGMENT } from "@/lib/photos";
 
 type Photo = { id: string; url: string | null; created_at: string };
 
@@ -77,38 +78,56 @@ export default function PhotosFragment({ fragmentId }: { fragmentId: string }) {
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const supprimer = async (id: string) => {
-    setPhotos((prev) => (prev ?? []).filter((p) => p.id !== id));
-    await fetch(`/api/photos/${id}`, { method: "DELETE" });
+  // 27/10/2026 (retour de Régis) : retrait confirmé, et la photo revient à
+  // l'écran avec un message si le serveur n'a pas pu la supprimer — avant,
+  // elle disparaissait puis réapparaissait au rechargement sans explication.
+  const supprimer = async (photo: Photo) => {
+    if (!window.confirm("Retirer cette photo de votre livre ?")) return;
+    setError("");
+    setPhotos((prev) => (prev ?? []).filter((p) => p.id !== photo.id));
+    let ok = false;
+    try {
+      ok = (await fetch(`/api/photos/${photo.id}`, { method: "DELETE" })).ok;
+    } catch {}
+    if (!ok) {
+      setPhotos((prev) => [photo, ...(prev ?? [])]);
+      setError("La photo n'a pas pu être retirée. Veuillez réessayer.");
+    }
   };
 
   if (photos === null) return null;
 
+  const complet = photos.length >= PHOTOS_MAX_PAR_FRAGMENT;
+
   return (
     <div className="space-y-2">
-      <div className="flex gap-2 flex-wrap items-center">
+      <div className="flex gap-3 flex-wrap items-center pt-2">
         {photos.map((p) => (
-          <div key={p.id} className="relative w-16 h-16 group">
+          <div key={p.id} className="relative w-16 h-16">
             {p.url && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={p.url} alt="" className="w-16 h-16 object-cover border border-grege" />
             )}
+            {/* Croix toujours visible : au survol seulement, elle restait
+                introuvable sur téléphone (retour du 27/10/2026). */}
             <button
-              onClick={() => supprimer(p.id)}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-encre text-blanc text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              aria-label="Supprimer cette photo"
+              onClick={() => supprimer(p)}
+              className="absolute -top-2.5 -right-2.5 w-7 h-7 bg-encre text-blanc text-sm leading-none rounded-full border-2 border-blanc shadow"
+              aria-label="Retirer cette photo"
             >
               ×
             </button>
           </div>
         ))}
-        <button
-          onClick={() => inputRef.current?.click()}
-          disabled={envoiEnCours}
-          className="w-16 h-16 border border-dashed border-grege text-grege text-xs hover:border-encre hover:text-encre transition-colors disabled:opacity-40"
-        >
-          {envoiEnCours ? "…" : "+ Photo"}
-        </button>
+        {!complet && (
+          <button
+            onClick={() => inputRef.current?.click()}
+            disabled={envoiEnCours}
+            className="w-16 h-16 border border-dashed border-grege text-grege text-xs hover:border-encre hover:text-encre transition-colors disabled:opacity-40"
+          >
+            {envoiEnCours ? "…" : "+ Photo"}
+          </button>
+        )}
         <input
           ref={inputRef}
           type="file"
@@ -119,7 +138,10 @@ export default function PhotosFragment({ fragmentId }: { fragmentId: string }) {
         />
       </div>
       <p className="font-sans text-xs text-grege">
-        JPG, PNG ou WebP · jusqu&apos;à 6 photos par souvenir. Les photos HEIC/HEIF (format par défaut sur
+        <span className="text-encre">
+          {photos.length} / {PHOTOS_MAX_PAR_FRAGMENT} photos{complet ? " — maximum atteint pour ce souvenir" : ""}
+        </span>{" "}
+        · JPG, PNG ou WebP. Les photos HEIC/HEIF (format par défaut sur
         certains iPhone) ne sont pas acceptées pour l&apos;instant.
       </p>
       {error && (
