@@ -101,9 +101,11 @@ export async function POST(req: NextRequest) {
 
   // Reconstruit le texte à partir des segments jugés fiables plutôt que du
   // texte brut de Whisper — filtre les passages hallucinés sur un silence
-  // prolongé en cours d'enregistrement. Repli sur le texte brut si le
-  // filtrage viderait tout (mieux vaut un risque d'hallucination que de
-  // renvoyer un texte vide au narrateur).
+  // prolongé en cours d'enregistrement. Si le filtrage écarte tout, on
+  // renvoie un texte vide : l'écran demande alors de recommencer. Le repli
+  // sur le texte brut laissait passer le « Merci. » que Whisper produit sur
+  // un quasi-silence, glissé tel quel dans le récit (décision de Régis du
+  // 27/10/2026, audit de clôture, constat B-3).
   const texteFiltre = segments?.length
     ? segments
         .filter((s) => (s.no_speech_prob ?? 0) < SEUIL_NO_SPEECH && (s.compression_ratio ?? 0) < SEUIL_COMPRESSION)
@@ -112,5 +114,5 @@ export async function POST(req: NextRequest) {
         .join(" ")
     : "";
 
-  return NextResponse.json({ text: texteFiltre || data.text, duree_silence_ms: dureeSilenceMs });
+  return NextResponse.json({ text: segments?.length ? texteFiltre : (data.text ?? "").trim(), duree_silence_ms: dureeSilenceMs });
 }

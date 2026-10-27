@@ -117,6 +117,28 @@ async function demarrerProchaineEtape(supabase: Awaited<ReturnType<typeof create
   return NextResponse.json({ session_id: created.id, question, titre_section: titreSectionOuverture, progression });
 }
 
+// Écritures qui portent le récit (réponse du narrateur, relance, souvenir) :
+// un échec ne doit jamais passer en silence (audit de clôture du 27/10/2026,
+// constat B-5). On répond 500 pour que le narrateur réessaie ; les gardes
+// d'idempotence sur le dernier élément du transcript évitent alors tout
+// doublon.
+function echecEnregistrement(contexte: string, message: string) {
+  console.error(`${contexte} échouée:`, message);
+  return NextResponse.json({ error: "Votre réponse n'a pas pu être enregistrée. Réessayez." }, { status: 500 });
+}
+
+// Appel Anthropic en échec (panne, surcharge, réponse inattendue) : la
+// réponse du narrateur est déjà sauvegardée à ce stade, on le lui dit plutôt
+// qu'une erreur générique indistincte d'un quota ou d'une séance perdue
+// (audit de clôture du 27/10/2026, constat I-4 — erreur « relance2 »).
+function echecRedaction(contexte: string, e: unknown) {
+  console.error(`${contexte} échouée:`, e);
+  return NextResponse.json(
+    { error: "La suite n'a pas pu être préparée. Votre réponse est bien enregistrée : réessayez dans un instant." },
+    { status: 502 }
+  );
+}
+
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -291,7 +313,8 @@ export async function POST(req: NextRequest) {
       ? transcriptBase
       : [...transcriptBase, { role: "narrateur", text: reponse }];
     if (!reponseDejaSauvegardee) {
-      await supabase.from("sessions").update({ transcript: transcriptAvecReponse }).eq("id", session_id);
+      const { error: erreurReponse } = await supabase.from("sessions").update({ transcript: transcriptAvecReponse }).eq("id", session_id);
+      if (erreurReponse) return echecEnregistrement("sauvegarde de la réponse (seance/relance)", erreurReponse.message);
     }
 
     const [techniques, profil, derniereSession] = await Promise.all([
@@ -309,23 +332,28 @@ export async function POST(req: NextRequest) {
         .then((r) => r.data),
     ]);
 
-    const message = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 80,
-      system: construireSystemRelance(
-        techniques.map((t) => t.texte),
-        resumerProfilPourPrompt(profil),
-        derniereSession?.resume_session ?? "",
-        session.question_est_nucleaire ?? false
-      ),
-      messages: [{ role: "user", content: reponse }],
-    });
-
-    const relance = (message.content[0] as { type: string; text: string }).text.trim();
+    let relance: string;
+    try {
+      const message = await client.messages.create({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 80,
+        system: construireSystemRelance(
+          techniques.map((t) => t.texte),
+          resumerProfilPourPrompt(profil),
+          derniereSession?.resume_session ?? "",
+          session.question_est_nucleaire ?? false
+        ),
+        messages: [{ role: "user", content: reponse }],
+      });
+      relance = (message.content[0] as { type: string; text: string }).text.trim();
+    } catch (e) {
+      return echecRedaction("relance Anthropic (seance/relance)", e);
+    }
 
     const transcript: TranscriptEntry[] = [...transcriptAvecReponse, { role: "relance", text: relance }];
 
-    await supabase.from("sessions").update({ transcript }).eq("id", session_id);
+    const { error: erreurTranscript } = await supabase.from("sessions").update({ transcript }).eq("id", session_id);
+    if (erreurTranscript) return echecEnregistrement("sauvegarde de la relance", erreurTranscript.message);
 
     // Tour 1 : la question d'ouverture (fixe pour la 1ère séance, générée
     // dynamiquement ensuite — cf. étape "start"), pas de RAG ici, on trace
@@ -386,7 +414,8 @@ export async function POST(req: NextRequest) {
       ? transcriptBase
       : [...transcriptBase, { role: "narrateur", text: reponseRelance }];
     if (!reponseDejaSauvegardee) {
-      await supabase.from("sessions").update({ transcript: transcriptAvecReponse }).eq("id", session_id);
+      const { error: erreurReponse } = await supabase.from("sessions").update({ transcript: transcriptAvecReponse }).eq("id", session_id);
+      if (erreurReponse) return echecEnregistrement("sauvegarde de la réponse (seance/relance)", erreurReponse.message);
     }
 
     const [techniques, profil, derniereSession] = await Promise.all([
@@ -404,23 +433,28 @@ export async function POST(req: NextRequest) {
         .then((r) => r.data),
     ]);
 
-    const message = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 80,
-      system: construireSystemRelance(
-        techniques.map((t) => t.texte),
-        resumerProfilPourPrompt(profil),
-        derniereSession?.resume_session ?? "",
-        session.question_est_nucleaire ?? false
-      ),
-      messages: [{ role: "user", content: reponseRelance }],
-    });
-
-    const relance2 = (message.content[0] as { type: string; text: string }).text.trim();
+    let relance2: string;
+    try {
+      const message = await client.messages.create({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 80,
+        system: construireSystemRelance(
+          techniques.map((t) => t.texte),
+          resumerProfilPourPrompt(profil),
+          derniereSession?.resume_session ?? "",
+          session.question_est_nucleaire ?? false
+        ),
+        messages: [{ role: "user", content: reponseRelance }],
+      });
+      relance2 = (message.content[0] as { type: string; text: string }).text.trim();
+    } catch (e) {
+      return echecRedaction("relance Anthropic (seance/relance2)", e);
+    }
 
     const transcript: TranscriptEntry[] = [...transcriptAvecReponse, { role: "relance", text: relance2 }];
 
-    await supabase.from("sessions").update({ transcript }).eq("id", session_id);
+    const { error: erreurTranscript } = await supabase.from("sessions").update({ transcript }).eq("id", session_id);
+    if (erreurTranscript) return echecEnregistrement("sauvegarde de la relance", erreurTranscript.message);
 
     // Tour 1 : la question posée est la première relance, avec les chunks
     // RAG qui ont servi à la formuler (retournés par l'étape "relance").
@@ -485,7 +519,8 @@ export async function POST(req: NextRequest) {
     const reponseDejaSauvegardee = dernierePriseEnCompte?.role === "narrateur" && dernierePriseEnCompte.text === reponseRelance2;
     const tAvecReponse: TranscriptEntry[] = reponseDejaSauvegardee ? t : [...t, { role: "narrateur", text: reponseRelance2 }];
     if (!reponseDejaSauvegardee) {
-      await supabase.from("sessions").update({ transcript: tAvecReponse }).eq("id", session_id);
+      const { error: erreurReponse } = await supabase.from("sessions").update({ transcript: tAvecReponse }).eq("id", session_id);
+      if (erreurReponse) return echecEnregistrement("sauvegarde de la réponse (seance/fragment)", erreurReponse.message);
     }
 
     const tours = [
@@ -511,7 +546,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const fragment = await composerFragment(client, { tours, contexteMemoire });
+    let fragment: string;
+    try {
+      fragment = await composerFragment(client, { tours, contexteMemoire });
+    } catch (e) {
+      return echecRedaction("rédaction du souvenir (seance/fragment)", e);
+    }
     const embeddingFragment = await embedText(fragment);
     const resumeSession = await genererResumeSession(client, { tours }).catch((e) => {
       console.error("génération résumé de séance échouée:", e);
@@ -520,7 +560,7 @@ export async function POST(req: NextRequest) {
 
     const transcript: TranscriptEntry[] = [...tAvecReponse, { role: "fragment", text: fragment }];
 
-    const { data: fragmentCree } = await supabase
+    const { data: fragmentCree, error: erreurFragment } = await supabase
       .from("fragments")
       .insert({
         session_id,
@@ -530,8 +570,14 @@ export async function POST(req: NextRequest) {
       })
       .select("id")
       .single();
+    if (erreurFragment || !fragmentCree) {
+      return echecEnregistrement("enregistrement du souvenir", erreurFragment?.message ?? "aucune ligne créée");
+    }
 
-    await supabase
+    // Le souvenir est enregistré : un échec de clôture est seulement
+    // journalisé — répondre 500 ferait recomposer et réinsérer le souvenir
+    // au nouvel essai.
+    const { error: erreurCloture } = await supabase
       .from("sessions")
       .update({
         transcript,
@@ -540,6 +586,7 @@ export async function POST(req: NextRequest) {
         resume_session: resumeSession,
       })
       .eq("id", session_id);
+    if (erreurCloture) console.error("clôture de la séance après souvenir échouée:", erreurCloture.message);
 
     // Tour 2 : la question posée est la deuxième relance, avec les chunks
     // RAG qui ont servi à la formuler et le silence avant cette réponse-ci.
@@ -566,7 +613,7 @@ export async function POST(req: NextRequest) {
       );
     });
 
-    return NextResponse.json({ fragment, fragment_id: fragmentCree?.id ?? null });
+    return NextResponse.json({ fragment, fragment_id: fragmentCree.id });
   }
 
   return NextResponse.json({ error: "Étape inconnue." }, { status: 400 });

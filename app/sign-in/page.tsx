@@ -3,6 +3,7 @@ import { Suspense, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
 import { messageErreurAuth } from "@/lib/auth-erreurs"
+import { destinationInterne } from "@/lib/redirection"
 import FondVivant from "@/app/components/FondVivant"
 
 // Lu au build (NEXT_PUBLIC_*) : "1" seulement quand Google est configuré dans Supabase.
@@ -15,7 +16,7 @@ const VERSION_CONSENTEMENT = "v1.0 — 30/07/2026"
 
 function SignInInner() {
   const params = useSearchParams()
-  const next = params.get("redirect_url") ?? "/tableau-de-bord"
+  const next = destinationInterne(params.get("redirect_url"))
   const confirmError = params.get("error") === "confirm"
   const supabase = createClient()
 

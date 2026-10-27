@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
+import { origineRetourStripe } from "@/lib/origine-site";
 
 // Achat-cadeau — aucun compte requis côté acheteur (il n'est pas forcément
 // le futur narrateur) : pas de client_reference_id, les informations de
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Le prénom du destinataire et votre nom sont requis." }, { status: 400 });
   }
 
-  const origin = req.headers.get("origin") ?? "https://racontez-moi.com";
+  const origin = origineRetourStripe(req.headers.get("origin"));
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",

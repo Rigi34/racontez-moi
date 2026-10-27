@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
-import { creerCodeCadeau } from "@/lib/codes-cadeau";
+import { creerCodeCadeau, revoquerCodeCadeau } from "@/lib/codes-cadeau";
 
 // Client service role : le webhook n'a pas de session utilisateur, il doit
 // contourner RLS pour écrire dans `abonnements`.
@@ -126,13 +126,35 @@ export async function POST(req: NextRequest) {
     case "charge.refunded": {
       const charge = event.data.object as Stripe.Charge;
       if (!charge.refunded) break;
+
+      // Achat-cadeau : payé sans Customer Stripe, il ne se retrouve que par
+      // sa session de paiement (audit de clôture du 27/10/2026, constat B-2).
+      const paymentIntentId =
+        typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
+      if (paymentIntentId) {
+        const { data: sessions } = await stripe.checkout.sessions.list({ payment_intent: paymentIntentId, limit: 1 });
+        const sessionPaiement = sessions[0];
+        if (sessionPaiement?.metadata?.type === "cadeau") {
+          const erreur = await revoquerCodeCadeau(supabase, sessionPaiement.id);
+          if (erreur) {
+            console.error(erreur);
+            return NextResponse.json({ error: "Révocation échouée." }, { status: 500 });
+          }
+          break;
+        }
+      }
+
       const customerId = charge.customer as string | null;
       if (!customerId) break;
 
-      await supabase
+      const { error } = await supabase
         .from("abonnements")
         .update({ status: "rembourse", updated_at: new Date().toISOString() })
         .eq("stripe_customer_id", customerId);
+      if (error) {
+        console.error("Révocation de l'accès après remboursement échouée:", error.message);
+        return NextResponse.json({ error: "Révocation échouée." }, { status: 500 });
+      }
       break;
     }
   }

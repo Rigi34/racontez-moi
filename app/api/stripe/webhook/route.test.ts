@@ -4,9 +4,11 @@ import type Stripe from "stripe";
 // Le module route.ts crée son propre client Supabase et son propre client
 // Stripe au chargement — on mocke les trois dépendances externes plutôt que
 // de les injecter, pour tester la route telle qu'elle tourne réellement.
-const { constructEventMock, creerCodeCadeauMock, maybeSingleMock, upsertMock, updateMock, updateEqMock } = vi.hoisted(() => ({
+const { constructEventMock, creerCodeCadeauMock, revoquerCodeCadeauMock, sessionsListMock, maybeSingleMock, upsertMock, updateMock, updateEqMock } = vi.hoisted(() => ({
   constructEventMock: vi.fn(),
   creerCodeCadeauMock: vi.fn(),
+  revoquerCodeCadeauMock: vi.fn(),
+  sessionsListMock: vi.fn(),
   maybeSingleMock: vi.fn(),
   upsertMock: vi.fn(),
   updateMock: vi.fn(),
@@ -14,11 +16,15 @@ const { constructEventMock, creerCodeCadeauMock, maybeSingleMock, upsertMock, up
 }));
 
 vi.mock("@/lib/stripe", () => ({
-  stripe: { webhooks: { constructEvent: constructEventMock } },
+  stripe: {
+    webhooks: { constructEvent: constructEventMock },
+    checkout: { sessions: { list: sessionsListMock } },
+  },
 }));
 
 vi.mock("@/lib/codes-cadeau", () => ({
   creerCodeCadeau: creerCodeCadeauMock,
+  revoquerCodeCadeau: revoquerCodeCadeauMock,
 }));
 
 vi.mock("@supabase/supabase-js", () => ({
@@ -74,6 +80,8 @@ beforeEach(() => {
   upsertMock.mockResolvedValue({ error: null });
   updateMock.mockReturnValue({ eq: updateEqMock });
   updateEqMock.mockResolvedValue({ error: null });
+  sessionsListMock.mockResolvedValue({ data: [] });
+  revoquerCodeCadeauMock.mockResolvedValue(null);
 });
 
 describe("POST /api/stripe/webhook", () => {
@@ -256,6 +264,50 @@ describe("POST /api/stripe/webhook", () => {
 
       expect(res.status).toBe(200);
       expect(updateMock).not.toHaveBeenCalled();
+    });
+
+    it("répond 500 si la révocation échoue, pour que Stripe retente", async () => {
+      constructEventMock.mockReturnValue(refundEvent({ refunded: true, customer: "cus_123" }));
+      updateEqMock.mockResolvedValue({ error: { message: "connexion perdue" } });
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(500);
+    });
+
+    // Constat B-2 de l'audit de clôture (27/10/2026) : un achat-cadeau n'a
+    // pas de Customer Stripe, son remboursement ne révoquait rien.
+    it("révoque le code cadeau quand le paiement remboursé est un achat-cadeau", async () => {
+      constructEventMock.mockReturnValue(refundEvent({ refunded: true, customer: null, payment_intent: "pi_cadeau" }));
+      sessionsListMock.mockResolvedValue({ data: [{ id: "cs_cadeau", metadata: { type: "cadeau" } }] });
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(200);
+      expect(sessionsListMock).toHaveBeenCalledWith({ payment_intent: "pi_cadeau", limit: 1 });
+      expect(revoquerCodeCadeauMock).toHaveBeenCalledWith(expect.anything(), "cs_cadeau");
+      expect(updateMock).not.toHaveBeenCalled();
+    });
+
+    it("répond 500 si la révocation du code cadeau échoue", async () => {
+      constructEventMock.mockReturnValue(refundEvent({ refunded: true, customer: null, payment_intent: "pi_cadeau" }));
+      sessionsListMock.mockResolvedValue({ data: [{ id: "cs_cadeau", metadata: { type: "cadeau" } }] });
+      revoquerCodeCadeauMock.mockResolvedValue("Révocation du code cadeau échouée: contrainte");
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(500);
+    });
+
+    it("traite un paiement non-cadeau comme avant (abonnement par client Stripe)", async () => {
+      constructEventMock.mockReturnValue(refundEvent({ refunded: true, customer: "cus_123", payment_intent: "pi_parcours" }));
+      sessionsListMock.mockResolvedValue({ data: [{ id: "cs_parcours", metadata: {} }] });
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(200);
+      expect(revoquerCodeCadeauMock).not.toHaveBeenCalled();
+      expect(updateEqMock).toHaveBeenCalledWith("stripe_customer_id", "cus_123");
     });
 
     it("ne plante pas si le remboursement n'a pas de client Stripe associé", async () => {
