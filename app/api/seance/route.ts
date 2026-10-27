@@ -89,11 +89,33 @@ async function choisirQuestionOuverture(supabase: Awaited<ReturnType<typeof crea
   };
 }
 
+// Une seule séance offerte (décision de Régis du 27/10/2026, audit I-5 ;
+// promesse du site : « Première séance offerte ») : sans Parcours actif,
+// plus de nouvelle séance dès qu'un souvenir a été composé. Une séance
+// abandonnée sans souvenir ne compte pas ; une séance en cours reste
+// reprenable (seule la création passe par ici).
+const SEANCE_OFFERTE_TERMINEE = "seance_offerte_terminee";
+
+async function seanceOfferteEpuisee(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
+  const [{ data: abonnement }, { count }] = await Promise.all([
+    supabase.from("abonnements").select("status").eq("user_id", userId).maybeSingle(),
+    supabase.from("fragments").select("id", { count: "exact", head: true }).eq("user_id", userId),
+  ]);
+  return abonnement?.status !== "active" && (count ?? 0) > 0;
+}
+
 // Partagé entre "start", "pour_qui", "prenom" et "passer" : choisit la
 // prochaine étape (une des deux pseudo-questions d'ouverture, ou une vraie
 // question) et ne crée une ligne sessions que pour une vraie question —
 // jamais pour "pour qui racontez-vous ?" / "comment vous appeler ?".
 async function demarrerProchaineEtape(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
+  if (await seanceOfferteEpuisee(supabase, userId)) {
+    return NextResponse.json(
+      { error: "Votre séance offerte est terminée.", code: SEANCE_OFFERTE_TERMINEE },
+      { status: 402 }
+    );
+  }
+
   const { question, sectionOuverture, titreSectionOuverture, estNucleaire, type } = await choisirQuestionOuverture(
     supabase,
     userId
