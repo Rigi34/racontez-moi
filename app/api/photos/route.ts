@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { imageSize } from "image-size";
 import { createClient } from "@/utils/supabase/server";
-import { RESOLUTION_MIN_PX, PHOTOS_MAX_PAR_FRAGMENT, PHOTOS_MAX_TOTAL } from "@/lib/photos";
+import { RESOLUTION_MIN_PX, PHOTOS_MAX_PAR_FRAGMENT, PHOTOS_MAX_TOTAL, TAILLE_MAX_OCTETS, typeReel } from "@/lib/photos";
 
 const TYPES_ACCEPTES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -41,6 +41,9 @@ export async function POST(req: NextRequest) {
   if (!TYPES_ACCEPTES.includes(fichier.type)) {
     return NextResponse.json({ error: "Format non accepté — utilisez JPEG, PNG ou WebP." }, { status: 400 });
   }
+  if (fichier.size === 0 || fichier.size > TAILLE_MAX_OCTETS) {
+    return NextResponse.json({ error: "Cette photo est trop lourde (20 Mo au maximum)." }, { status: 400 });
+  }
 
   // Le fragment doit appartenir au narrateur — RLS protège aussi la
   // lecture, mais autant refuser proprement avant toute écriture.
@@ -59,6 +62,13 @@ export async function POST(req: NextRequest) {
   }
 
   const buffer = Buffer.from(await fichier.arrayBuffer());
+  const type = typeReel(buffer);
+  if (!type) {
+    return NextResponse.json(
+      { error: "Ce fichier n'a pas pu être ouvert comme image — vérifiez qu'il s'agit bien d'une photo au format JPG, PNG ou WebP." },
+      { status: 400 }
+    );
+  }
 
   // Résolution vérifiée à l'envoi, pas à l'assemblage final — permet de
   // redemander une photo tout de suite plutôt que de le découvrir à la
@@ -86,8 +96,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const chemin = `${user.id}/${fragmentId}/${crypto.randomUUID()}.${fichier.type.split("/")[1]}`;
-  const { error: erreurUpload } = await supabase.storage.from("photos").upload(chemin, buffer, { contentType: fichier.type });
+  const chemin = `${user.id}/${fragmentId}/${crypto.randomUUID()}.${type.split("/")[1]}`;
+  const { error: erreurUpload } = await supabase.storage.from("photos").upload(chemin, buffer, { contentType: type });
   if (erreurUpload) {
     console.error("Upload photo échoué:", erreurUpload);
     return NextResponse.json({ error: "Échec de l'envoi. Réessayez." }, { status: 500 });

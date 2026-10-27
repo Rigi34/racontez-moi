@@ -17,6 +17,22 @@ export const RESOLUTION_MIN_PX = 1000;
 export const PHOTOS_MAX_PAR_FRAGMENT = 6;
 export const PHOTOS_MAX_TOTAL = 80;
 
+// Audit de clôture, constat I-3 (27/10/2026) : le type annoncé par le
+// navigateur n'est qu'une déclaration. On lit la signature réelle du fichier
+// avant tout décodage, pour que image-size n'ouvre jamais autre chose que du
+// JPEG, PNG ou WebP (ses lecteurs HEIF/JXL/ICNS ont connu des boucles
+// infinies), et on borne la taille avant de lire le fichier en mémoire.
+export const TAILLE_MAX_OCTETS = 20 * 1024 * 1024;
+
+export function typeReel(octets: Uint8Array): string | null {
+  const commencePar = (signature: number[], decalage = 0) =>
+    signature.every((octet, i) => octets[decalage + i] === octet);
+  if (commencePar([0xff, 0xd8, 0xff])) return "image/jpeg";
+  if (commencePar([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return "image/png";
+  if (commencePar([0x52, 0x49, 0x46, 0x46]) && commencePar([0x57, 0x45, 0x42, 0x50], 8)) return "image/webp";
+  return null;
+}
+
 import type { SupabaseClient } from "@supabase/supabase-js";
 import * as Sentry from "@sentry/nextjs";
 import type { FragmentAvecPhotos } from "./manuscrit";
