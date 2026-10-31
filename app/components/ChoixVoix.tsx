@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { TEXTE_CONSENTEMENT_VOIX, VERSION_CONSENTEMENT_VOIX } from "@/lib/voix";
+import { oublierPassage } from "@/lib/voix-locale";
 
 // Fin de séance (chantier VOIX-CHOISIE) : le narrateur réécoute ses réponses
 // et peut en garder UNE pour le passage qui vient d'être composé. Les
 // enregistrements sont restés dans le navigateur ; rien n'est envoyé tant
 // qu'il n'a pas choisi et coché le consentement. « Ne rien garder » les
-// oublie définitivement.
+// oublie définitivement. Une copie reste sur l'appareil jusqu'au choix
+// (lib/voix-locale.ts), pour survivre à un rechargement de l'onglet.
 
 export type Enregistrement = { blob: Blob; etape: "question" | "relance" | "relance2" };
 
@@ -42,6 +44,7 @@ export default function ChoixVoix({ fragmentId, enregistrements }: { fragmentId:
       form.append("consentement", VERSION_CONSENTEMENT_VOIX);
       const res = await fetch("/api/voix", { method: "POST", body: form });
       if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? "");
+      void oublierPassage(fragmentId);
       setEtat("garde");
     } catch (e) {
       setErreur((e as Error).message || "L'enregistrement n'a pas pu être gardé. Réessayez.");
@@ -65,6 +68,9 @@ export default function ChoixVoix({ fragmentId, enregistrements }: { fragmentId:
           Si vous le souhaitez, un de vos enregistrements peut être conservé. Vous pourrez le réécouter, et vos
           proches l&apos;entendront en scannant un petit code imprimé dans votre livre. Rien n&apos;est gardé sans
           votre accord.
+        </p>
+        <p className="font-sans text-sm text-grege leading-relaxed">
+          Vos enregistrements restent sur cet appareil le temps de votre choix, au plus une semaine.
         </p>
       </div>
 
@@ -94,7 +100,10 @@ export default function ChoixVoix({ fragmentId, enregistrements }: { fragmentId:
       {erreur && <p className="font-sans text-sm text-red-700">{erreur}</p>}
 
       <button
-        onClick={() => setEtat("refuse")}
+        onClick={() => {
+          void oublierPassage(fragmentId);
+          setEtat("refuse");
+        }}
         className="font-sans text-sm text-grege underline underline-offset-4 hover:text-encre transition-colors"
       >
         Ne rien garder
