@@ -7,6 +7,7 @@ import { messageErreurAuth } from "@/lib/auth-erreurs";
 import { voixChoisieActive } from "@/lib/voix";
 import { typographierFrancais } from "@/lib/typst";
 import ChoixVoix, { type Enregistrement } from "./ChoixVoix";
+import { choixEnAttente, lierAuPassage, rangerEnregistrement } from "@/lib/voix-locale";
 
 type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment" | "conversion" | "offerteTerminee";
 
@@ -52,6 +53,9 @@ function jouerCarillon(frequences: [number, number]) {
 // même intervalle, sens inversé, pour que les deux se répondent.
 const CARILLON_DEBUT: [number, number] = [523.25, 659.25];
 const CARILLON_FIN: [number, number] = [659.25, 523.25];
+
+// Durée d'enregistrement gardée après « J'ai fini de répondre » (cf. stopVoice).
+const PROLONGATION_ENREGISTREMENT_MS = 900;
 
 // Phrases affichées après quelques secondes sans reprise de parole —
 // purement décoratif à ce stade (basé sur un minuteur, pas sur une vraie
@@ -455,10 +459,23 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
   const [enregistrementsSeance, setEnregistrementsSeance] = useState<Enregistrement[]>([]);
   const phaseRef = useRef<Phase>("chargement");
   const etapeSpecialeRef = useRef<"pour_qui" | "prenom" | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
   useEffect(() => {
     phaseRef.current = phase;
     etapeSpecialeRef.current = etapeSpeciale;
-  }, [phase, etapeSpeciale]);
+    sessionIdRef.current = sessionId;
+  }, [phase, etapeSpeciale, sessionId]);
+
+  // Voix d'un passage précédent restée sans choix (onglet rechargé avant la
+  // fin, cf. lib/voix-locale.ts) : on le signale pour qu'elle ne se perde pas.
+  const [voixEnAttente, setVoixEnAttente] = useState(false);
+  useEffect(() => {
+    if (!garderVoixPossible) return;
+    (async () => {
+      const { data: { user } } = await createClient().auth.getUser();
+      if (user) setVoixEnAttente(await choixEnAttente(user.id));
+    })();
+  }, [garderVoixPossible]);
 
   useEffect(() => {
     (async () => {
@@ -580,10 +597,12 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
         ) {
           // Type réel du navigateur (Safari enregistre en mp4) pour l'extrait
           // éventuellement conservé ; la transcription garde son envoi actuel.
-          enregistrementsRef.current.push({
+          const enregistrement: Enregistrement = {
             blob: new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" }),
             etape,
-          });
+          };
+          enregistrementsRef.current.push(enregistrement);
+          if (sessionIdRef.current) void rangerEnregistrement(sessionIdRef.current, enregistrement);
         }
         setTranscribing(true);
         try {
@@ -627,10 +646,19 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
     }
   }, [garderVoixPossible]);
 
+  // Test vocal du 31/10/2026 : la fin du dernier mot manquait (« souveu… »),
+  // le bouton étant touché pendant la dernière syllabe. L'enregistrement
+  // continue donc un court instant après le toucher ; « Transcription… »
+  // s'affiche aussitôt (et bloque « Continuer »), et le carillon de fin ne
+  // sonne qu'une fois le micro coupé, pour ne pas finir dans l'extrait.
   const stopVoice = useCallback(() => {
-    mediaRecorderRef.current?.stop();
+    const recorder = mediaRecorderRef.current;
     setIsRecording(false);
-    jouerCarillon(CARILLON_FIN);
+    setTranscribing(true);
+    setTimeout(() => {
+      if (recorder?.state === "recording") recorder.stop();
+      jouerCarillon(CARILLON_FIN);
+    }, PROLONGATION_ENREGISTREMENT_MS);
   }, []);
 
   const reprendreSeance = () => {
@@ -823,6 +851,10 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
       setStatutFragment("brouillon");
       setEnregistrementsSeance([...enregistrementsRef.current]);
       enregistrementsRef.current = [];
+      if (garderVoixPossible && sessionId && data.fragment_id) {
+        const { data: { user } } = await createClient().auth.getUser();
+        void lierAuPassage(sessionId, data.fragment_id, user?.id ?? null);
+      }
       setPhase("fragment");
     } catch (e) {
       setError(e instanceof ErreurServeur ? e.message : "Une erreur s'est produite. Veuillez réessayer.");
@@ -988,6 +1020,15 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
             </div>
             {error && <p className="font-sans text-sm text-red-700">{error}</p>}
           </div>
+        )}
+
+        {voixEnAttente && phase !== "fragment" && (
+          <p className="font-sans text-sm text-encre text-center bg-blanc border border-grege/40 px-5 py-3 mb-6">
+            Vous n&apos;avez pas encore choisi de garder votre voix pour votre dernier passage.{" "}
+            <a href="/tableau-de-bord" className="text-petrole underline underline-offset-4">
+              La retrouver dans mon parcours
+            </a>
+          </p>
         )}
 
         {/* Phase 1 — Question initiale */}

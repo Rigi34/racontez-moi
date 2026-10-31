@@ -53,6 +53,43 @@ export async function lirePrenom(supabase: SupabaseClient, userId: string): Prom
   return data?.prenom_choisi ?? null;
 }
 
+// Test vocal du 31/10/2026 : la réponse dictée entière (« Alors j'aimerais
+// qu'on m'appelle par mon prénom, Régis… ») s'affichait comme prénom sur le
+// tableau de bord. Une réponse courte est gardée telle quelle ; une phrase
+// est confiée au modèle pour en tirer le seul prénom ou surnom. En cas de
+// doute ou d'échec : chaîne vide (l'interface n'utilise alors aucun prénom),
+// jamais une phrase.
+const MOTS_PRENOM_MAX = 3;
+const LONGUEUR_PRENOM_MAX = 30;
+
+function prenomPlausible(texte: string): string | null {
+  const nettoye = texte.trim().replace(/^["«\s]+|["»\s.!?,;:]+$/g, "");
+  if (!nettoye || nettoye.length > LONGUEUR_PRENOM_MAX) return null;
+  if (nettoye.split(/\s+/).length > MOTS_PRENOM_MAX) return null;
+  if (!/^[\p{L}][\p{L}' -]*$/u.test(nettoye)) return null;
+  return nettoye;
+}
+
+export async function extrairePrenom(client: Anthropic, reponse: string): Promise<string> {
+  const direct = prenomPlausible(reponse);
+  if (direct) return direct;
+  try {
+    const message = await client.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 20,
+      system:
+        "On a demandé à une personne comment elle aimerait qu'on l'appelle. Réponds uniquement par le prénom ou le surnom qu'elle choisit, tel qu'elle l'a dit, sans aucun autre mot. Si elle n'en donne aucun clairement, réponds AUCUN.",
+      messages: [{ role: "user", content: reponse }],
+    });
+    const texte = (message.content[0] as { type: string; text: string }).text;
+    if (/^\s*AUCUN\s*$/i.test(texte)) return "";
+    return prenomPlausible(texte) ?? "";
+  } catch (e) {
+    console.error("extrairePrenom échouée:", e);
+    return "";
+  }
+}
+
 export async function enregistrerPrenom(supabase: SupabaseClient, userId: string, reponse: string): Promise<void> {
   await supabase.from("profil_narrateur").upsert(
     { user_id: userId, prenom_choisi: reponse, updated_at: new Date().toISOString() },

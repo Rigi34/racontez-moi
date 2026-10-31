@@ -12,6 +12,7 @@ import {
   enregistrerPourQui,
   lirePrenom,
   enregistrerPrenom,
+  extrairePrenom,
 } from "@/lib/profil-narrateur";
 import { prochaineQuestionBanque, titreSection, TITRE_SECTION_A } from "@/lib/banque-questions";
 import { composerFragment, genererResumeSession } from "@/lib/redaction";
@@ -260,7 +261,18 @@ export async function POST(req: NextRequest) {
     if (!reponse?.trim()) {
       return NextResponse.json({ error: "Réponse manquante." }, { status: 400 });
     }
-    await enregistrerPrenom(supabase, user.id, reponse.trim());
+    // Une phrase demande un appel au modèle (cf. extrairePrenom) : soumis au
+    // même quota quotidien que la séance ; sans quota, aucun prénom plutôt
+    // que la phrase entière.
+    let prenom = "";
+    try {
+      if (await verifierQuotaNarrateur(supabase, user, req, "seance")) {
+        prenom = await extrairePrenom(client, reponse);
+      }
+    } catch (e) {
+      console.error("verifierQuota (seance/prenom) échouée:", e);
+    }
+    await enregistrerPrenom(supabase, user.id, prenom);
     return demarrerProchaineEtape(supabase, user.id);
   }
 

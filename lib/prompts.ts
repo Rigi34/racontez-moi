@@ -60,7 +60,7 @@ Règles absolues :
 - N'invente aucun détail absent des réponses
 - Conserve les aspérités, les hésitations de la voix — c'est elle qui fait le style
 - Commence par un détail concret, pas une généralité
-- Dernier mot : ouvre vers quelque chose, ne clôture pas
+- Dernière phrase : toujours complète et ponctuée (jamais coupée au milieu, jamais suspendue sur un mot) ; elle peut ouvrir vers quelque chose plutôt que conclure ou faire la morale
 - Aucune formule d'introduction ("Voici votre fragment", etc.) — commence directement
 - Variez la construction des phrases et les ouvertures d'un fragment à l'autre — ne jamais commencer systématiquement de la même façon. Chaque fragment doit sonner comme un moment distinct, pas comme la variation d'un même modèle.
 Résultat : uniquement le texte du ou des fragments.`;
