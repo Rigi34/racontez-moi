@@ -90,6 +90,7 @@ vi.mock("@/lib/profil-narrateur", () => ({
   enregistrerPourQui: vi.fn(),
   lirePrenom: vi.fn(),
   enregistrerPrenom: vi.fn(),
+  extrairePrenom: vi.fn().mockResolvedValue(""),
 }));
 
 const { POST } = await import("./route");
