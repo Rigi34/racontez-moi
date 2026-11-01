@@ -71,8 +71,10 @@ où chaque maillon dérive du précédent, jamais réécrit de zéro.
         ↓
 4. Vidéo YouTube (la narration + 6-12 images qui l'accompagnent)
         ↓
-5. Short (extrait de 30-60s, choisi dans la vidéo existante —
-   jamais écrit à part)
+5. Vertical (Short, Reel, TikTok : texte court de 30-60s écrit
+   exprès pour ce format, tiré du même article — pas un extrait
+   de la vidéo longue ; il renvoie à la vidéo longue, puis à
+   l'article. Décision du 01/11/2026, voir § 7)
         ↓
 6. Citation visuelle (une phrase forte, tirée du texte d'origine,
    une photographie)
@@ -216,7 +218,7 @@ Claude Pro peut prendre en charge la préparation textuelle et éditoriale de ce
 - travailler le rythme et les transitions ;
 - préparer le script destiné à ElevenLabs ;
 - identifier les passages pouvant être accompagnés par une image particulière ;
-- sélectionner, dans la matière existante, les éléments pouvant devenir un extrait court.
+- écrire, à partir du même article, le texte court du vertical (un texte pensé pour ce format, pas un extrait de la vidéo longue).
 
 L'adaptation orale ne doit jamais être une simple lecture automatique de l'article : elle doit être une véritable écriture pour l'oreille, conformément à la doctrine existante.
 
@@ -301,12 +303,14 @@ NARRATION ELEVENLABS
   ↓
 VIDÉO YOUTUBE
   ↓
-SHORT / EXTRAIT
+VERTICAL (texte court écrit exprès)
   ↓
 CITATION VISUELLE
 ```
 
 Chaque étape dérive de la précédente.
+
+**Le vertical (décision du 01/11/2026).** Le format vertical (Shorts, Reels, TikTok) n'est pas un extrait de la vidéo longue : l'essai du 15/10/2026 a montré qu'un extrait d'une vidéo longue ne tient pas seul. C'est un texte court, écrit pour ce format à partir du même article : la matière reste unique, seule l'écriture change. Il renvoie à la vidéo longue horizontale, qui mène à l'article, puis à l'essai gratuit. Le ton, le vouvoiement et la voix restent ceux de Racontez-moi ; pas d'accélération de la voix.
 
 Il ne s'agit pas de fabriquer six contenus indépendants, mais de valoriser une même matière éditoriale sous plusieurs formes.
 
