@@ -105,6 +105,7 @@ export const AUDIO_SEANCE: string | null = null;
 // le dit. Fichier égalisé à -16 LUFS, mono, sans métadonnées.
 export const PASSAGE_LU = {
   src: "/audio/passage-lea-velo.mp3",
+  page: visuels.pages["51"],
   duree: "42 s",
   contexte: "Léa, sa petite-fille, vient d'apprendre le vélo dans l'allée, devant la maison.",
   texte: [

@@ -12,6 +12,7 @@ import {
   MENTION_EXEMPLE,
   PAGE,
   PAGES_EXEMPLE,
+  PASSAGE_LU,
   PHOTOS_EXEMPLAIRE,
   SEANCE_REELLE,
 } from "./donnees";
@@ -146,7 +147,7 @@ export function SectionVotreLivre() {
           {MENTION_EXEMPLE}. Faites défiler, touchez une page pour l&apos;agrandir.
         </p>
 
-        <BlocPassage avecQr={voixChoisieActive()} />
+        <BlocPassage qr={qrSvg(`${(process.env.NEXT_PUBLIC_SITE_URL ?? "https://racontez-moi.com").replace(/\/$/, "")}${PASSAGE_LU.src}`)} />
 
         <div className="mt-16 grid lg:grid-cols-[260px_1fr] gap-12 lg:gap-16 items-start">
           <CouleursCouverture />
