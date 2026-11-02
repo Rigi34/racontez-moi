@@ -74,7 +74,7 @@ export function PastillePassage() {
           <span className="font-sans text-sm font-semibold">
             {enLecture ? "Mettre en pause" : "Ce livre s'écoute aussi"}
           </span>
-          <span className="font-sans text-xs text-grege">Un passage lu à voix haute, {PASSAGE_LU.duree}</span>
+          <span className="font-sans text-xs text-grege">Extrait vocal du livre d&apos;exemple, {PASSAGE_LU.duree}</span>
         </span>
         <Onde enLecture={enLecture} />
       </button>
@@ -148,7 +148,6 @@ export function BlocPassage({ qr }: { qr: string }) {
           </blockquote>
         </div>
       </div>
-      <figcaption className="mt-6 font-sans text-[11px] text-grege tracking-wide">{PASSAGE_LU.mention}</figcaption>
     </figure>
   );
 }
