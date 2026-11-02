@@ -99,6 +99,21 @@ export const SEANCE_REELLE = {
 // l'appui ; tant que c'est null, aucun lecteur n'est affiché.
 export const AUDIO_SEANCE: string | null = null;
 
+// Passage du livre d'exemple lu à voix haute (02/11/2026) : fin du souvenir de
+// Léa et du vélo, lue mot pour mot par un proche de Régis. Ce n'est pas un
+// enregistrement de séance (ne pas le mettre dans AUDIO_SEANCE) : la mention
+// le dit. Fichier égalisé à -16 LUFS, mono, sans métadonnées.
+export const PASSAGE_LU = {
+  src: "/audio/passage-lea-velo.mp3",
+  duree: "42 s",
+  contexte: "Léa, sa petite-fille, vient d'apprendre le vélo dans l'allée, devant la maison.",
+  texte: [
+    "Je ne sais pas ce que Léa gardera de moi. Peut-être juste ça : un vieux monsieur qui l'a lâchée dans l'allée et qui riait. Ce ne serait pas si mal.",
+    "Nino, lui, n'a que quatre ans, et il a déjà décidé qu'il serait « réparateur d'ascenseurs comme papi ». Je ne lui ai rien demandé. Il a vu une photo de moi en bleu de travail, sur le toit d'une cabine, et depuis il appuie sur tous les boutons de tous les ascenseurs en me demandant comment ça marche à l'intérieur. Je lui explique. Il ne comprend rien, évidemment. Mais il écoute avec une attention que je reconnais. C'est celle que j'avais devant Lucien.",
+  ],
+  mention: "Passage du livre d'exemple, lu à voix haute.",
+};
+
 // Extrait de voix de démonstration pour « Le livre qui garde la voix » : le
 // jeton d'un vrai extrait gardé dans l'application (page /v/[jeton]). Sans
 // jeton, aucun QR ni bouton d'écoute n'est affiché : on n'imprime jamais un
