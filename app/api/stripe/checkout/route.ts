@@ -12,6 +12,9 @@ export async function POST(req: NextRequest) {
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
+    // Page de paiement en français quelle que soit la langue du navigateur
+    // (essai réel du 03/11/2026 : page en anglais sous Chrome).
+    locale: "fr",
     // Trouvé le 20/09/2026 (test E2E réel, Tranche B) : sans ce paramètre,
     // un paiement carte en une fois (hors Klarna) ne crée pas de Customer
     // Stripe, laissant session.customer à null — stripe_customer_id étant
@@ -34,7 +37,7 @@ export async function POST(req: NextRequest) {
     custom_text: {
       submit: {
         message:
-          "Si le parcours ne vous convient pas, vous êtes remboursé intégralement, sans justification, dans les 30 jours qui suivent ce paiement.",
+          "Si Racontez-moi ne vous convient pas, vous êtes remboursé intégralement, sans justification, dans les 30 jours qui suivent ce paiement.",
       },
     },
     success_url: `${origin}/tableau-de-bord?parcours=confirme`,
