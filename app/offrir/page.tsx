@@ -39,7 +39,7 @@ export default function OffrirPage() {
           href="#offrir-cta"
           className="inline-block bg-encre text-blanc rounded-full font-sans font-medium text-lg px-8 py-4 hover:bg-[#3A3632] transition-colors duration-200"
         >
-          Offrir le Parcours →
+          Offrir Racontez-moi →
         </a>
 
         <p className="font-sans text-sm text-grege mt-5 max-w-md">
@@ -205,7 +205,7 @@ export default function OffrirPage() {
 
           <div className="bg-papier p-8 border border-grege">
             <p className="font-display text-2xl text-encre mb-2">
-              Le Parcours — 2 à 4 mois
+              Jusqu&apos;au livre relié — 2 à 4 mois
             </p>
             <p className="font-sans text-grege text-base mb-6">
               Entretiens illimités · Manuscrit en PDF et ebook · Livre imprimé et relié couleur inclus
@@ -231,7 +231,7 @@ export default function OffrirPage() {
 
           <details className="bg-papier/60 border border-grege/30 px-6 py-4 text-left group">
             <summary className="cursor-pointer font-display text-lg text-encre list-none flex items-center justify-between [&::-webkit-details-marker]:hidden">
-              Ce qui est compris dans le Parcours
+              Ce qui est compris
               <span className="font-sans text-xl text-grege group-open:hidden" aria-hidden="true">+</span>
               <span className="font-sans text-xl text-grege hidden group-open:inline" aria-hidden="true">−</span>
             </summary>
@@ -309,7 +309,7 @@ export default function OffrirPage() {
         </div>
       </footer>
 
-      <BarreCTAMobile cible="offrir-cta" libelle="Offrir le Parcours — 155 €" />
+      <BarreCTAMobile cible="offrir-cta" libelle="Offrir Racontez-moi — 155 €" />
     </main>
   );
 }

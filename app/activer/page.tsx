@@ -76,7 +76,7 @@ function ActiverInner() {
             disabled={loading}
             className="w-full bg-encre text-blanc rounded-full font-sans font-medium text-base px-6 py-3.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
           >
-            {loading ? "Un instant…" : "Activer mon Parcours →"}
+            {loading ? "Un instant…" : "Activer mon accès →"}
           </button>
         </form>
       </div>

@@ -35,7 +35,7 @@ export default async function OffrirMerciPage({
   if (!sessionId) {
     return (
       <PageMessage titre="Paiement introuvable">
-        Aucune session de paiement n&apos;a été trouvée. Si vous venez d&apos;offrir un Parcours,
+        Aucune session de paiement n&apos;a été trouvée. Si vous venez d&apos;offrir Racontez-moi,
         contactez-nous depuis la page <Link href="/contact" className="underline text-petrole">contact</Link>.
       </PageMessage>
     );
@@ -98,7 +98,7 @@ export default async function OffrirMerciPage({
         </div>
 
         <p className="font-sans text-sm text-grege">
-          {destinataire} pourra activer son Parcours en saisissant ce code sur{" "}
+          {destinataire} pourra activer son accès en saisissant ce code sur{" "}
           <Link href="/activer" className="underline text-petrole">racontez-moi.com/activer</Link>.
         </p>
       </div>
