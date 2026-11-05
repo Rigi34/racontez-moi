@@ -19,6 +19,7 @@ function SignInInner() {
   const next = destinationInterne(params.get("redirect_url"))
   const confirmError = params.get("error") === "confirm"
   const reinitError = params.get("error") === "reinitialisation"
+  const lienError = params.get("error") === "lien"
   const supabase = createClient()
 
   // "oubli" : mot de passe oublié (constat du 05/11/2026 : aucun moyen de
@@ -34,7 +35,8 @@ function SignInInner() {
   const [consentDonneesSensibles, setConsentDonneesSensibles] = useState(false)
   const [error, setError] = useState<string | null>(
     confirmError ? "Le lien de confirmation a expiré ou a déjà été utilisé. Réessayez de vous inscrire."
-    : reinitError ? "Le lien pour changer de mot de passe a expiré ou a déjà été utilisé. Redemandez-en un ci-dessous."
+    : reinitError ? "Le lien pour changer de mot de passe a expiré ou a déjà été utilisé. Redemandez-en un."
+    : lienError ? "Ce lien a expiré ou a déjà été utilisé. Si vous avez reçu plusieurs emails, ouvrez le plus récent, ou redemandez un lien."
     : null
   )
   const [loading, setLoading] = useState(false)

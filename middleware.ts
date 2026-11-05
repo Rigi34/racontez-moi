@@ -3,6 +3,18 @@ import { NextResponse, type NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // Lien d'email périmé ou remplacé par un plus récent : Supabase renvoie vers
+  // l'accueil avec ?error_code=…, sans aucune explication à l'écran (constat
+  // du 05/11/2026). On l'amène sur la connexion, qui affiche le message.
+  if (pathname === "/" && request.nextUrl.searchParams.has("error_code")) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/sign-in"
+    url.search = "?error=lien"
+    url.hash = ""
+    return NextResponse.redirect(url)
+  }
+
   const isProtected =
     pathname.startsWith("/tableau-de-bord") ||
     pathname.startsWith("/seance")
@@ -57,5 +69,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/tableau-de-bord/:path*", "/seance/:path*"],
+  matcher: ["/", "/tableau-de-bord/:path*", "/seance/:path*"],
 }
