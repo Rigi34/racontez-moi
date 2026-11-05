@@ -92,7 +92,7 @@ export default function FormulaireCadeau() {
         disabled={loading}
         className="w-full inline-block bg-encre text-blanc rounded-full font-sans font-medium text-lg px-8 py-4 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
       >
-        {loading ? "Un instant…" : "Offrir le Parcours — 155€ →"}
+        {loading ? "Un instant…" : "Offrir Racontez-moi — 155€ →"}
       </button>
       {error && <p className="font-sans text-sm text-red-700">{error}</p>}
     </form>

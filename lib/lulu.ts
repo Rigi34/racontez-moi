@@ -101,7 +101,7 @@ export async function creerCommandeImpression(
       line_items: [
         {
           quantity: 1,
-          title: "Racontez-moi — Le Parcours",
+          title: "Racontez-moi",
           printable_normalization: {
             pod_package_id: POD_PACKAGE_ID_PARCOURS,
             interior: { source_url: interieurUrl },

@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/seance", "/tableau-de-bord", "/mon-livre", "/sign-in", "/activer", "/offrir/merci"],
+      disallow: ["/api/", "/seance", "/tableau-de-bord", "/mon-livre", "/sign-in", "/nouveau-mot-de-passe", "/activer", "/offrir/merci"],
     },
     sitemap: "https://racontez-moi.com/sitemap.xml",
   };

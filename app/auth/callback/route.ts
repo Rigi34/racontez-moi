@@ -31,5 +31,8 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/sign-in?error=confirm`)
+  // Lien « mot de passe oublié » expiré ou déjà utilisé : message distinct
+  // de celui de l'inscription (cf. app/sign-in/page.tsx).
+  const erreur = next === "/nouveau-mot-de-passe" ? "reinitialisation" : "confirm"
+  return NextResponse.redirect(`${origin}/sign-in?error=${erreur}`)
 }

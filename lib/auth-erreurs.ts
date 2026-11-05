@@ -13,5 +13,8 @@ export function messageErreurAuth(raw: string): string {
   if (/already.*registered/i.test(raw)) return "Un compte existe déjà avec cet email. Connectez-vous.";
   if (/password should be at least/i.test(raw)) return "Mot de passe trop court (8 caractères minimum).";
   if (/unable to validate email|invalid email/i.test(raw)) return "Adresse email invalide.";
+  if (/security purposes|rate limit/i.test(raw)) return "Trop de demandes rapprochées. Patientez une minute, puis réessayez.";
+  if (/should be different from the old password/i.test(raw)) return "Choisissez un mot de passe différent de l'ancien.";
+  if (/auth session missing/i.test(raw)) return "Le lien a expiré. Redemandez un lien depuis la page de connexion.";
   return "Une erreur est survenue. Réessayez.";
 }

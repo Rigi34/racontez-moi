@@ -27,7 +27,7 @@ export default function BoutonParcours() {
         disabled={loading}
         className="bg-encre text-blanc rounded-full font-sans font-medium text-base px-8 py-4 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
       >
-        {loading ? "Un instant…" : "Commencer Le Parcours →"}
+        {loading ? "Un instant…" : "Commencer →"}
       </button>
       {error && <p className="font-sans text-sm text-red-700">{error}</p>}
     </div>
