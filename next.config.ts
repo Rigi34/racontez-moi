@@ -11,6 +11,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // L'ancienne adresse technique affichait tout le site en double du vrai
+  // domaine (constat du 05/11/2026). Seule l'adresse de production est visée :
+  // les aperçus Vercel ont chacun leur propre adresse et restent accessibles.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "racontez-moi.vercel.app" }],
+        destination: "https://racontez-moi.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
   // En-têtes de sécurité sur toutes les réponses (A-2026-10-16-01,
   // 17/10/2026). Le site ne s'intègre jamais dans un cadre (aucun iframe) et
   // seule la séance utilise le micro ; le paiement passe par la page Stripe
