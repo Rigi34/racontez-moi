@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
+    locale: "fr",
     line_items: [{ price: process.env.STRIPE_PRICE_ID_PARCOURS!, quantity: 1 }],
     metadata: {
       type: "cadeau",
@@ -25,6 +26,10 @@ export async function POST(req: NextRequest) {
       message: (message ?? "").trim().slice(0, 500),
     },
     allow_promotion_codes: true,
+    // Relevé bancaire : « COHERENCEL* RACONTEZ » — le compte Stripe reste au
+    // nom de Coherencelab (entreprise déclarée), le suffixe fait reconnaître
+    // le site (préfixe + suffixe : 22 caractères au plus).
+    payment_intent_data: { statement_descriptor_suffix: "RACONTEZ" },
     // Garantie (décision de Régis du 11/09/2026, ramenée à 30 jours le
     // 03/10/2026). Pour un cadeau, les 30 jours courent à partir de
     // l'activation du code (codes_cadeau.activated_at) : un code offert à

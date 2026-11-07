@@ -44,7 +44,7 @@ export async function GET() {
     .eq("user_id", user.id)
     .maybeSingle();
   if (abonnement?.status !== "active") {
-    return NextResponse.json({ error: "Le Parcours n'est pas actif sur ce compte." }, { status: 403 });
+    return NextResponse.json({ error: "Aucun accès Racontez-moi n'est actif sur ce compte." }, { status: 403 });
   }
 
   const { data: fragments } = await supabase

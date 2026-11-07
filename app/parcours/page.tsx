@@ -29,7 +29,7 @@ export default async function ParcoursPage() {
       <main className="flex-1 max-w-xl mx-auto w-full px-6 py-20 text-center space-y-10">
         <div className="space-y-4">
           <h1 className="font-display text-3xl md:text-4xl text-encre leading-[1.25]">
-            Le <em className="italic text-ambre-texte">Parcours</em>
+            Jusqu&apos;à votre <em className="italic text-ambre-texte">livre relié</em>
           </h1>
           <p className="font-serif text-lg text-grege leading-relaxed">
             Un interlocuteur mémorial à votre rythme, séance après séance, pour composer le récit de votre vie.
@@ -57,7 +57,7 @@ export default async function ParcoursPage() {
             <li>Des séances illimitées, une à deux fois par semaine, pendant deux à quatre mois.</li>
             <li>Une mémoire qui vous suit d&apos;une séance à l&apos;autre — jamais deux fois la même question.</li>
             <li>Vous relisez, vous corrigez, vous validez : le livre reste fidèle à vos mots.</li>
-            <li>Votre manuscrit complet en PDF et ebook, à la fin du Parcours.</li>
+            <li>Votre manuscrit complet en PDF et ebook, à la fin de votre récit.</li>
             <li>Le livre imprimé et relié couleur, envoyé chez vous — inclus, quelle que soit la longueur de votre récit.</li>
           </ul>
         </div>

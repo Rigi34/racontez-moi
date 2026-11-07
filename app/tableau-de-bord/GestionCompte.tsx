@@ -43,7 +43,7 @@ export default function GestionCompte() {
             vérifié à la main lors du traitement. La révocation d'accès au remboursement est gérée
             côté webhook Stripe (charge.refunded), pas ici. */}
         <a
-          href="mailto:rigi34000@gmail.com?subject=Demande%20de%20remboursement%20%E2%80%94%20Le%20Parcours&body=Bonjour%2C%0A%0AJe%20souhaite%20demander%20le%20remboursement%20de%20mon%20Parcours.%0A%0AEmail%20du%20compte%20%3A%20%0A"
+          href="mailto:bonjour@racontez-moi.com?subject=Demande%20de%20remboursement%20%E2%80%94%20Racontez-moi&body=Bonjour%2C%0A%0AJe%20souhaite%20demander%20le%20remboursement%20de%20mon%20achat%20Racontez-moi.%0A%0AEmail%20du%20compte%20%3A%20%0A"
           className="font-sans text-sm border border-grege text-encre px-5 py-2.5 hover:border-encre transition-colors"
         >
           Demander un remboursement

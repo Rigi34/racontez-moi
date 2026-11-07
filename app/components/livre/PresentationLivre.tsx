@@ -3,6 +3,7 @@ import { qrSvg } from "@/lib/qr";
 import { urlEcoute, voixChoisieActive } from "@/lib/voix";
 import EmplacementPreuve, { AFFICHER_EMPLACEMENTS } from "../EmplacementPreuve";
 import CouleursCouverture from "./CouleursCouverture";
+import { BlocPassage, PastillePassage } from "./EcouterPassage";
 import {
   AUDIO_SEANCE,
   COULEURS_COUVERTURE,
@@ -11,6 +12,7 @@ import {
   MENTION_EXEMPLE,
   PAGE,
   PAGES_EXEMPLE,
+  PASSAGE_LU,
   PHOTOS_EXEMPLAIRE,
   SEANCE_REELLE,
 } from "./donnees";
@@ -68,6 +70,7 @@ export function VisuelLivre() {
       <figcaption className="mt-4 font-sans text-[11px] text-grege tracking-wide text-center lg:text-right">
         {MENTION_EXEMPLE}
       </figcaption>
+      <PastillePassage />
     </figure>
   );
 }
@@ -143,6 +146,8 @@ export function SectionVotreLivre() {
         <p className="mt-2 font-sans text-[11px] text-grege tracking-wide">
           {MENTION_EXEMPLE}. Faites défiler, touchez une page pour l&apos;agrandir.
         </p>
+
+        <BlocPassage qr={qrSvg(`${(process.env.NEXT_PUBLIC_SITE_URL ?? "https://racontez-moi.com").replace(/\/$/, "")}${PASSAGE_LU.src}`)} />
 
         <div className="mt-16 grid lg:grid-cols-[260px_1fr] gap-12 lg:gap-16 items-start">
           <CouleursCouverture />

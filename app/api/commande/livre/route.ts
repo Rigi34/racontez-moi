@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { compilerInterieur, compilerCouverture } from "@/lib/manuscrit";
 import { chargerFragmentsAvecPhotos } from "@/lib/photos";
-import { creerCommandeImpression, PAGES_MINIMUM_RELIE, type AdresseLivraison } from "@/lib/lulu";
+import { creerCommandeImpression, impressionBloqueeEnLigne, PAGES_MINIMUM_RELIE, type AdresseLivraison } from "@/lib/lulu";
+import { envoyerAlerteRegis, echapperHtml } from "@/lib/alerte";
 import { lirePersonnalisationLivre } from "@/lib/profil-narrateur";
 
 // Déclenchement de la vraie commande d'impression — dernière brique du
@@ -22,7 +23,7 @@ export async function POST() {
   ]);
 
   if (abonnement?.status !== "active") {
-    return NextResponse.json({ error: "Le Parcours n'est pas actif sur ce compte." }, { status: 403 });
+    return NextResponse.json({ error: "Aucun accès Racontez-moi n'est actif sur ce compte." }, { status: 403 });
   }
   if (!adresseRow) {
     return NextResponse.json({ error: "Adresse de livraison manquante." }, { status: 400 });
@@ -47,6 +48,21 @@ export async function POST() {
         error: `Votre manuscrit fait ${nombrePagesPrevu} page${nombrePagesPrevu > 1 ? "s" : ""} — il en faut au moins ${PAGES_MINIMUM_RELIE} pour un livre relié. Continuez vos séances.`,
       },
       { status: 400 }
+    );
+  }
+
+  // Garde-fou tant que Lulu n'est pas en production (cf. lib/lulu.ts) :
+  // aucune commande créée, le narrateur est informé, Régis est prévenu.
+  if (impressionBloqueeEnLigne()) {
+    await envoyerAlerteRegis(
+      "⚠️ Un narrateur veut imprimer son livre : Lulu n'est pas encore en production",
+      `<p>Un narrateur a demandé l'impression de son livre (${nombrePagesPrevu} pages), mais le compte Lulu de production n'est pas encore branché : la commande a été refusée poliment, rien n'a été envoyé à Lulu.</p><p>Compte : ${echapperHtml(user.email ?? user.id)}</p>`
+    ).catch((e) => console.error("Alerte impression bloquée non envoyée:", e));
+    return NextResponse.json(
+      {
+        error: "Votre livre est prêt et bien enregistré. L'impression ouvre très prochainement : nous vous écrivons dès qu'elle est possible, sans que vous ayez rien à refaire.",
+      },
+      { status: 503 }
     );
   }
 

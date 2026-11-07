@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Une erreur est survenue. Réessayez." }, { status: 500 });
   }
   if (abonnementExistant?.status === "active") {
-    return NextResponse.json({ error: "Votre compte a déjà accès au Parcours : ce code peut être offert à quelqu'un d'autre." }, { status: 409 });
+    return NextResponse.json({ error: "Votre compte a déjà accès à Racontez-moi : ce code peut être offert à quelqu'un d'autre." }, { status: 409 });
   }
 
   // Verrou applicatif (filtre statut='paye' dans le update) — la contrainte

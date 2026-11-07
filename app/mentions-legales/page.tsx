@@ -64,7 +64,7 @@ export default function MentionsLegales() {
               est édité par :
             </p>
             <p>
-              CohérenceLab
+              CohérenceLab — Racontez-moi est un service de CohérenceLab
               <br />
               Entreprise individuelle
               <br />
@@ -189,8 +189,8 @@ export default function MentionsLegales() {
               1. Objet et champ d&apos;application
             </h2>
             <p>
-              Les présentes conditions générales de vente régissent la vente de « Le
-              Parcours », prestation proposée par CohérenceLab consistant à recueillir,
+              Les présentes conditions générales de vente régissent la vente de la
+              prestation « Racontez-moi », proposée par CohérenceLab consistant à recueillir,
               par entretiens vocaux assistés, le récit de vie du client (le « narrateur »),
               puis à le composer et à le fabriquer sous forme de manuscrit numérique et de
               livre imprimé relié.
@@ -200,7 +200,7 @@ export default function MentionsLegales() {
               2. Prix
             </h2>
             <p>
-              Le Parcours est proposé au prix unique de 155€ TTC, incluant des séances
+              Cette prestation est proposée au prix unique de 155€ TTC, incluant des séances
               illimitées, le manuscrit au format PDF et ebook, ainsi que le livre imprimé
               et relié en couleur — quels que soient le nombre de pages ou de photos du
               récit final. Ce prix ne varie jamais après l&apos;achat, y compris dans le
@@ -248,11 +248,11 @@ export default function MentionsLegales() {
             </h2>
             <p>
               En dehors de toute obligation légale, Racontez-moi accorde un remboursement
-              intégral du Parcours, sans justification à fournir, pendant les 30 jours qui
+              intégral de la prestation, sans justification à fournir, pendant les 30 jours qui
               suivent le paiement.
             </p>
             <p>
-              Pour un Parcours offert en cadeau, ce délai de 30 jours court à compter de
+              Pour une prestation offerte en cadeau, ce délai de 30 jours court à compter de
               l&apos;activation du code par son destinataire&nbsp;; tant que le code n&apos;a
               pas été activé, l&apos;acheteur peut demander le remboursement à tout moment.
             </p>

@@ -6,7 +6,9 @@ import Link from "next/link";
 // accès direct au fonctionnement ni au cadeau, et /offrir n'avait aucun
 // en-tête. Navigation volontairement courte, sans icônes ni panier : ce n'est
 // pas une boutique. Sur mobile, le menu passe par <details> (aucun JS requis)
-// et seul le bouton « Commencer » reste visible à côté du logo.
+// et seul le bouton « Commencer » reste visible à côté du logo. 02/11/2026 :
+// sous 380 px (petits téléphones), tout se resserre pour ne plus déborder ;
+// sous 340 px, le « R » disparaît (le nom reste).
 const LIENS = [
   { href: "/fonctionnement", label: "Fonctionnement" },
   { href: "/offrir", label: "Offrir" },
@@ -19,17 +21,17 @@ export default function EnTeteSite({
   lienCommencer?: string;
 }) {
   return (
-    <header className="relative z-30 px-6 pt-6 pb-2">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-3 shrink-0">
+    <header className="relative z-30 px-6 max-[379px]:px-4 pt-6 pb-2">
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 max-[379px]:gap-2">
+        <Link href="/" className="flex items-center gap-3 max-[379px]:gap-2 shrink-0">
           <Image
             src="/brand/logo-R-encre-2048.png"
             alt=""
             width={36}
             height={36}
-            className="rounded-lg"
+            className="rounded-lg max-[339px]:hidden"
           />
-          <span className="font-display text-xl text-encre">Racontez-moi</span>
+          <span className="font-display text-xl max-[379px]:text-lg text-encre">Racontez-moi</span>
         </Link>
 
         {/* Ordinateur */}
@@ -51,10 +53,10 @@ export default function EnTeteSite({
         </nav>
 
         {/* Mobile */}
-        <div className="flex md:hidden items-center gap-3">
+        <div className="flex md:hidden items-center gap-3 max-[379px]:gap-1.5">
           <a
             href={lienCommencer}
-            className="rounded-full border border-encre px-4 py-1.5 font-sans text-sm text-encre"
+            className="rounded-full border border-encre px-4 max-[379px]:px-3 py-1.5 font-sans text-sm text-encre"
           >
             Commencer
           </a>

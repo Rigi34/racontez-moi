@@ -22,6 +22,8 @@ const {
   compilerCouvertureMock,
   lirePersonnalisationLivreMock,
   creerCommandeImpressionMock,
+  impressionBloqueeMock,
+  envoyerAlerteMock,
 } = vi.hoisted(() => ({
   getUserMock: vi.fn(),
   abonnementMaybeSingleMock: vi.fn(),
@@ -39,6 +41,8 @@ const {
   compilerCouvertureMock: vi.fn(),
   lirePersonnalisationLivreMock: vi.fn(),
   creerCommandeImpressionMock: vi.fn(),
+  impressionBloqueeMock: vi.fn(),
+  envoyerAlerteMock: vi.fn(),
 }));
 
 vi.mock("@/utils/supabase/server", () => ({
@@ -84,7 +88,13 @@ vi.mock("@/lib/manuscrit", () => ({
 vi.mock("@/lib/profil-narrateur", () => ({ lirePersonnalisationLivre: lirePersonnalisationLivreMock }));
 vi.mock("@/lib/lulu", () => ({
   creerCommandeImpression: creerCommandeImpressionMock,
+  impressionBloqueeEnLigne: impressionBloqueeMock,
   PAGES_MINIMUM_RELIE: 24,
+}));
+
+vi.mock("@/lib/alerte", () => ({
+  envoyerAlerteRegis: envoyerAlerteMock,
+  echapperHtml: (t: string) => t,
 }));
 
 const { POST } = await import("./route");
@@ -111,6 +121,8 @@ beforeEach(() => {
   compilerCouvertureMock.mockResolvedValue(Buffer.from("cover"));
   lirePersonnalisationLivreMock.mockResolvedValue({ titre: "Mes Mémoires", sousTitre: "Racontez-moi", couleurCle: "petrole" });
   creerCommandeImpressionMock.mockResolvedValue({ id: "lulu-job-1" });
+  impressionBloqueeMock.mockReset().mockReturnValue(false);
+  envoyerAlerteMock.mockReset().mockResolvedValue(true);
 });
 
 describe("POST /api/commande/livre", () => {
@@ -211,5 +223,16 @@ describe("POST /api/commande/livre", () => {
     expect(res.status).toBe(409);
     expect(insertSingleMock).not.toHaveBeenCalled();
     expect(commandeEchoueeMaybeSingleMock).not.toHaveBeenCalled();
+  });
+  it("garde-fou : tant que Lulu n'est pas en production en ligne, refuse poliment sans rien créer et prévient Régis", async () => {
+    impressionBloqueeMock.mockReturnValue(true);
+    const res = await POST();
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toContain("bien enregistré");
+    expect(insertSingleMock).not.toHaveBeenCalled();
+    expect(updateSingleMock).not.toHaveBeenCalled();
+    expect(creerCommandeImpressionMock).not.toHaveBeenCalled();
+    expect(envoyerAlerteMock).toHaveBeenCalledTimes(1);
   });
 });

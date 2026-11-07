@@ -12,6 +12,9 @@ export async function POST(req: NextRequest) {
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
+    // Page de paiement en français quelle que soit la langue du navigateur
+    // (essai réel du 03/11/2026 : page en anglais sous Chrome).
+    locale: "fr",
     // Trouvé le 20/09/2026 (test E2E réel, Tranche B) : sans ce paramètre,
     // un paiement carte en une fois (hors Klarna) ne crée pas de Customer
     // Stripe, laissant session.customer à null — stripe_customer_id étant
@@ -26,6 +29,10 @@ export async function POST(req: NextRequest) {
     // paiement plutôt que de recevoir une valeur vide.
     ...(user.email ? { customer_email: user.email } : {}),
     allow_promotion_codes: true,
+    // Relevé bancaire : « COHERENCEL* RACONTEZ » — le compte Stripe reste au
+    // nom de Coherencelab (entreprise déclarée), le suffixe fait reconnaître
+    // le site (préfixe + suffixe : 22 caractères au plus).
+    payment_intent_data: { statement_descriptor_suffix: "RACONTEZ" },
     // Garantie (décision de Régis du 11/09/2026, ramenée à 30 jours le
     // 03/10/2026 : l'ancienne version, sans délai jusqu'à l'impression,
     // permettait de suivre tout le parcours puis de se faire rembourser) —
@@ -34,7 +41,7 @@ export async function POST(req: NextRequest) {
     custom_text: {
       submit: {
         message:
-          "Si le parcours ne vous convient pas, vous êtes remboursé intégralement, sans justification, dans les 30 jours qui suivent ce paiement.",
+          "Si Racontez-moi ne vous convient pas, vous êtes remboursé intégralement, sans justification, dans les 30 jours qui suivent ce paiement.",
       },
     },
     success_url: `${origin}/tableau-de-bord?parcours=confirme`,

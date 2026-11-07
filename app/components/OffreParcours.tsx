@@ -59,7 +59,7 @@ export function ChangementAvis({ sombre = false }: { sombre?: boolean }) {
       <p className={`font-serif text-base leading-relaxed ${texte}`}>
         La première séance est offerte, sans compte et sans carte bancaire. Vous découvrez
         l&apos;interlocuteur, vous racontez un premier souvenir, et vous décidez ensuite, en
-        connaissance de cause. Si le parcours ne vous convient pas, vous êtes remboursé
+        connaissance de cause. Si Racontez-moi ne vous convient pas, vous êtes remboursé
         intégralement, sans justification, dans les 30 jours qui suivent le paiement.
       </p>
       <p className={`font-sans text-sm leading-relaxed ${discret}`}>

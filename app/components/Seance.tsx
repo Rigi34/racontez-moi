@@ -1204,7 +1204,7 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
             </h2>
             <p className="font-serif text-lg text-grege">
               Votre premier souvenir est enregistré. Pour poursuivre le récit, séance après séance,
-              jusqu&apos;au livre relié, continuez avec le Parcours.
+              jusqu&apos;au livre relié, continuez avec Racontez-moi.
             </p>
             <button
               onClick={demarrerConversion}

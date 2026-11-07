@@ -18,9 +18,13 @@ function SignInInner() {
   const params = useSearchParams()
   const next = destinationInterne(params.get("redirect_url"))
   const confirmError = params.get("error") === "confirm"
+  const reinitError = params.get("error") === "reinitialisation"
+  const lienError = params.get("error") === "lien"
   const supabase = createClient()
 
-  const [mode, setMode] = useState<"login" | "signup">("login")
+  // "oubli" : mot de passe oublié (constat du 05/11/2026 : aucun moyen de
+  // le récupérer jusqu'ici, hors connexion Google).
+  const [mode, setMode] = useState<"login" | "signup" | "oubli">("login")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   // Consentement explicite (RGPD art. 9) : les entretiens abordent
@@ -30,15 +34,31 @@ function SignInInner() {
   // avant de considérer le mécanisme définitif.
   const [consentDonneesSensibles, setConsentDonneesSensibles] = useState(false)
   const [error, setError] = useState<string | null>(
-    confirmError ? "Le lien de confirmation a expiré ou a déjà été utilisé. Réessayez de vous inscrire." : null
+    confirmError ? "Le lien de confirmation a expiré ou a déjà été utilisé. Réessayez de vous inscrire."
+    : reinitError ? "Le lien pour changer de mot de passe a expiré ou a déjà été utilisé. Redemandez-en un."
+    : lienError ? "Ce lien a expiré ou a déjà été utilisé. Si vous avez reçu plusieurs emails, ouvrez le plus récent, ou redemandez un lien."
+    : null
   )
   const [loading, setLoading] = useState(false)
   const [confirmationEnvoyee, setConfirmationEnvoyee] = useState(false)
+  const [lienEnvoye, setLienEnvoye] = useState(false)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError(null)
+
+    if (mode === "oubli") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/nouveau-mot-de-passe")}`,
+      })
+      setLoading(false)
+      // Même message que l'adresse ait un compte ou non : ne jamais révéler
+      // qui est inscrit.
+      if (error) { setError(messageErreurAuth(error.message)); return }
+      setLienEnvoye(true)
+      return
+    }
 
     if (mode === "signup") {
       const { data, error } = await supabase.auth.signUp({
@@ -82,6 +102,23 @@ function SignInInner() {
     if (error) { setLoading(false); setError(messageErreurAuth(error.message)) }
   }
 
+  if (lienEnvoye) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-papier px-6">
+        <div className="w-full max-w-sm text-center space-y-4">
+          <p className="font-display text-lg italic text-petrole tracking-wide">
+            Racontez-moi
+          </p>
+          <p className="font-sans text-base text-encre leading-relaxed">
+            Si un espace existe avec l&apos;adresse {email}, un email vient de lui être envoyé.
+            Ouvrez-le et cliquez sur le lien pour choisir un nouveau mot de passe. Si vous ne le
+            voyez pas dans quelques minutes, pensez à vérifier vos courriers indésirables.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   if (confirmationEnvoyee) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-papier px-6">
@@ -112,6 +149,10 @@ function SignInInner() {
               <>
                 Créer votre <em className="italic text-ambre-texte">espace</em>
               </>
+            ) : mode === "oubli" ? (
+              <>
+                Mot de passe <em className="italic text-ambre-texte">oublié</em>
+              </>
             ) : (
               <>
                 Votre espace <em className="italic text-ambre-texte">narrateur</em>
@@ -121,6 +162,8 @@ function SignInInner() {
           <p className="font-sans text-sm text-grege mt-2">
             {mode === "signup"
               ? "Commencez votre parcours d'écriture."
+              : mode === "oubli"
+              ? "Indiquez votre adresse : vous recevrez un lien pour en choisir un nouveau."
               : "Retrouvez vos séances et vos fragments."}
           </p>
         </div>
@@ -141,6 +184,7 @@ function SignInInner() {
               className="w-full border border-grege bg-white text-encre px-4 py-3 font-sans text-base focus:outline-none focus:border-petrole transition-colors"
             />
           </div>
+          {mode !== "oubli" && (
           <div>
             <label className="font-sans text-sm text-encre block mb-1.5">
               Mot de passe
@@ -154,7 +198,18 @@ function SignInInner() {
               required
               className="w-full border border-grege bg-white text-encre px-4 py-3 font-sans text-base focus:outline-none focus:border-petrole transition-colors"
             />
+            {mode === "login" && (
+              <button
+                type="button"
+                onClick={() => { setMode("oubli"); setError(null) }}
+                disabled={loading}
+                className="mt-2 font-sans text-sm text-grege underline underline-offset-2 hover:text-encre transition-colors"
+              >
+                Mot de passe oublié ?
+              </button>
+            )}
           </div>
+          )}
 
           {mode === "signup" && (
             <label className="flex items-start gap-2.5 font-sans text-xs text-grege leading-relaxed">
@@ -187,13 +242,15 @@ function SignInInner() {
 
           <button
             type="submit"
-            disabled={loading || !email || password.length < 8 || (mode === "signup" && !consentDonneesSensibles)}
+            disabled={loading || !email || (mode !== "oubli" && password.length < 8) || (mode === "signup" && !consentDonneesSensibles)}
             className="w-full bg-encre text-blanc rounded-full font-sans text-base py-3.5 tracking-wide hover:opacity-90 transition-opacity disabled:opacity-40"
           >
             {loading
               ? "…"
               : mode === "signup"
               ? "Créer mon espace narrateur"
+              : mode === "oubli"
+              ? "Recevoir le lien"
               : "Se connecter"}
           </button>
         </form>
@@ -202,7 +259,7 @@ function SignInInner() {
             dans Supabase (constaté désactivé en production le 17/10/2026 :
             le bouton menait à une erreur). À réafficher avec
             NEXT_PUBLIC_AUTH_GOOGLE=1 une fois Google configuré. */}
-        {AUTH_GOOGLE_ACTIVE && (
+        {AUTH_GOOGLE_ACTIVE && mode !== "oubli" && (
         <>
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-grege" />
@@ -229,11 +286,11 @@ function SignInInner() {
 
         <div className="text-center">
           <button
-            onClick={() => { setMode(mode === "signup" ? "login" : "signup"); setError(null) }}
+            onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(null) }}
             disabled={loading}
             className="font-sans text-sm text-grege underline underline-offset-2 hover:text-encre transition-colors"
           >
-            {mode === "signup" ? "J'ai déjà un espace narrateur" : "Créer un espace narrateur"}
+            {mode === "signup" ? "J'ai déjà un espace narrateur" : mode === "oubli" ? "Retour à la connexion" : "Créer un espace narrateur"}
           </button>
         </div>
       </div>
