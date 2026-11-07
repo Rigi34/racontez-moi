@@ -1023,12 +1023,21 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
         )}
 
         {voixEnAttente && phase !== "fragment" && (
-          <p className="font-sans text-sm text-encre text-center bg-blanc border border-grege/40 px-5 py-3 mb-6">
-            Vous n&apos;avez pas encore choisi de garder votre voix pour votre dernier passage.{" "}
-            <a href="/tableau-de-bord" className="text-petrole underline underline-offset-4">
-              La retrouver dans mon parcours
+          // Test du 31/10/2026 : le rappel passait inaperçu (petit texte gris
+          // sur fond blanc) — désormais en couleur, avec un vrai bouton.
+          <div className="bg-petrole text-blanc text-center px-5 py-5 mb-6 space-y-3" role="status">
+            <p className="font-serif text-lg leading-relaxed">
+              Votre voix vous attend&nbsp;: vous n&apos;avez pas encore dit si vous gardez un
+              enregistrement de votre dernier passage.
+            </p>
+            <p className="font-sans text-sm text-blanc/80">Il reste sur cet appareil au plus une semaine.</p>
+            <a
+              href="/tableau-de-bord"
+              className="inline-block bg-blanc text-encre font-sans text-base rounded-full px-6 py-3 min-h-12 hover:bg-papier transition-colors"
+            >
+              Choisir maintenant
             </a>
-          </p>
+          </div>
         )}
 
         {/* Phase 1 — Question initiale */}

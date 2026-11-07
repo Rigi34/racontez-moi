@@ -19,8 +19,18 @@ const LIBELLES: Record<Enregistrement["etape"], string> = {
   relance2: "Après la seconde relance",
 };
 
-export default function ChoixVoix({ fragmentId, enregistrements }: { fragmentId: string; enregistrements: Enregistrement[] }) {
+export default function ChoixVoix({
+  fragmentId,
+  enregistrements,
+  onGarde,
+}: {
+  fragmentId: string;
+  enregistrements: Enregistrement[];
+  // Appelé une fois l'extrait gardé (le parcours affiche alors ses réglages).
+  onGarde?: () => void;
+}) {
   const [etat, setEtat] = useState<"choix" | "envoi" | "garde" | "refuse">("choix");
+  const [indexGarde, setIndexGarde] = useState<number | null>(null);
   const [consenti, setConsenti] = useState(false);
   const [erreur, setErreur] = useState("");
 
@@ -45,18 +55,27 @@ export default function ChoixVoix({ fragmentId, enregistrements }: { fragmentId:
       const res = await fetch("/api/voix", { method: "POST", body: form });
       if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? "");
       void oublierPassage(fragmentId);
+      setIndexGarde(index);
       setEtat("garde");
+      onGarde?.();
     } catch (e) {
       setErreur((e as Error).message || "L'enregistrement n'a pas pu être gardé. Réessayez.");
       setEtat("choix");
     }
   };
 
+  // Test du 31/10/2026 : après « Garder celui-ci », il fallait recharger la
+  // page pour réentendre l'extrait — il s'affiche maintenant tout de suite.
   if (etat === "garde") {
     return (
-      <p className="font-sans text-sm text-petrole text-center">
-        Votre voix est gardée pour ce passage. Vous pourrez la réécouter ou la supprimer depuis votre parcours.
-      </p>
+      <div className="space-y-3 max-w-xl mx-auto text-center">
+        <p className="font-sans text-sm text-petrole">
+          Votre voix est gardée pour ce passage. Vous pourrez la réécouter ou la supprimer depuis votre parcours.
+        </p>
+        {indexGarde !== null && urls[indexGarde] && (
+          <audio controls preload="metadata" src={urls[indexGarde]} className="w-full" />
+        )}
+      </div>
     );
   }
 
