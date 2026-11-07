@@ -1,5 +1,5 @@
 // Gabarit Typst conforme aux specs Lulu pour le livre relié 6x9po (152,4 x
-// 228,6 mm), couverture rigide casewrap (POD 0600X0900FCSTDCW080CW444GXX,
+// 228,6 mm), couverture rigide casewrap (POD 0600X0900.FC.STD.CW.080CW444.MXX,
 // cf. lib/lulu.ts — l'ancien commentaire « broché » datait du spike de juin).
 // Specs vérifiées (help.lulu.com « Interior formatting: the basics »,
 // 02/10/2026) : fond perdu 0,125po (3,18mm), marge de sécurité 0,5po
