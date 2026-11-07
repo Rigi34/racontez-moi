@@ -21,6 +21,8 @@ export default function VoixFragment({ fragmentId }: { fragmentId: string }) {
   const [erreur, setErreur] = useState("");
   const [enAttente, setEnAttente] = useState<Enregistrement[]>([]);
 
+  const [rechargement, setRechargement] = useState(0);
+
   useEffect(() => {
     if (!actif) return;
     (async () => {
@@ -35,13 +37,13 @@ export default function VoixFragment({ fragmentId }: { fragmentId: string }) {
         // Silencieux : l'absence d'extrait n'empêche rien d'autre.
       }
     })();
-  }, [actif, fragmentId]);
+  }, [actif, fragmentId, rechargement]);
 
   if (!actif) return null;
   if (!extrait) {
     return enAttente.length ? (
       <div className="border-t border-grege/30 pt-4">
-        <ChoixVoix fragmentId={fragmentId} enregistrements={enAttente} />
+        <ChoixVoix fragmentId={fragmentId} enregistrements={enAttente} onGarde={() => setRechargement((n) => n + 1)} />
       </div>
     ) : null;
   }
