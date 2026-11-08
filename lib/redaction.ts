@@ -31,32 +31,48 @@ export async function composerFragment(client: Anthropic, echange: EchangeBrut):
     ? `\n\nLe narrateur a demandé à recomposer ce fragment avec cette précision (n'invente rien au-delà des tours ci-dessus, utilise-la seulement pour mieux cadrer la composition) : ${echange.instruction.trim()}`
     : "";
 
-  const message = await client.messages.create({
-    // 700 s'est avéré insuffisant dès qu'une séance couvre plusieurs
-    // souvenirs enchaînés (le modèle peut légitimement vouloir composer deux
-    // fragments distincts, ~400 mots chacun) — coupait le texte en plein
-    // milieu de phrase. Relevé à 1600 (Phase 5), puis à 2400 le 29/09/2026
-    // après un nouveau cas de troncature en production malgré la fourchette
-    // 150-400 mots du prompt système — 1600 restait insuffisant.
-    max_tokens: 2400,
-    model: "claude-sonnet-4-6",
-    system: SYSTEM_FRAGMENT,
-    messages: [
-      {
-        role: "user",
-        content: `${formaterTours(echange.tours)}${echange.contexteMemoire ?? ""}${blocInstruction}`,
-      },
-    ],
-  });
-  if (message.stop_reason === "max_tokens") {
-    console.error("composerFragment: réponse tronquée par max_tokens", { tours: echange.tours.length });
-    // 29/09/2026 : avant, le texte tronqué était quand même renvoyé et
-    // sauvegardé (bug silencieux découvert en test vocal réel sur Preview
-    // TEST). Un fragment incomplet ne doit jamais atteindre le narrateur —
-    // on le rejette explicitement plutôt que de le faire passer pour fini.
-    throw new Error("composerFragment: fragment tronqué par max_tokens, rejeté");
+  // Test vocal du 31/10/2026 : trois souvenirs sur trois finissaient en
+  // pleine phrase (« …avant que tout »), l'ancienne consigne « Dernier mot :
+  // ouvre vers quelque chose, ne clôture pas » étant prise au pied de la
+  // lettre. Consigne corrigée (lib/prompts.ts) ; en filet de sécurité, un
+  // texte sans ponctuation finale est recomposé une fois, puis rejeté.
+  for (let essai = 1; ; essai++) {
+    const message = await client.messages.create({
+      // 700 s'est avéré insuffisant dès qu'une séance couvre plusieurs
+      // souvenirs enchaînés (le modèle peut légitimement vouloir composer deux
+      // fragments distincts, ~400 mots chacun) — coupait le texte en plein
+      // milieu de phrase. Relevé à 1600 (Phase 5), puis à 2400 le 29/09/2026
+      // après un nouveau cas de troncature en production malgré la fourchette
+      // 150-400 mots du prompt système — 1600 restait insuffisant.
+      max_tokens: 2400,
+      model: "claude-sonnet-4-6",
+      system: SYSTEM_FRAGMENT,
+      messages: [
+        {
+          role: "user",
+          content: `${formaterTours(echange.tours)}${echange.contexteMemoire ?? ""}${blocInstruction}`,
+        },
+      ],
+    });
+    if (message.stop_reason === "max_tokens") {
+      console.error("composerFragment: réponse tronquée par max_tokens", { tours: echange.tours.length });
+      // 29/09/2026 : avant, le texte tronqué était quand même renvoyé et
+      // sauvegardé (bug silencieux découvert en test vocal réel sur Preview
+      // TEST). Un fragment incomplet ne doit jamais atteindre le narrateur —
+      // on le rejette explicitement plutôt que de le faire passer pour fini.
+      throw new Error("composerFragment: fragment tronqué par max_tokens, rejeté");
+    }
+    const texte = (message.content[0] as { type: string; text: string }).text.trim();
+    if (finitParUnePonctuation(texte)) return texte;
+    console.error("composerFragment: fragment sans ponctuation finale", { essai });
+    if (essai >= 2) throw new Error("composerFragment: fragment inachevé, rejeté");
   }
-  return (message.content[0] as { type: string; text: string }).text.trim();
+}
+
+// Point, points de suspension, ! ou ?, éventuellement suivis d'un guillemet
+// ou d'une parenthèse fermants.
+export function finitParUnePonctuation(texte: string): boolean {
+  return /[.!?…][\s»"”')\]]*$/.test(texte);
 }
 
 const SYSTEM_RESUME_SESSION = `Tu résumes une séance d'entretien mémoriel en 2-3 phrases factuelles, à usage interne (jamais montrées au narrateur).

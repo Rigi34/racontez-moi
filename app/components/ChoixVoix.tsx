@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { TEXTE_CONSENTEMENT_VOIX, VERSION_CONSENTEMENT_VOIX } from "@/lib/voix";
+import { oublierPassage } from "@/lib/voix-locale";
 
 // Fin de séance (chantier VOIX-CHOISIE) : le narrateur réécoute ses réponses
 // et peut en garder UNE pour le passage qui vient d'être composé. Les
 // enregistrements sont restés dans le navigateur ; rien n'est envoyé tant
 // qu'il n'a pas choisi et coché le consentement. « Ne rien garder » les
-// oublie définitivement.
+// oublie définitivement. Une copie reste sur l'appareil jusqu'au choix
+// (lib/voix-locale.ts), pour survivre à un rechargement de l'onglet.
 
 export type Enregistrement = { blob: Blob; etape: "question" | "relance" | "relance2" };
 
@@ -17,8 +19,18 @@ const LIBELLES: Record<Enregistrement["etape"], string> = {
   relance2: "Après la seconde relance",
 };
 
-export default function ChoixVoix({ fragmentId, enregistrements }: { fragmentId: string; enregistrements: Enregistrement[] }) {
+export default function ChoixVoix({
+  fragmentId,
+  enregistrements,
+  onGarde,
+}: {
+  fragmentId: string;
+  enregistrements: Enregistrement[];
+  // Appelé une fois l'extrait gardé (le parcours affiche alors ses réglages).
+  onGarde?: () => void;
+}) {
   const [etat, setEtat] = useState<"choix" | "envoi" | "garde" | "refuse">("choix");
+  const [indexGarde, setIndexGarde] = useState<number | null>(null);
   const [consenti, setConsenti] = useState(false);
   const [erreur, setErreur] = useState("");
 
@@ -42,18 +54,28 @@ export default function ChoixVoix({ fragmentId, enregistrements }: { fragmentId:
       form.append("consentement", VERSION_CONSENTEMENT_VOIX);
       const res = await fetch("/api/voix", { method: "POST", body: form });
       if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? "");
+      void oublierPassage(fragmentId);
+      setIndexGarde(index);
       setEtat("garde");
+      onGarde?.();
     } catch (e) {
       setErreur((e as Error).message || "L'enregistrement n'a pas pu être gardé. Réessayez.");
       setEtat("choix");
     }
   };
 
+  // Test du 31/10/2026 : après « Garder celui-ci », il fallait recharger la
+  // page pour réentendre l'extrait — il s'affiche maintenant tout de suite.
   if (etat === "garde") {
     return (
-      <p className="font-sans text-sm text-petrole text-center">
-        Votre voix est gardée pour ce passage. Vous pourrez la réécouter ou la supprimer depuis votre parcours.
-      </p>
+      <div className="space-y-3 max-w-xl mx-auto text-center">
+        <p className="font-sans text-sm text-petrole">
+          Votre voix est gardée pour ce passage. Vous pourrez la réécouter ou la supprimer depuis votre parcours.
+        </p>
+        {indexGarde !== null && urls[indexGarde] && (
+          <audio controls preload="metadata" src={urls[indexGarde]} className="w-full" />
+        )}
+      </div>
     );
   }
 
@@ -65,6 +87,9 @@ export default function ChoixVoix({ fragmentId, enregistrements }: { fragmentId:
           Si vous le souhaitez, un de vos enregistrements peut être conservé. Vous pourrez le réécouter, et vos
           proches l&apos;entendront en scannant un petit code imprimé dans votre livre. Rien n&apos;est gardé sans
           votre accord.
+        </p>
+        <p className="font-sans text-sm text-grege leading-relaxed">
+          Vos enregistrements restent sur cet appareil le temps de votre choix, au plus une semaine.
         </p>
       </div>
 
@@ -94,7 +119,10 @@ export default function ChoixVoix({ fragmentId, enregistrements }: { fragmentId:
       {erreur && <p className="font-sans text-sm text-red-700">{erreur}</p>}
 
       <button
-        onClick={() => setEtat("refuse")}
+        onClick={() => {
+          void oublierPassage(fragmentId);
+          setEtat("refuse");
+        }}
         className="font-sans text-sm text-grege underline underline-offset-4 hover:text-encre transition-colors"
       >
         Ne rien garder
