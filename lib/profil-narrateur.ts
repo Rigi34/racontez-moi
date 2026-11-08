@@ -62,8 +62,24 @@ export async function lirePrenom(supabase: SupabaseClient, userId: string): Prom
 const MOTS_PRENOM_MAX = 3;
 const LONGUEUR_PRENOM_MAX = 30;
 
+// Bornes retirées caractère par caractère, sans expression régulière :
+// l'alerte CodeQL « polynomial regular expression » (PR #41) visait la
+// version /…[\s…]+$/ sur une réponse dictée arbitrairement longue.
+const AVANT_PRENOM = new Set(['"', "«"]);
+const APRES_PRENOM = new Set(['"', "»", ".", "!", "?", ",", ";", ":"]);
+const LONGUEUR_REPONSE_DIRECTE_MAX = 200;
+
+function retirerBornes(texte: string): string {
+  let debut = 0;
+  let fin = texte.length;
+  while (debut < fin && (AVANT_PRENOM.has(texte[debut]) || /\s/.test(texte[debut]))) debut++;
+  while (fin > debut && (APRES_PRENOM.has(texte[fin - 1]) || /\s/.test(texte[fin - 1]))) fin--;
+  return texte.slice(debut, fin);
+}
+
 function prenomPlausible(texte: string): string | null {
-  const nettoye = texte.trim().replace(/^["«\s]+|["»\s.!?,;:]+$/g, "");
+  if (texte.length > LONGUEUR_REPONSE_DIRECTE_MAX) return null;
+  const nettoye = retirerBornes(texte);
   if (!nettoye || nettoye.length > LONGUEUR_PRENOM_MAX) return null;
   if (nettoye.split(/\s+/).length > MOTS_PRENOM_MAX) return null;
   if (!/^[\p{L}][\p{L}' -]*$/u.test(nettoye)) return null;
