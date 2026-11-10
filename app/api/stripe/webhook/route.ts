@@ -3,6 +3,7 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { creerCodeCadeau, revoquerCodeCadeau } from "@/lib/codes-cadeau";
+import { envoyerEmailBienvenuePaiement } from "@/lib/email-client";
 
 // Client service role : le webhook n'a pas de session utilisateur, il doit
 // contourner RLS pour écrire dans `abonnements`.
@@ -89,6 +90,14 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "session.customer manquant." }, { status: 500 });
       }
 
+      // E-mail de bienvenue (10/11/2026) : statut lu AVANT l'activation, pour
+      // n'écrire qu'une fois même si Stripe renvoie le même événement.
+      const { data: abonnementAvant } = await supabase
+        .from("abonnements")
+        .select("status")
+        .eq("user_id", userId)
+        .maybeSingle();
+
       const { error: erreurUpsertAbonnement } = await supabase.from("abonnements").upsert(
         {
           user_id: userId,
@@ -108,6 +117,11 @@ export async function POST(req: NextRequest) {
           error_message: erreurUpsertAbonnement.message,
         });
         return NextResponse.json({ error: "Échec de l'activation de l'abonnement." }, { status: 500 });
+      }
+
+      const emailClient = session.customer_details?.email ?? session.customer_email;
+      if (abonnementAvant?.status !== "active" && emailClient) {
+        await envoyerEmailBienvenuePaiement(emailClient);
       }
       break;
     }

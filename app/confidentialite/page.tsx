@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Confidentialité — Racontez-moi",
   description:
     "Ce que nous collectons, ce que nous ne conservons pas, et pourquoi.",
+  alternates: { canonical: "/confidentialite" },
 };
 
 export default function Confidentialite() {

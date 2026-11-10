@@ -4,7 +4,9 @@ import type Stripe from "stripe";
 // Le module route.ts crée son propre client Supabase et son propre client
 // Stripe au chargement — on mocke les trois dépendances externes plutôt que
 // de les injecter, pour tester la route telle qu'elle tourne réellement.
-const { constructEventMock, creerCodeCadeauMock, revoquerCodeCadeauMock, sessionsListMock, maybeSingleMock, upsertMock, updateMock, updateEqMock } = vi.hoisted(() => ({
+const { emailBienvenueMock, abonnementAvantMock, constructEventMock, creerCodeCadeauMock, revoquerCodeCadeauMock, sessionsListMock, maybeSingleMock, upsertMock, updateMock, updateEqMock } = vi.hoisted(() => ({
+  emailBienvenueMock: vi.fn(),
+  abonnementAvantMock: vi.fn(),
   constructEventMock: vi.fn(),
   creerCodeCadeauMock: vi.fn(),
   revoquerCodeCadeauMock: vi.fn(),
@@ -22,6 +24,10 @@ vi.mock("@/lib/stripe", () => ({
   },
 }));
 
+vi.mock("@/lib/email-client", () => ({
+  envoyerEmailBienvenuePaiement: emailBienvenueMock,
+}));
+
 vi.mock("@/lib/codes-cadeau", () => ({
   creerCodeCadeau: creerCodeCadeauMock,
   revoquerCodeCadeau: revoquerCodeCadeauMock,
@@ -34,7 +40,11 @@ vi.mock("@supabase/supabase-js", () => ({
         return { select: () => ({ eq: () => ({ maybeSingle: maybeSingleMock }) }) };
       }
       if (table === "abonnements") {
-        return { upsert: upsertMock, update: updateMock };
+        return {
+          upsert: upsertMock,
+          update: updateMock,
+          select: () => ({ eq: () => ({ maybeSingle: abonnementAvantMock }) }),
+        };
       }
       throw new Error(`Table inattendue dans le mock: ${table}`);
     }),
@@ -82,6 +92,8 @@ beforeEach(() => {
   updateEqMock.mockResolvedValue({ error: null });
   sessionsListMock.mockResolvedValue({ data: [] });
   revoquerCodeCadeauMock.mockResolvedValue(null);
+  abonnementAvantMock.mockResolvedValue({ data: null });
+  emailBienvenueMock.mockResolvedValue(true);
 });
 
 describe("POST /api/stripe/webhook", () => {
@@ -317,6 +329,75 @@ describe("POST /api/stripe/webhook", () => {
 
       expect(res.status).toBe(200);
       expect(updateMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("e-mail de bienvenue après paiement", () => {
+    const session = {
+      id: "cs_test_bienvenue",
+      client_reference_id: "user-1",
+      customer: "cus_1",
+      customer_details: { email: "client@example.com" } as Stripe.Checkout.Session.CustomerDetails,
+    };
+
+    it("l'envoie à la première activation", async () => {
+      constructEventMock.mockReturnValue(sessionCompletedEvent(session));
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(200);
+      expect(emailBienvenueMock).toHaveBeenCalledTimes(1);
+      expect(emailBienvenueMock).toHaveBeenCalledWith("client@example.com");
+    });
+
+    it("l'envoie aussi après un remboursement suivi d'un nouveau paiement", async () => {
+      constructEventMock.mockReturnValue(sessionCompletedEvent(session));
+      abonnementAvantMock.mockResolvedValue({ data: { status: "rembourse" } });
+
+      await POST(requete("{}"));
+
+      expect(emailBienvenueMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("ne le renvoie pas si l'événement est rejoué (accès déjà actif)", async () => {
+      constructEventMock.mockReturnValue(sessionCompletedEvent(session));
+      abonnementAvantMock.mockResolvedValue({ data: { status: "active" } });
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(200);
+      expect(emailBienvenueMock).not.toHaveBeenCalled();
+    });
+
+    it("ne l'envoie pas si l'activation échoue", async () => {
+      constructEventMock.mockReturnValue(sessionCompletedEvent(session));
+      upsertMock.mockResolvedValue({ error: { code: "x", message: "boom" } });
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(500);
+      expect(emailBienvenueMock).not.toHaveBeenCalled();
+    });
+
+    it("un échec d'envoi ne bloque pas l'activation", async () => {
+      constructEventMock.mockReturnValue(sessionCompletedEvent(session));
+      emailBienvenueMock.mockResolvedValue(false);
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(200);
+      expect(upsertMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("ne l'envoie pas pour un achat-cadeau", async () => {
+      constructEventMock.mockReturnValue(
+        sessionCompletedEvent({ ...session, metadata: { type: "cadeau" } })
+      );
+      maybeSingleMock.mockResolvedValue({ data: null });
+
+      await POST(requete("{}"));
+
+      expect(emailBienvenueMock).not.toHaveBeenCalled();
     });
   });
 });

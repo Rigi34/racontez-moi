@@ -23,7 +23,13 @@ const plexSans = IBM_Plex_Sans({
   weight: ["400", "500", "600"],
 });
 
+// Adresse principale du site (10/11/2026) : Search Console signalait
+// l'accueil « en double » car www.racontez-moi.com répondait aussi (redirigé
+// en 308 depuis, dans Vercel). metadataBase rend absolues les adresses
+// relatives (canonical, og:image) ; chaque page publique déclare la sienne.
+// Pas de canonical ici : il serait hérité par toutes les pages.
 export const metadata: Metadata = {
+  metadataBase: new URL("https://racontez-moi.com"),
   title: "Racontez-moi — Le livre de votre vie",
   description:
     "Des conversations de trente à quarante-cinq minutes, à la voix. Un interlocuteur qui écoute, questionne, se souvient — et compose le livre de votre vie.",
