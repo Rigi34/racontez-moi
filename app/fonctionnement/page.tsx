@@ -7,6 +7,7 @@ import FondVivant from "@/app/components/FondVivant";
 export const metadata: Metadata = {
   title: "Comment fonctionne Racontez-moi",
   description: "Durée des séances, rythme, silence, corrections — la mécanique expliquée simplement.",
+  alternates: { canonical: "/fonctionnement" },
 };
 
 // Icônes linework des 6 étapes ci-dessous — dessinées à la main (pas de

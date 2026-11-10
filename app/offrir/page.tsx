@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "Cadeau Mémoire — Racontez-moi",
   description:
     "Offrez à vos parents quelques mois de conversations pour raconter leur histoire. Un manuscrit qui leur ressemble, à la fin.",
+  alternates: { canonical: "/offrir" },
 };
 
 export default function OffrirPage() {

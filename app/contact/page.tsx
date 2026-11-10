@@ -6,6 +6,7 @@ import FondVivant from "@/app/components/FondVivant";
 export const metadata: Metadata = {
   title: "Contact — Racontez-moi",
   description: "Une question ? Écrivez-nous directement.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function Contact() {

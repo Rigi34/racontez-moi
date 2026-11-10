@@ -6,6 +6,7 @@ import { voixChoisieActive } from "@/lib/voix";
 export const metadata: Metadata = {
   title: "Sujets sensibles et données de santé — Racontez-moi",
   description: "Quelles catégories particulières de données (RGPD art. 9) peuvent être concernées, à quel titre, et ce que vous restez libre de refuser.",
+  alternates: { canonical: "/confidentialite/sujets-sensibles" },
 };
 
 // Contenu final rédigé par Régis (30/07/2026), suite à la demande de
