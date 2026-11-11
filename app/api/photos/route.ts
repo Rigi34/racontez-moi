@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!TYPES_ACCEPTES.includes(fichier.type)) {
-    return NextResponse.json({ error: "Format non accepté — utilisez JPEG, PNG ou WebP." }, { status: 400 });
+    return NextResponse.json({ error: "Format non accepté — utilisez une photo JPG, PNG, WebP ou HEIC (iPhone)." }, { status: 400 });
   }
   if (fichier.size === 0 || fichier.size > TAILLE_MAX_OCTETS) {
     return NextResponse.json({ error: "Cette photo est trop lourde (20 Mo au maximum)." }, { status: 400 });
