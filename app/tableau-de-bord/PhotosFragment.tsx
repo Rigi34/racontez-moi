@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { PHOTOS_MAX_PAR_FRAGMENT } from "@/lib/photos";
+import { estHeif, convertirEnJpeg } from "@/lib/heic";
 
 type Photo = { id: string; url: string | null; created_at: string };
 
@@ -10,6 +11,7 @@ const SEUIL_DETAIL_ECHECS = 3;
 export default function PhotosFragment({ fragmentId }: { fragmentId: string }) {
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [envoiEnCours, setEnvoiEnCours] = useState(false);
+  const [conversionEnCours, setConversionEnCours] = useState(false);
   const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const erreurRef = useRef<HTMLParagraphElement>(null);
@@ -43,8 +45,25 @@ export default function PhotosFragment({ fragmentId }: { fragmentId: string }) {
     let succes = 0;
     const echecs: { nom: string; message: string }[] = [];
 
-    for (const fichier of Array.from(fichiers)) {
+    for (const fichierChoisi of Array.from(fichiers)) {
+      let fichier = fichierChoisi;
       try {
+        if (await estHeif(fichierChoisi)) {
+          setConversionEnCours(true);
+          try {
+            fichier = await convertirEnJpeg(fichierChoisi);
+          } catch (e) {
+            console.error("Conversion HEIC échouée:", e);
+            echecs.push({
+              nom: fichierChoisi.name,
+              message:
+                "cette photo d'iPhone n'a pas pu être préparée. Essayez de la choisir depuis la galerie Photos, ou de l'envoyer en JPG.",
+            });
+            continue;
+          } finally {
+            setConversionEnCours(false);
+          }
+        }
         const form = new FormData();
         form.append("fichier", fichier);
         form.append("fragment_id", fragmentId);
@@ -131,7 +150,10 @@ export default function PhotosFragment({ fragmentId }: { fragmentId: string }) {
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          // image/* (11/11/2026) : laisse l'iPhone convertir lui-même ses
+          // photos HEIC depuis la galerie, et rend les fichiers .heic visibles
+          // dans le sélecteur d'un ordinateur. Le serveur reste strict.
+          accept="image/*"
           multiple
           className="hidden"
           onChange={(e) => e.target.files && envoyerFichiers(e.target.files)}
@@ -141,9 +163,13 @@ export default function PhotosFragment({ fragmentId }: { fragmentId: string }) {
         <span className="text-encre">
           {photos.length} / {PHOTOS_MAX_PAR_FRAGMENT} photos{complet ? " — maximum atteint pour ce souvenir" : ""}
         </span>{" "}
-        · JPG, PNG ou WebP. Les photos HEIC/HEIF (format par défaut sur
-        certains iPhone) ne sont pas acceptées pour l&apos;instant.
+        · JPG, PNG, WebP ou HEIC (iPhone).
       </p>
+      {conversionEnCours && (
+        <p className="font-sans text-xs text-encre" role="status">
+          Préparation de la photo…
+        </p>
+      )}
       {error && (
         <p ref={erreurRef} className="font-sans text-xs text-red-700">
           {error}
