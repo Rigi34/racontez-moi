@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 
-export default function BoutonCommande({ adresseRemplie }: { adresseRemplie: boolean }) {
+export default function BoutonCommande({
+  adresseRemplie,
+  nombreRetires = 0,
+}: {
+  adresseRemplie: boolean;
+  nombreRetires?: number;
+}) {
   const [confirmation, setConfirmation] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resultat, setResultat] = useState<"ok" | "erreur" | null>(null);
@@ -38,8 +44,20 @@ export default function BoutonCommande({ adresseRemplie }: { adresseRemplie: boo
     return <p className="font-sans text-sm text-petrole">{message}</p>;
   }
 
+  // Lisibilité (11/11/2026) : rappel des souvenirs retirés avant d'imprimer.
+  const rappelRetires =
+    nombreRetires > 0 ? (
+      <p className="font-sans text-base text-amber-900 bg-amber-50 border border-amber-300 rounded-lg px-4 py-3">
+        Attention&nbsp;: {nombreRetires === 1 ? "1 souvenir retiré ne sera pas imprimé." : `${nombreRetires} souvenirs retirés ne seront pas imprimés.`}{" "}
+        <a href="/tableau-de-bord" className="font-semibold underline underline-offset-4">
+          {nombreRetires === 1 ? "Le voir avant de valider ›" : "Les voir avant de valider ›"}
+        </a>
+      </p>
+    ) : null;
+
   return (
     <div className="space-y-3">
+      {adresseRemplie && rappelRetires}
       {!adresseRemplie ? (
         <p className="font-sans text-sm text-grege">Renseignez votre adresse de livraison avant de commander.</p>
       ) : !confirmation ? (
