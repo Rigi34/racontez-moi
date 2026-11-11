@@ -122,10 +122,10 @@ export default function PhotosFragment({ fragmentId }: { fragmentId: string }) {
     <div className="space-y-2">
       <div className="flex gap-3 flex-wrap items-center pt-2">
         {photos.map((p) => (
-          <div key={p.id} className="relative w-16 h-16">
+          <div key={p.id} className="relative w-20 h-20">
             {p.url && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={p.url} alt="" className="w-16 h-16 object-cover border border-grege" />
+              <img src={p.url} alt="" className="w-20 h-20 object-cover border border-grege rounded" />
             )}
             {/* Croix toujours visible : au survol seulement, elle restait
                 introuvable sur téléphone (retour du 27/10/2026). */}
@@ -142,9 +142,9 @@ export default function PhotosFragment({ fragmentId }: { fragmentId: string }) {
           <button
             onClick={() => inputRef.current?.click()}
             disabled={envoiEnCours}
-            className="w-16 h-16 border border-dashed border-grege text-grege text-xs hover:border-encre hover:text-encre transition-colors disabled:opacity-40"
+            className="min-h-12 px-5 py-3 bg-blanc border border-dashed border-encre rounded-lg font-sans text-base font-medium text-encre hover:bg-sauge/40 transition-colors disabled:opacity-40"
           >
-            {envoiEnCours ? "…" : "+ Photo"}
+            {envoiEnCours ? "Envoi en cours…" : "+ Ajouter une photo"}
           </button>
         )}
         <input
@@ -159,19 +159,17 @@ export default function PhotosFragment({ fragmentId }: { fragmentId: string }) {
           onChange={(e) => e.target.files && envoyerFichiers(e.target.files)}
         />
       </div>
-      <p className="font-sans text-xs text-grege">
-        <span className="text-encre">
-          {photos.length} / {PHOTOS_MAX_PAR_FRAGMENT} photos{complet ? " — maximum atteint pour ce souvenir" : ""}
-        </span>{" "}
-        · JPG, PNG, WebP ou HEIC (iPhone).
+      <p className="font-sans text-[15px] text-encre/80">
+        {photos.length} photo{photos.length > 1 ? "s" : ""} sur {PHOTOS_MAX_PAR_FRAGMENT} possibles
+        {complet ? " — maximum atteint pour ce souvenir" : ""}. Toutes les photos de téléphone sont acceptées.
       </p>
       {conversionEnCours && (
-        <p className="font-sans text-xs text-encre" role="status">
+        <p className="font-sans text-base text-encre" role="status">
           Préparation de la photo…
         </p>
       )}
       {error && (
-        <p ref={erreurRef} className="font-sans text-xs text-red-700">
+        <p ref={erreurRef} className="font-sans text-base text-red-700">
           {error}
         </p>
       )}
