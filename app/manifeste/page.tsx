@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Pourquoi Racontez-moi existe",
   description:
     "Ce qui manque, ce n'est jamais l'histoire. C'est l'interlocuteur.",
+  alternates: { canonical: "/manifeste" },
 };
 
 export default function Manifeste() {

@@ -36,6 +36,21 @@ describe("extrairePrenom", () => {
     expect(await extrairePrenom(client, "Je ne sais pas trop, comme vous voulez.")).toBe("");
   });
 
+  it("nettoie guillemets et ponctuation autour du prénom", async () => {
+    const { client, create } = modele("");
+    expect(await extrairePrenom(client, "« Régis » !")).toBe("Régis");
+    expect(await extrairePrenom(client, '\t"Marie-Claire".\n')).toBe("Marie-Claire");
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("confie au modèle une réponse très longue, sans la parcourir lentement", async () => {
+    const { client, create } = modele("AUCUN");
+    const debut = Date.now();
+    expect(await extrairePrenom(client, "a" + "\t".repeat(50_000) + "b")).toBe("");
+    expect(Date.now() - debut).toBeLessThan(500);
+    expect(create).toHaveBeenCalledTimes(1);
+  });
+
   it("renvoie une chaîne vide si l'appel au modèle échoue", async () => {
     const erreurSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const create = vi.fn().mockRejectedValue(new Error("panne"));

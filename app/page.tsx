@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import Seance from "./components/Seance";
@@ -7,6 +8,10 @@ import BarreCTAMobile from "./components/BarreCTAMobile";
 import EmplacementPreuve, { AFFICHER_EMPLACEMENTS } from "./components/EmplacementPreuve";
 import { ChangementAvis, ListeCompris } from "./components/OffreParcours";
 import { SectionDeLaVoixAuLivre, SectionVotreLivre, VisuelLivre } from "./components/livre/PresentationLivre";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 // Niveau 1 (accueil) : uniquement les questions qui lèvent un frein direct à
 // l'essai gratuit — celles qu'un visiteur hésitant se pose avant de cliquer.

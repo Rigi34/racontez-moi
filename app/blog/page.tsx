@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Journal — Racontez-moi",
   description:
     "Ce que la recherche dit sur l'écriture de ses mémoires — santé, transmission, mémoire.",
+  alternates: { canonical: "/blog" },
 };
 
 export default function BlogIndex() {

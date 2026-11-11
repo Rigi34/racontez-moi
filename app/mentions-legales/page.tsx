@@ -5,6 +5,7 @@ import FondVivant from "@/app/components/FondVivant";
 export const metadata: Metadata = {
   title: "Mentions légales & CGV — Racontez-moi",
   description: "Identité de l'éditeur, hébergement, propriété intellectuelle et conditions générales de vente.",
+  alternates: { canonical: "/mentions-legales" },
 };
 
 // CGV finalisées le 30/07/2026 suite à la demande de Régis (les inscriptions
