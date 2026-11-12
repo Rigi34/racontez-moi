@@ -78,8 +78,9 @@ vi.mock("@/lib/banque-questions", async (importOriginal) => ({
 vi.mock("@/lib/progression", () => ({ calculerProgression: vi.fn().mockResolvedValue(null) }));
 vi.mock("@/lib/embeddings", () => ({ embedText: vi.fn().mockResolvedValue(null) }));
 vi.mock("@/lib/retrieval", () => ({ retrieverTechniques: vi.fn().mockResolvedValue([]) }));
+const { composerFragmentMock } = vi.hoisted(() => ({ composerFragmentMock: vi.fn() }));
 vi.mock("@/lib/redaction", () => ({
-  composerFragment: vi.fn().mockResolvedValue("Le souvenir composé."),
+  composerFragment: composerFragmentMock,
   genererResumeSession: vi.fn().mockResolvedValue("Résumé."),
 }));
 vi.mock("@/lib/profil-narrateur", () => ({
@@ -122,9 +123,23 @@ beforeEach(() => {
   abonnementLuMock.mockResolvedValue({ data: null });
   nombreFragmentsMock.mockResolvedValue({ count: 0 });
   sessionsInsertMock.mockResolvedValue({ data: { id: "s-nouvelle" }, error: null });
+  composerFragmentMock.mockResolvedValue("Le souvenir composé.");
 });
 
 describe("POST /api/seance — étape fragment", () => {
+  // Garde-fou du 12/11/2026 : réponses vides ou inaudibles.
+  it("ne crée aucun souvenir quand il n'y a pas assez de matière", async () => {
+    const { MatiereInsuffisante } = await import("@/lib/garde-fou");
+    composerFragmentMock.mockRejectedValueOnce(new MatiereInsuffisante());
+
+    const res = await POST(requeteFragment());
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ insuffisant: true });
+    expect(fragmentsSingleMock).not.toHaveBeenCalled();
+    expect(sessionsUpdateMock).toHaveBeenLastCalledWith(expect.objectContaining({ status: "passee" }));
+  });
+
   it("enregistre le souvenir et clôt la séance", async () => {
     const res = await POST(requeteFragment());
 

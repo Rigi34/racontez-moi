@@ -16,6 +16,7 @@ import {
 } from "@/lib/profil-narrateur";
 import { prochaineQuestionBanque, titreSection, TITRE_SECTION_A } from "@/lib/banque-questions";
 import { composerFragment, genererResumeSession } from "@/lib/redaction";
+import { MatiereInsuffisante, relanceSure } from "@/lib/garde-fou";
 import { calculerProgression } from "@/lib/progression";
 import { verifierQuotaNarrateur } from "@/lib/rate-limit";
 
@@ -379,7 +380,7 @@ export async function POST(req: NextRequest) {
         ),
         messages: [{ role: "user", content: reponse }],
       });
-      relance = (message.content[0] as { type: string; text: string }).text.trim();
+      relance = relanceSure((message.content[0] as { type: string; text: string }).text.trim());
     } catch (e) {
       return echecRedaction("relance Anthropic (seance/relance)", e);
     }
@@ -480,7 +481,7 @@ export async function POST(req: NextRequest) {
         ),
         messages: [{ role: "user", content: reponseRelance }],
       });
-      relance2 = (message.content[0] as { type: string; text: string }).text.trim();
+      relance2 = relanceSure((message.content[0] as { type: string; text: string }).text.trim());
     } catch (e) {
       return echecRedaction("relance Anthropic (seance/relance2)", e);
     }
@@ -584,6 +585,16 @@ export async function POST(req: NextRequest) {
     try {
       fragment = await composerFragment(client, { tours, contexteMemoire });
     } catch (e) {
+      if (e instanceof MatiereInsuffisante) {
+        // Garde-fou (12/11/2026) : rien n'entre dans le livre. Séance
+        // marquée "passee" comme une question passée : elle ne compte pas
+        // dans la progression et ne consomme pas la séance offerte.
+        await supabase
+          .from("sessions")
+          .update({ transcript: tAvecReponse, status: "passee", ended_at: new Date().toISOString() })
+          .eq("id", session_id);
+        return NextResponse.json({ insuffisant: true });
+      }
       return echecRedaction("rédaction du souvenir (seance/fragment)", e);
     }
     const embeddingFragment = await embedText(fragment);
