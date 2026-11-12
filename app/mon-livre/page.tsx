@@ -4,6 +4,7 @@ import Link from "next/link";
 import FormulaireAdresse from "./FormulaireAdresse";
 import FormulaireCouverture from "./FormulaireCouverture";
 import BoutonCommande from "./BoutonCommande";
+import LienFichierLivre from "./LienFichierLivre";
 import { compilerInterieur } from "@/lib/manuscrit";
 import { chargerFragmentsAvecPhotos } from "@/lib/photos";
 import { PAGES_MINIMUM_RELIE } from "@/lib/lulu";
@@ -24,10 +25,12 @@ export default async function MonLivrePage() {
     .maybeSingle();
   if (abonnement?.status !== "active") redirect("/parcours");
 
-  const [{ fragments, photosManquantes }, { data: adresse }, { data: commande }] = await Promise.all([
+  const [{ fragments, photosManquantes }, { data: adresse }, { data: commande }, { count: nombreRetires }] = await Promise.all([
     chargerFragmentsAvecPhotos(supabase, user.id),
     supabase.from("adresses_livraison").select("nom").eq("user_id", user.id).maybeSingle(),
     supabase.from("commandes_livre").select("statut").eq("user_id", user.id).in("statut", ["en_cours", "confirmee"]).maybeSingle(),
+    // Souvenirs « retirés de mon livre » (a_revoir) : rappelés avant la validation.
+    supabase.from("fragments").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("statut", "a_revoir"),
   ]);
 
   // Le nombre de pages inclut désormais les photos (elles occupent de la
@@ -85,19 +88,19 @@ export default async function MonLivrePage() {
                 </p>
               )}
               <div className="flex gap-3 flex-wrap">
-                <a
+                <LienFichierLivre
                   href="/api/manuscrit/apercu"
-                  target="_blank"
+                  nouvelOnglet
                   className="font-sans text-sm border border-grege bg-blanc text-encre px-4 py-2 hover:border-encre transition-colors"
                 >
                   Voir le PDF
-                </a>
-                <a
+                </LienFichierLivre>
+                <LienFichierLivre
                   href="/api/manuscrit/epub"
                   className="font-sans text-sm border border-grege bg-blanc text-encre px-4 py-2 hover:border-encre transition-colors"
                 >
                   Télécharger l&apos;EPUB
-                </a>
+                </LienFichierLivre>
               </div>
             </div>
 
@@ -122,7 +125,7 @@ export default async function MonLivrePage() {
                   Votre manuscrit fait {nombrePages} page{nombrePages > 1 ? "s" : ""} pour l&apos;instant — il en faut au moins {PAGES_MINIMUM_RELIE} pour un livre relié. Continuez vos séances, l&apos;impression sera possible dès que vous y serez.
                 </p>
               ) : (
-                <BoutonCommande adresseRemplie={!!adresse} />
+                <BoutonCommande adresseRemplie={!!adresse} nombreRetires={nombreRetires ?? 0} />
               )}
             </div>
           </div>

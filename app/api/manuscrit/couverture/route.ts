@@ -43,6 +43,9 @@ export async function GET() {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": "inline; filename=mes-memoires-couverture.pdf",
+        // Jamais de copie gardée par le navigateur : un titre ou un souvenir
+        // modifié doit apparaître immédiatement (12/11/2026).
+        "Cache-Control": "no-store",
         "X-Nombre-Pages-Interieur": String(nombrePages),
       },
     });

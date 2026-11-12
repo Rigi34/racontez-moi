@@ -21,6 +21,8 @@ export default async function TableauDeBord() {
   ])
 
   const nombreSeances = fragments?.length ?? 0
+  // « Retiré de mon livre » = statut a_revoir (seule exclusion du livre).
+  const retires = fragments?.filter((f) => f.statut === "a_revoir") ?? []
   // Jamais utilisé dans les relances IA (choix de Régis, 29/07/2026) —
   // uniquement pour personnaliser l'interface.
   const prenom = profil?.prenom_choisi?.trim() || null
@@ -79,31 +81,42 @@ export default async function TableauDeBord() {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="bg-sauge border border-grege p-8 space-y-2">
-              <p className="font-sans text-sm text-grege">
-                {nombreSeances} séance{nombreSeances > 1 ? "s" : ""} enregistrée{nombreSeances > 1 ? "s" : ""}
+            <div className="bg-sauge border border-grege rounded-lg p-6 sm:p-8 space-y-4">
+              <p className="font-sans text-sm font-semibold uppercase tracking-widest text-grege">Prochaine étape</p>
+              <p className="font-sans text-[18px] text-encre leading-relaxed">
+                Vous avez déjà raconté {nombreSeances} souvenir{nombreSeances > 1 ? "s" : ""}. Continuez quand vous le souhaitez, ou regardez votre livre prendre forme.
               </p>
-            </div>
-            <div className="flex gap-3 flex-wrap">
-              <Link
-                href="/seance"
-                className="inline-block bg-encre text-blanc rounded-full font-sans text-sm px-8 py-3 hover:opacity-90 transition-opacity"
-              >
-                Continuer mon parcours
-              </Link>
-              <Link
-                href="/mon-livre"
-                className="inline-block border border-grege text-encre rounded-full font-sans text-sm px-8 py-3 hover:border-encre transition-colors"
-              >
-                Voir mon livre
-              </Link>
+              <div className="flex gap-3 flex-wrap">
+                <Link
+                  href="/seance"
+                  className="inline-flex items-center justify-center min-h-12 bg-encre text-blanc rounded-full font-sans text-base font-semibold px-8 py-3 hover:opacity-90 transition-opacity"
+                >
+                  Continuer mon histoire
+                </Link>
+                <Link
+                  href="/mon-livre"
+                  className="inline-flex items-center justify-center min-h-12 bg-blanc border border-encre text-encre rounded-full font-sans text-base font-semibold px-8 py-3 hover:bg-papier transition-colors"
+                >
+                  Voir mon livre
+                </Link>
+              </div>
             </div>
 
             <div className="space-y-4 pt-4">
-              <h2 className="font-display text-xl text-encre">Vos fragments</h2>
-              <p className="font-sans text-sm text-grege">
-                Relisez à tout moment ce que vos séances ont déjà écrit. Après chaque séance, retrouvez vos souvenirs ici et ajoutez vos photos à chacun d&apos;eux.
+              <h2 className="font-display text-2xl text-encre">Vos souvenirs</h2>
+              <p className="font-sans text-base text-encre/80 leading-relaxed">
+                Chaque souvenir raconté va directement dans votre livre. Vous pouvez le relire, y ajouter des photos, ou le corriger.
               </p>
+              {retires.length > 0 && (
+                <p className="font-sans text-base text-amber-900 bg-amber-50 border border-amber-300 rounded-lg px-4 py-3">
+                  {retires.length === 1
+                    ? "1 souvenir est retiré de votre livre."
+                    : `${retires.length} souvenirs sont retirés de votre livre.`}{" "}
+                  <a href={`#souvenir-${retires[0].id}`} className="font-semibold underline underline-offset-4">
+                    {retires.length === 1 ? "Le voir ›" : "Les voir ›"}
+                  </a>
+                </p>
+              )}
               <div className="space-y-4">
                 {fragments?.map((f) => {
                   const session = Array.isArray(f.session) ? f.session[0] : f.session

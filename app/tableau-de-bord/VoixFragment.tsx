@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { voixChoisieActive } from "@/lib/voix";
 import { enregistrementsEnAttente } from "@/lib/voix-locale";
 import ChoixVoix, { type Enregistrement } from "@/app/components/ChoixVoix";
+import { chargerJsonAvecReessai } from "@/lib/charger-json";
 
 // Extrait de voix gardé pour un passage (chantier VOIX-CHOISIE) : écoute,
 // suppression, et activation/désactivation de l'écoute par QR code. Rien ne
@@ -14,7 +15,16 @@ import ChoixVoix, { type Enregistrement } from "@/app/components/ChoixVoix";
 
 type Extrait = { id: string; url: string | null; actif: boolean };
 
-export default function VoixFragment({ fragmentId }: { fragmentId: string }) {
+// afficherReglages (lisibilité, 11/11/2026) : l'écoute reste toujours
+// visible ; les réglages (QR, suppression) n'apparaissent qu'une fois « Plus
+// d'options » ouvert sur la carte du souvenir.
+export default function VoixFragment({
+  fragmentId,
+  afficherReglages = true,
+}: {
+  fragmentId: string;
+  afficherReglages?: boolean;
+}) {
   const actif = voixChoisieActive();
   const [extrait, setExtrait] = useState<Extrait | null>(null);
   const [confirmation, setConfirmation] = useState(false);
@@ -22,24 +32,38 @@ export default function VoixFragment({ fragmentId }: { fragmentId: string }) {
   const [enAttente, setEnAttente] = useState<Enregistrement[]>([]);
 
   const [rechargement, setRechargement] = useState(0);
+  const [chargementEchoue, setChargementEchoue] = useState(false);
 
   useEffect(() => {
     if (!actif) return;
     (async () => {
-      try {
-        const res = await fetch(`/api/voix?fragment_id=${fragmentId}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        const garde = data.extraits?.[0] ?? null;
-        setExtrait(garde);
-        if (!garde) setEnAttente(await enregistrementsEnAttente(fragmentId));
-      } catch {
-        // Silencieux : l'absence d'extrait n'empêche rien d'autre.
+      const data = await chargerJsonAvecReessai<{ extraits?: Extrait[] }>(`/api/voix?fragment_id=${fragmentId}`);
+      if (!data) {
+        // Avant (12/11/2026) : échec silencieux, la voix semblait disparue.
+        setChargementEchoue(true);
+        return;
+      }
+      setChargementEchoue(false);
+      const garde = data.extraits?.[0] ?? null;
+      setExtrait(garde);
+      if (!garde) {
+        try {
+          setEnAttente(await enregistrementsEnAttente(fragmentId));
+        } catch {
+          // Stockage local indisponible : rien à proposer.
+        }
       }
     })();
   }, [actif, fragmentId, rechargement]);
 
   if (!actif) return null;
+  if (chargementEchoue) {
+    return (
+      <p role="status" className="font-sans text-base text-amber-900 bg-amber-50 border border-amber-300 rounded-lg px-4 py-3">
+        Votre voix n&apos;a pas pu être affichée. Rechargez la page.
+      </p>
+    );
+  }
   if (!extrait) {
     return enAttente.length ? (
       <div className="border-t border-grege/30 pt-4">
@@ -74,31 +98,32 @@ export default function VoixFragment({ fragmentId }: { fragmentId: string }) {
 
   return (
     <div className="space-y-2 border-t border-grege/30 pt-4">
-      <p className="font-sans text-xs tracking-widest uppercase text-grege">Votre voix pour ce passage</p>
+      <p className="font-sans text-base font-semibold text-encre">Votre voix</p>
       {extrait.url && <audio controls preload="metadata" src={extrait.url} className="w-full" />}
-      <p className="font-sans text-xs text-grege">
+      <p className="font-sans text-[15px] leading-relaxed text-encre/80">
         {extrait.actif
-          ? "Vos proches pourront l'écouter en scannant le code imprimé à la fin de ce passage dans le livre."
+          ? "Vos proches pourront l'écouter grâce au code imprimé à la fin de ce souvenir, dans le livre."
           : "Écoute par QR code désactivée : le code imprimé ne renvoie plus rien."}
       </p>
-      <div className="flex flex-wrap gap-3">
+      {afficherReglages && (
+      <div className="space-y-2 pt-1">
         <button
           onClick={basculerQr}
-          className="font-sans text-sm border border-grege text-encre px-4 py-2 hover:border-encre transition-colors"
+          className="block w-full text-left font-sans bg-blanc border border-grege rounded-lg px-4 py-3 min-h-12 text-base font-medium text-encre hover:border-encre transition-colors"
         >
-          {extrait.actif ? "Désactiver l'écoute par QR code" : "Réactiver l'écoute par QR code"}
+          {extrait.actif ? "Ne plus proposer l'écoute dans le livre" : "Proposer de nouveau l'écoute dans le livre"}
         </button>
         {!confirmation ? (
           <button
             onClick={() => setConfirmation(true)}
-            className="font-sans text-sm text-red-700 border border-red-200 px-4 py-2 hover:border-red-700 transition-colors"
+            className="block w-full text-left font-sans bg-blanc border border-red-200 rounded-lg px-4 py-3 min-h-12 text-base font-medium text-red-700 hover:border-red-700 transition-colors"
           >
-            Supprimer cet extrait
+            Supprimer l&apos;enregistrement de ma voix
           </button>
         ) : (
           // Test du 31/10/2026 : le « Oui » en simple lien passait inaperçu.
           <span className="flex flex-wrap gap-3 items-center font-sans text-base">
-            <span className="text-encre w-full">Supprimer définitivement cet extrait ?</span>
+            <span className="text-encre w-full">Supprimer définitivement l&apos;enregistrement de votre voix ?</span>
             <button
               onClick={supprimer}
               className="bg-red-700 text-blanc rounded-full font-medium px-6 py-3 min-h-12 hover:bg-red-800 transition-colors"
@@ -114,6 +139,7 @@ export default function VoixFragment({ fragmentId }: { fragmentId: string }) {
           </span>
         )}
       </div>
+      )}
       {erreur && <p className="font-sans text-sm text-red-700">{erreur}</p>}
     </div>
   );
