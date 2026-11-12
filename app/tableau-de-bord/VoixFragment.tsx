@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { voixChoisieActive } from "@/lib/voix";
 import { enregistrementsEnAttente } from "@/lib/voix-locale";
 import ChoixVoix, { type Enregistrement } from "@/app/components/ChoixVoix";
+import { chargerJsonAvecReessai } from "@/lib/charger-json";
 
 // Extrait de voix gardé pour un passage (chantier VOIX-CHOISIE) : écoute,
 // suppression, et activation/désactivation de l'écoute par QR code. Rien ne
@@ -31,24 +32,38 @@ export default function VoixFragment({
   const [enAttente, setEnAttente] = useState<Enregistrement[]>([]);
 
   const [rechargement, setRechargement] = useState(0);
+  const [chargementEchoue, setChargementEchoue] = useState(false);
 
   useEffect(() => {
     if (!actif) return;
     (async () => {
-      try {
-        const res = await fetch(`/api/voix?fragment_id=${fragmentId}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        const garde = data.extraits?.[0] ?? null;
-        setExtrait(garde);
-        if (!garde) setEnAttente(await enregistrementsEnAttente(fragmentId));
-      } catch {
-        // Silencieux : l'absence d'extrait n'empêche rien d'autre.
+      const data = await chargerJsonAvecReessai<{ extraits?: Extrait[] }>(`/api/voix?fragment_id=${fragmentId}`);
+      if (!data) {
+        // Avant (12/11/2026) : échec silencieux, la voix semblait disparue.
+        setChargementEchoue(true);
+        return;
+      }
+      setChargementEchoue(false);
+      const garde = data.extraits?.[0] ?? null;
+      setExtrait(garde);
+      if (!garde) {
+        try {
+          setEnAttente(await enregistrementsEnAttente(fragmentId));
+        } catch {
+          // Stockage local indisponible : rien à proposer.
+        }
       }
     })();
   }, [actif, fragmentId, rechargement]);
 
   if (!actif) return null;
+  if (chargementEchoue) {
+    return (
+      <p role="status" className="font-sans text-base text-amber-900 bg-amber-50 border border-amber-300 rounded-lg px-4 py-3">
+        Votre voix n&apos;a pas pu être affichée. Rechargez la page.
+      </p>
+    );
+  }
   if (!extrait) {
     return enAttente.length ? (
       <div className="border-t border-grege/30 pt-4">
