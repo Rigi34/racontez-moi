@@ -86,6 +86,9 @@ export async function GET() {
       headers: {
         "Content-Type": "application/epub+zip",
         "Content-Disposition": "attachment; filename=mes-memoires.epub",
+        // Jamais de copie gardée par le navigateur : un titre ou un souvenir
+        // modifié doit apparaître immédiatement (12/11/2026).
+        "Cache-Control": "no-store",
       },
     });
   } catch (error) {

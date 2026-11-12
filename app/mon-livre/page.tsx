@@ -4,6 +4,7 @@ import Link from "next/link";
 import FormulaireAdresse from "./FormulaireAdresse";
 import FormulaireCouverture from "./FormulaireCouverture";
 import BoutonCommande from "./BoutonCommande";
+import LienFichierLivre from "./LienFichierLivre";
 import { compilerInterieur } from "@/lib/manuscrit";
 import { chargerFragmentsAvecPhotos } from "@/lib/photos";
 import { PAGES_MINIMUM_RELIE } from "@/lib/lulu";
@@ -87,19 +88,19 @@ export default async function MonLivrePage() {
                 </p>
               )}
               <div className="flex gap-3 flex-wrap">
-                <a
+                <LienFichierLivre
                   href="/api/manuscrit/apercu"
-                  target="_blank"
+                  nouvelOnglet
                   className="font-sans text-sm border border-grege bg-blanc text-encre px-4 py-2 hover:border-encre transition-colors"
                 >
                   Voir le PDF
-                </a>
-                <a
+                </LienFichierLivre>
+                <LienFichierLivre
                   href="/api/manuscrit/epub"
                   className="font-sans text-sm border border-grege bg-blanc text-encre px-4 py-2 hover:border-encre transition-colors"
                 >
                   Télécharger l&apos;EPUB
-                </a>
+                </LienFichierLivre>
               </div>
             </div>
 
