@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { PHOTOS_MAX_PAR_FRAGMENT } from "@/lib/photos";
 import { estHeif, convertirEnJpeg } from "@/lib/heic";
+import { chargerJsonAvecReessai } from "@/lib/charger-json";
 
 type Photo = { id: string; url: string | null; created_at: string };
 
@@ -16,15 +17,16 @@ export default function PhotosFragment({ fragmentId }: { fragmentId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const erreurRef = useRef<HTMLParagraphElement>(null);
 
+  const [chargementEchoue, setChargementEchoue] = useState(false);
+
   useEffect(() => {
     (async () => {
-      try {
-        const res = await fetch(`/api/photos?fragment_id=${fragmentId}`);
-        const data = await res.json();
-        setPhotos(data.photos ?? []);
-      } catch {
-        setPhotos([]);
+      const data = await chargerJsonAvecReessai<{ photos?: Photo[] }>(`/api/photos?fragment_id=${fragmentId}`);
+      if (!data) {
+        setChargementEchoue(true);
+        return;
       }
+      setPhotos(data.photos ?? []);
     })();
   }, [fragmentId]);
 
@@ -114,6 +116,13 @@ export default function PhotosFragment({ fragmentId }: { fragmentId: string }) {
     }
   };
 
+  if (chargementEchoue) {
+    return (
+      <p role="status" className="font-sans text-base text-amber-900 bg-amber-50 border border-amber-300 rounded-lg px-4 py-3">
+        Vos photos n&apos;ont pas pu être affichées. Rechargez la page.
+      </p>
+    );
+  }
   if (photos === null) return null;
 
   const complet = photos.length >= PHOTOS_MAX_PAR_FRAGMENT;
