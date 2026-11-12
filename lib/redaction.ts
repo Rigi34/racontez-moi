@@ -7,6 +7,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { SYSTEM_FRAGMENT } from "./prompts";
+import { estMessageSansSouvenir, MatiereInsuffisante } from "./garde-fou";
 
 export type Tour = { question: string; reponse: string };
 
@@ -63,6 +64,11 @@ export async function composerFragment(client: Anthropic, echange: EchangeBrut):
       throw new Error("composerFragment: fragment tronqué par max_tokens, rejeté");
     }
     const texte = (message.content[0] as { type: string; text: string }).text.trim();
+    // Garde-fou (12/11/2026) : jamais de message de l'IA enregistré comme souvenir.
+    if (estMessageSansSouvenir(texte)) {
+      console.error("composerFragment: pas assez de matière, aucun souvenir composé", { tours: echange.tours.length });
+      throw new MatiereInsuffisante();
+    }
     if (finitParUnePonctuation(texte)) return texte;
     console.error("composerFragment: fragment sans ponctuation finale", { essai });
     if (essai >= 2) throw new Error("composerFragment: fragment inachevé, rejeté");

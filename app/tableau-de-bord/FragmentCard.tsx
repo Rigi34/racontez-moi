@@ -132,6 +132,11 @@ export default function FragmentCard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ instruction }),
       });
+      if (res.status === 422) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "La réécriture n'a pas pu aboutir : rien n'a été changé.");
+        return;
+      }
       if (!res.ok) throw new Error();
       const data = await res.json();
       setTexte(data.fragment.texte);
