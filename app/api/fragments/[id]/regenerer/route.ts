@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/utils/supabase/server";
 import { QUESTION_INITIALE } from "@/lib/prompts";
 import { composerFragment } from "@/lib/redaction";
+import { MatiereInsuffisante } from "@/lib/garde-fou";
 import { embedText } from "@/lib/embeddings";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -54,7 +55,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     ...relances.map((question, i) => ({ question, reponse: reponsesNarrateur[i + 1] ?? "" })),
   ];
 
-  const fragmentRecompose = await composerFragment(client, { tours, instruction: body.instruction });
+  let fragmentRecompose: string;
+  try {
+    fragmentRecompose = await composerFragment(client, { tours, instruction: body.instruction });
+  } catch (e) {
+    // Garde-fou (12/11/2026) : l'ancien texte reste en place.
+    if (e instanceof MatiereInsuffisante) {
+      return NextResponse.json(
+        { error: "La réécriture n'a pas pu aboutir : rien n'a été changé.", insuffisant: true },
+        { status: 422 },
+      );
+    }
+    throw e;
+  }
   const embedding = await embedText(fragmentRecompose);
 
   // Historique de versions (décision du 23 juillet 2026) : la version que

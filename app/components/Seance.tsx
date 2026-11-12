@@ -9,7 +9,7 @@ import { typographierFrancais } from "@/lib/typst";
 import ChoixVoix, { type Enregistrement } from "./ChoixVoix";
 import { choixEnAttente, lierAuPassage, rangerEnregistrement } from "@/lib/voix-locale";
 
-type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment" | "conversion" | "offerteTerminee";
+type Phase = "chargement" | "reprise" | "question" | "relance" | "relance2" | "fragment" | "insuffisant" | "conversion" | "offerteTerminee";
 
 // 402 de /api/seance : la séance offerte est déjà faite et aucun Parcours
 // n'est actif (décision de Régis du 27/10/2026, une seule séance offerte).
@@ -845,6 +845,12 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
       });
       if (!res.ok) throw await erreurServeur(res);
       const data = await res.json();
+      // Garde-fou (12/11/2026) : pas assez de matière, aucun souvenir créé.
+      if (data.insuffisant) {
+        enregistrementsRef.current = [];
+        setPhase("insuffisant");
+        return;
+      }
       setFragment(data.fragment);
       setFragmentId(data.fragment_id ?? null);
       setEnregistrementsSeance([...enregistrementsRef.current]);
@@ -1171,6 +1177,41 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
               </p>
               {error && <p className="font-sans text-sm text-red-700">{error}</p>}
             </div>
+          </div>
+        )}
+
+        {/* Garde-fou (12/11/2026) : réponses vides ou inaudibles — rien
+            n'est ajouté au livre. Textes validés par Régis le 12/11/2026. */}
+        {phase === "insuffisant" && (
+          <div className="max-w-xl mx-auto space-y-6 text-center">
+            <h2 className="font-display font-normal text-2xl md:text-3xl text-encre leading-[1.3]">
+              Nous n&apos;avons pas assez entendu pour écrire ce souvenir.
+            </h2>
+            <p className="font-sans text-[18px] text-encre leading-relaxed">
+              Rien n&apos;a été ajouté à votre livre. Ce n&apos;est pas grave&nbsp;: cela arrive quand le micro capte mal,
+              ou quand le souvenir ne vient pas encore.
+            </p>
+            <p className="font-sans text-base italic text-encre/80 leading-relaxed">
+              Astuce&nbsp;: parlez près du téléphone, dans un endroit calme. Vous pouvez aussi écrire au lieu de parler.
+            </p>
+            <div className="flex gap-3 justify-center flex-wrap pt-2">
+              <button
+                onClick={recommencerSeance}
+                disabled={loading}
+                className="inline-flex items-center justify-center min-h-12 bg-encre text-blanc rounded-full font-sans font-semibold text-base px-8 py-3 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
+              >
+                {loading ? "Un instant…" : "Recommencer une séance"}
+              </button>
+              {!modeInvite && (
+                <a
+                  href="/tableau-de-bord"
+                  className="inline-flex items-center justify-center min-h-12 bg-blanc border border-encre text-encre rounded-full font-sans font-semibold text-base px-8 py-3 hover:bg-papier transition-colors"
+                >
+                  Retour à mon parcours
+                </a>
+              )}
+            </div>
+            {error && <p className="font-sans text-base text-red-700">{error}</p>}
           </div>
         )}
 
