@@ -85,10 +85,11 @@ vi.mock("@/lib/manuscrit", () => ({
   compilerInterieur: compilerInterieurMock,
   compilerCouverture: compilerCouvertureMock,
 }));
-vi.mock("@/lib/profil-narrateur", () => ({ lirePersonnalisationLivre: lirePersonnalisationLivreMock }));
+vi.mock("@/lib/profil-narrateur", () => ({ lirePersonnalisationLivre: lirePersonnalisationLivreMock, lirePrenom: vi.fn().mockResolvedValue("Daniel") }));
 vi.mock("@/lib/lulu", () => ({
   creerCommandeImpression: creerCommandeImpressionMock,
   impressionBloqueeEnLigne: impressionBloqueeMock,
+  titreCommandeLulu: (t: string, p: string | null) => (p ? `${t} — ${p}` : t),
   PAGES_MINIMUM_RELIE: 24,
 }));
 
@@ -134,6 +135,15 @@ describe("POST /api/commande/livre", () => {
     expect(body.ok).toBe(true);
     expect(insertSingleMock).toHaveBeenCalled();
     expect(updateSingleMock).not.toHaveBeenCalled();
+  });
+
+  it("Lulu — titre de commande « titre — prénom » et liens valables 24 h", async () => {
+    await POST();
+    expect(creerCommandeImpressionMock).toHaveBeenCalledWith(
+      expect.anything(), expect.any(String), expect.any(String), expect.any(String),
+      "Mes Mémoires — Daniel"
+    );
+    for (const appel of createSignedUrlMock.mock.calls) expect(appel[1]).toBe(24 * 60 * 60);
   });
 
   it("A3 — inclut photos_manquantes: 0 quand aucune photo n'est manquante", async () => {

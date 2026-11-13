@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { compilerInterieur, compilerCouverture } from "@/lib/manuscrit";
 import { chargerFragmentsAvecPhotos } from "@/lib/photos";
-import { creerCommandeImpression, impressionBloqueeEnLigne, PAGES_MINIMUM_RELIE, type AdresseLivraison } from "@/lib/lulu";
+import { creerCommandeImpression, impressionBloqueeEnLigne, PAGES_MINIMUM_RELIE, titreCommandeLulu, type AdresseLivraison } from "@/lib/lulu";
 import { envoyerAlerteRegis, echapperHtml } from "@/lib/alerte";
-import { lirePersonnalisationLivre } from "@/lib/profil-narrateur";
+import { lirePersonnalisationLivre, lirePrenom } from "@/lib/profil-narrateur";
 
 // Déclenchement de la vraie commande d'impression — dernière brique du
 // pipeline (toujours sandbox Lulu tant que Régis n'a pas de compte
@@ -132,10 +132,13 @@ export async function POST() {
       throw new Error("Upload Storage échoué: " + JSON.stringify({ erreurUploadInterieur, erreurUploadCouverture }));
     }
 
-    const uneHeure = 60 * 60;
+    // Liens valables 24 h (13/11/2026, au lieu d'1 h) : Lulu télécharge les
+    // fichiers de son côté, parfois avec du retard ; un lien expiré ferait
+    // échouer la commande.
+    const vingtQuatreHeures = 24 * 60 * 60;
     const [{ data: urlInterieur }, { data: urlCouverture }] = await Promise.all([
-      supabase.storage.from("manuscrits").createSignedUrl(`${dossier}/interieur.pdf`, uneHeure),
-      supabase.storage.from("manuscrits").createSignedUrl(`${dossier}/couverture.pdf`, uneHeure),
+      supabase.storage.from("manuscrits").createSignedUrl(`${dossier}/interieur.pdf`, vingtQuatreHeures),
+      supabase.storage.from("manuscrits").createSignedUrl(`${dossier}/couverture.pdf`, vingtQuatreHeures),
     ]);
     if (!urlInterieur || !urlCouverture) throw new Error("Génération des URLs signées échouée.");
 
@@ -148,11 +151,13 @@ export async function POST() {
       phone_number: adresseRow.telephone,
     };
 
+    const prenom = await lirePrenom(supabase, user.id).catch(() => null);
     const commandeLulu = await creerCommandeImpression(
       adresse,
       user.email!,
       urlInterieur.signedUrl,
-      urlCouverture.signedUrl
+      urlCouverture.signedUrl,
+      titreCommandeLulu(titre, prenom)
     );
 
     await supabase
