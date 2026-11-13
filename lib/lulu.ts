@@ -139,11 +139,21 @@ export async function calculerCoutImpression(adresse: AdresseLivraison, nombrePa
   return res.json();
 }
 
+// Titre de la ligne de commande chez Lulu (13/11/2026, décision de Régis) :
+// visible seulement dans l'espace Lulu, pas sur le livre — « titre du livre
+// — prénom » pour reconnaître chaque commande. Longueur bornée par prudence.
+export function titreCommandeLulu(titreLivre: string, prenom: string | null): string {
+  const titre = titreLivre.trim() || "Racontez-moi";
+  const complet = prenom?.trim() ? `${titre} — ${prenom.trim()}` : titre;
+  return complet.length > 120 ? `${complet.slice(0, 119)}…` : complet;
+}
+
 export async function creerCommandeImpression(
   adresse: AdresseLivraison,
   email: string,
   interieurUrl: string,
-  couvertureUrl: string
+  couvertureUrl: string,
+  titreCommande = "Racontez-moi"
 ) {
   const token = await obtenirToken();
   const res = await fetch(`${LULU_BASE_URL}/print-jobs/`, {
@@ -156,7 +166,7 @@ export async function creerCommandeImpression(
       line_items: [
         {
           quantity: 1,
-          title: "Racontez-moi",
+          title: titreCommande,
           printable_normalization: {
             pod_package_id: POD_PACKAGE_ID_PARCOURS,
             interior: { source_url: interieurUrl },
