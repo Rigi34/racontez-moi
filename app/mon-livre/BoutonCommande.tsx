@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DELAI_LIVRAISON } from "@/lib/promesses";
 
 export default function BoutonCommande({
   adresseRemplie,
@@ -78,7 +79,7 @@ export default function BoutonCommande({
       ) : (
         <div className="bg-sauge border border-grege p-5 space-y-3">
           <p className="font-sans text-sm text-encre">
-            Une fois validé, votre manuscrit et votre couverture sont envoyés à l&apos;impression tels quels — vérifiez l&apos;aperçu PDF ci-dessus avant de confirmer.
+            Une fois validé, votre manuscrit et votre couverture sont envoyés à l&apos;impression tels quels — vérifiez l&apos;aperçu PDF ci-dessus avant de confirmer. {DELAI_LIVRAISON}
           </p>
           <div className="flex gap-3">
             <button

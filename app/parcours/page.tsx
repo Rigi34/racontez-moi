@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import BoutonParcours from "./BoutonParcours";
 import FondVivant from "@/app/components/FondVivant";
+import { RYTHME_SEANCES, DUREE_PARCOURS, IMPRESSION_LIBRE } from "@/lib/promesses";
 
 export default async function ParcoursPage() {
   const supabase = await createClient();
@@ -54,7 +55,7 @@ export default async function ParcoursPage() {
         <div className="text-left space-y-4">
           <h2 className="font-display text-xl text-encre text-center">Ce qui est inclus</h2>
           <ul className="space-y-3 font-serif text-base text-grege leading-relaxed">
-            <li>Des séances illimitées, une à deux fois par semaine, pendant deux à quatre mois.</li>
+            <li>Des séances illimitées, {RYTHME_SEANCES}, pendant {DUREE_PARCOURS}. {IMPRESSION_LIBRE}</li>
             <li>Une mémoire qui vous suit d&apos;une séance à l&apos;autre — jamais deux fois la même question.</li>
             <li>Vous relisez, vous corrigez, vous validez : le livre reste fidèle à vos mots.</li>
             <li>Votre manuscrit complet en PDF et ebook, à la fin de votre récit.</li>

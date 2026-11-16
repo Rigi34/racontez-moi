@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function GestionCompte() {
   const [confirmation, setConfirmation] = useState(false);
@@ -42,12 +43,13 @@ export default function GestionCompte() {
             tard jusqu'à la validation du livre pour impression. Le délai est
             vérifié à la main lors du traitement. La révocation d'accès au remboursement est gérée
             côté webhook Stripe (charge.refunded), pas ici. */}
-        <a
-          href="mailto:bonjour@racontez-moi.com?subject=Demande%20de%20remboursement%20%E2%80%94%20Racontez-moi&body=Bonjour%2C%0A%0AJe%20souhaite%20demander%20le%20remboursement%20de%20mon%20achat%20Racontez-moi.%0A%0AEmail%20du%20compte%20%3A%20%0A"
+        {/* 16/11/2026 : demande via la page Contact (plus d'adresse e-mail affichée). */}
+        <Link
+          href="/contact"
           className="font-sans text-sm border border-grege text-encre px-5 py-2.5 hover:border-encre transition-colors"
         >
           Demander un remboursement
-        </a>
+        </Link>
         {!confirmation ? (
           <button
             onClick={() => setConfirmation(true)}

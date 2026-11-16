@@ -3,6 +3,7 @@ import Link from "next/link";
 import FAQAccordion from "../components/FAQAccordion";
 import { voixChoisieActive } from "@/lib/voix";
 import FondVivant from "@/app/components/FondVivant";
+import { DUREE_SEANCE, DUREE_SEANCE_MAX, RYTHME_SEANCES, DUREE_PARCOURS, IMPRESSION_LIBRE, majuscule } from "@/lib/promesses";
 
 export const metadata: Metadata = {
   title: "Comment fonctionne Racontez-moi",
@@ -148,11 +149,11 @@ const FAQ_FONCTIONNEMENT = [
   {
     question: "Quelle chronologie suivent les séances ?",
     reponse:
-      "Les questions suivent l'ordre naturel d'une vie — des racines et de la petite enfance jusqu'au bilan et à la transmission — sur une durée cible de deux à quatre mois qui s'ajuste au volume que vous racontez réellement. Ce n'est jamais un forfait figé à choisir à l'avance.",
+      `Les questions suivent l'ordre naturel d'une vie — des racines et de la petite enfance jusqu'au bilan et à la transmission — sur ${DUREE_PARCOURS}, au rythme de ${RYTHME_SEANCES}, en s'ajustant à ce que vous racontez réellement. Ce n'est jamais un forfait figé à choisir à l'avance. ${IMPRESSION_LIBRE}`,
   },
   {
-    question: "Puis-je faire des séances de 30 à 40 minutes ?",
-    reponse: "Oui, c'est exactement la durée visée. Rien n'empêche une séance plus courte ou plus longue si le récit le demande.",
+    question: "Combien de temps dure une séance ?",
+    reponse: `${majuscule(DUREE_SEANCE)} en général. Rien n'empêche une séance plus longue, jusqu'à ${DUREE_SEANCE_MAX}, si le souvenir le demande.`,
   },
   {
     question: "Suis-je interrompu ? Pourquoi le silence a-t-il un sens ?",
@@ -215,7 +216,7 @@ export default function Fonctionnement() {
           {/* Paragraphe d'ouverture — prose, pas des questions-réponses */}
           <div className="space-y-7 font-serif text-lg leading-[1.85] text-encre mb-16">
             <p>
-              Chaque séance dure entre 30 et 45 minutes — pas parce qu&apos;un chronomètre l&apos;impose, mais
+              Une séance dure en général {DUREE_SEANCE}, davantage si le souvenir le demande — pas parce qu&apos;un chronomètre l&apos;impose, mais
               parce que c&apos;est le format qui laisse le temps de vraiment raconter sans jamais épuiser
               l&apos;attention. Le rythme, lui, s&apos;ajuste plutôt que d&apos;imposer une durée totale
               fixe&nbsp;: personne ne sait à l&apos;avance combien de séances il faudra pour raconter une vie,
