@@ -91,7 +91,7 @@ export default function MentionsLegales() {
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
               Directeur de la publication
             </h2>
-            <p>Régis Boudet (CohérenceLab).</p>
+            <p>Régis (CohérenceLab).</p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
               Hébergement
