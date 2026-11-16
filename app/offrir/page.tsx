@@ -5,6 +5,7 @@ import EnTeteSite from "../components/EnTeteSite";
 import BarreCTAMobile from "../components/BarreCTAMobile";
 import { ListeCompris } from "../components/OffreParcours";
 import FondVivant from "@/app/components/FondVivant";
+import { DUREE_SEANCE, RYTHME_SEANCES, DUREE_PARCOURS } from "@/lib/promesses";
 
 export const metadata: Metadata = {
   title: "Cadeau Mémoire — Racontez-moi",
@@ -61,7 +62,7 @@ export default function OffrirPage() {
             restent où elles sont.
           </p>
           <p>
-            Ce cadeau les pose pour vous. Une par une, avec douceur, pendant deux à quatre mois.
+            Ce cadeau les pose pour vous. Une par une, avec douceur, sur {DUREE_PARCOURS}.
           </p>
         </div>
       </section>
@@ -127,7 +128,7 @@ export default function OffrirPage() {
                 Ils racontent.
               </h3>
               <p className="font-sans text-base text-papier/80 leading-relaxed">
-                Chez eux, à la voix, trente à quarante-cinq minutes, une à deux fois par semaine. La
+                Chez eux, à la voix, {DUREE_SEANCE} par séance, {RYTHME_SEANCES}. La
                 première séance se fait ensemble&nbsp;: c&apos;est vous qui poserez
                 la première question.
               </p>
@@ -206,7 +207,7 @@ export default function OffrirPage() {
 
           <div className="bg-papier p-8 border border-grege">
             <p className="font-display text-2xl text-encre mb-2">
-              Jusqu&apos;au livre relié — 2 à 4 mois
+              Jusqu&apos;au livre relié — {DUREE_PARCOURS}
             </p>
             <p className="font-sans text-grege text-base mb-6">
               Entretiens illimités · Manuscrit en PDF et ebook · Livre imprimé et relié couleur inclus

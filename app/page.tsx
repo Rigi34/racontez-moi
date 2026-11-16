@@ -8,6 +8,7 @@ import BarreCTAMobile from "./components/BarreCTAMobile";
 import EmplacementPreuve, { AFFICHER_EMPLACEMENTS } from "./components/EmplacementPreuve";
 import { ChangementAvis, ListeCompris } from "./components/OffreParcours";
 import { SectionDeLaVoixAuLivre, SectionVotreLivre, VisuelLivre } from "./components/livre/PresentationLivre";
+import { DUREE_SEANCE, DUREE_SEANCE_MAX, RYTHME_SEANCES, DUREE_PARCOURS, IMPRESSION_LIBRE, majuscule } from "@/lib/promesses";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -21,7 +22,7 @@ const FAQ_ACCUEIL = [
   {
     question: "Combien de temps dure une séance ?",
     reponse:
-      "30 à 45 minutes environ. Ce n'est jamais chronométré strictement : une réponse en cours n'est jamais coupée pour respecter une limite de temps.",
+      `${majuscule(DUREE_SEANCE)} en général, parfois plus selon le souvenir, jusqu'à ${DUREE_SEANCE_MAX}. Ce n'est jamais chronométré : une réponse en cours n'est jamais coupée.`,
   },
   {
     question: "Quelle fréquence ?",
@@ -194,7 +195,7 @@ export default function Home() {
                 souvient — et compose le livre de votre vie. Un vrai livre. Imprimé.
               </span>
               <span className="hidden md:inline">
-                Des conversations de trente à quarante-cinq minutes, chez vous, à la voix. Un
+                Des conversations d&apos;{DUREE_SEANCE}, chez vous, à la voix. Un
                 interlocuteur attentif qui écoute, questionne, se souvient — et compose au fil des
                 séances le livre de votre vie. Un vrai livre. Imprimé.
               </span>
@@ -322,7 +323,7 @@ export default function Home() {
               <p className="font-display italic text-6xl md:text-7xl text-[#7A6E3E] leading-none mb-2">02</p>
               <p className="font-display text-2xl text-encre mb-3">Vous racontez.</p>
               <p className="font-sans text-base text-encre/80 leading-relaxed">
-                Trente à quarante-cinq minutes, une à deux fois par semaine, à votre rythme, pendant deux à quatre mois.
+                {majuscule(DUREE_SEANCE)} par séance, {RYTHME_SEANCES}, à votre rythme&nbsp;: {DUREE_PARCOURS} pour un parcours complet.
               </p>
             </div>
             <div className="relative rounded-[22px] bg-petrole-clair px-6 py-7">
@@ -476,8 +477,8 @@ export default function Home() {
               Votre parcours Racontez-moi, de la première conversation à votre livre.
             </p>
             <p className="font-serif text-lg text-papier/80 mt-4 leading-relaxed">
-              Un parcours d&apos;environ deux à quatre mois, à votre rythme&nbsp;: aucune durée
-              n&apos;est imposée. En une fois, ou en 3 ou 4 fois avec Klarna. Jamais de supplément
+              Un parcours complet d&apos;{DUREE_PARCOURS}, à votre rythme&nbsp;: aucune durée
+              n&apos;est imposée. {IMPRESSION_LIBRE} En une fois, ou en 3 ou 4 fois avec Klarna. Jamais de supplément
               selon la longueur du récit.
             </p>
           </div>

@@ -48,7 +48,7 @@ export default function SujetsSensibles() {
             <p>
               Le responsable du traitement est <strong>CohérenceLab</strong>, entreprise individuelle
               immatriculée sous le SIRET 995 356 656 00018, Montpellier (34). Pour toute question relative à
-              vos données&nbsp;: <strong>regis@coherencelab.fr</strong>, ou via notre{" "}
+              vos données&nbsp;: écrivez-nous via notre{" "}
               <Link href="/contact" className="text-petrole hover:text-encre transition-colors">
                 page Contact
               </Link>
@@ -122,7 +122,7 @@ export default function SujetsSensibles() {
               <li>Vous pouvez demander qu&apos;un passage déjà enregistré ou déjà rédigé soit retiré de votre récit, avant comme après l&apos;assemblage du livre.</li>
               <li>
                 Vous pouvez retirer votre consentement à tout moment, aussi facilement que vous l&apos;avez
-                donné, en nous écrivant à <strong>regis@coherencelab.fr</strong>. Nous donnons suite sans délai
+                donné, en nous écrivant via notre <Link href="/contact" className="text-petrole hover:text-encre transition-colors">page Contact</Link>. Nous donnons suite sans délai
                 injustifié, et au plus tard dans un délai d&apos;un mois.
               </li>
             </ul>
@@ -253,11 +253,11 @@ export default function SujetsSensibles() {
               nous les transmettre par écrit.
             </p>
             <p>
-              Ces demandes s&apos;exercent auprès de <strong>regis@coherencelab.fr</strong> (ou via notre{" "}
+              Ces demandes s&apos;exercent via notre{" "}
               <Link href="/contact" className="text-petrole hover:text-encre transition-colors">
                 page Contact
-              </Link>
-              ) et reçoivent une réponse dans un délai d&apos;un mois, prolongeable de deux mois en cas de
+              </Link>{" "}
+              et reçoivent une réponse dans un délai d&apos;un mois, prolongeable de deux mois en cas de
               demande complexe, auquel cas vous en êtes informé.
             </p>
             <p>
