@@ -18,6 +18,7 @@ const {
   lirePersonnalisationLivreMock: vi.fn(),
 }));
 
+vi.mock("@/lib/rate-limit", () => ({ verifierQuota: vi.fn().mockResolvedValue(true), MESSAGE_LIMITE_APERCU: "limite" }));
 vi.mock("@/utils/supabase/server", () => ({
   createClient: vi.fn(() => ({
     auth: { getUser: getUserMock },

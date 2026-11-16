@@ -7,10 +7,24 @@ import type { NextRequest } from "next/server";
 // Base du calcul : une séance complète (question d'ouverture + 2 relances +
 // fragment) déclenche 3 requêtes sur chacune des deux routes, donc 30/jour
 // ≈ 10 séances complètes/jour par narrateur.
+// 16/11/2026 (décision de Régis) : séances ramenées à ~6 complètes/jour
+// (usage réel visé : 2-3 par semaine) ; transcription un peu plus large pour
+// permettre de réenregistrer une réponse. Réécriture d'un souvenir (Sonnet,
+// l'appel le plus cher) et aperçus du livre (PDF/EPUB/couverture, compilation
+// Typst = temps de calcul Vercel) n'avaient aucun plafond.
 export const LIMITES_QUOTIDIENNES = {
-  seance: 30,
-  transcribe: 30,
+  seance: 18,
+  transcribe: 24,
+  regenerer: 10,
+  apercu_livre: 30,
 } as const;
+
+// Messages affichés quand un plafond quotidien est atteint (ton doux, pas
+// d'erreur technique).
+export const MESSAGE_LIMITE_REECRITURE =
+  "Vous avez beaucoup retravaillé vos souvenirs aujourd'hui. Vous pourrez continuer demain.";
+export const MESSAGE_LIMITE_APERCU =
+  "Vous avez déjà beaucoup consulté votre livre aujourd'hui. Vous pourrez le revoir demain.";
 
 export type RouteLimitee = keyof typeof LIMITES_QUOTIDIENNES;
 
@@ -48,7 +62,7 @@ export async function verifierQuotaNarrateur(
   supabase: SupabaseClient,
   user: { id: string; is_anonymous?: boolean },
   req: NextRequest,
-  route: RouteLimitee
+  route: "seance" | "transcribe"
 ): Promise<boolean> {
   if (!(await verifierQuota(supabase, user.id, route))) return false;
   if (!user.is_anonymous) return true;

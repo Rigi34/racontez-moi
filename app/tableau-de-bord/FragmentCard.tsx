@@ -132,7 +132,8 @@ export default function FragmentCard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ instruction }),
       });
-      if (res.status === 422) {
+      // 429 : plafond quotidien de réécritures atteint (message doux du serveur).
+      if (res.status === 422 || res.status === 429) {
         const data = await res.json().catch(() => ({}));
         setError(data.error ?? "La réécriture n'a pas pu aboutir : rien n'a été changé.");
         return;

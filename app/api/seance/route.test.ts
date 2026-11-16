@@ -13,7 +13,9 @@ const {
   abonnementLuMock,
   nombreFragmentsMock,
   sessionsInsertMock,
+  sessionsRecentesMock,
 } = vi.hoisted(() => ({
+  sessionsRecentesMock: vi.fn(),
   abonnementLuMock: vi.fn(),
   nombreFragmentsMock: vi.fn(),
   sessionsInsertMock: vi.fn(),
@@ -40,7 +42,11 @@ vi.mock("@anthropic-ai/sdk", () => ({
 // maybeSingle (séance en cours, ou dernière séance close pour le contexte).
 function chaineLecture() {
   const chaine: Record<string, unknown> = { maybeSingle: sessionLueMock };
-  for (const m of ["eq", "not", "order", "limit"]) chaine[m] = () => chaine;
+  for (const m of ["eq", "not", "order", "limit", "gte"]) chaine[m] = () => chaine;
+  // Lecture directe (await sans maybeSingle) : séances en cours récentes,
+  // contrôle anti-doublon (16/11/2026).
+  chaine.then = (ok: (v: unknown) => unknown, ko?: (e: unknown) => unknown) =>
+    Promise.resolve(sessionsRecentesMock()).then(ok, ko);
   return chaine;
 }
 
@@ -227,6 +233,7 @@ function requeteStart() {
 describe("POST /api/seance — étape start, séance offerte", () => {
   beforeEach(() => {
     sessionLueMock.mockResolvedValue({ data: null });
+    sessionsRecentesMock.mockReturnValue({ data: [] });
   });
 
   it("ouvre la première séance d'un compte sans Parcours", async () => {
@@ -266,5 +273,56 @@ describe("POST /api/seance — étape start, séance offerte", () => {
 
     expect(res.status).toBe(200);
     expect((await res.json()).session_id).toBe("s-1");
+  });
+});
+
+// Séances laissées en plan et doublons (16/11/2026).
+describe("POST /api/seance — étape start, reprise et doublons", () => {
+  function requete(corps: object) {
+    return new Request("http://localhost/api/seance", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(corps),
+    }) as unknown as Parameters<typeof POST>[0];
+  }
+  const ilYa = (heures: number) => new Date(Date.now() - heures * 3600_000).toISOString();
+
+  beforeEach(() => {
+    sessionsUpdateMock.mockReset().mockResolvedValue({ error: null });
+    sessionsInsertMock.mockReset().mockResolvedValue({ data: { id: "s-nouvelle" }, error: null });
+    sessionsRecentesMock.mockReturnValue({ data: [] });
+    nombreFragmentsMock.mockResolvedValue({ count: 0 });
+    abonnementLuMock.mockResolvedValue({ data: { status: "active" } });
+  });
+
+  it("reprend une séance commencée il y a moins de 24 h", async () => {
+    sessionLueMock.mockResolvedValue({ data: { id: "s-hier", started_at: ilYa(3), question_ouverture: "Q ?", section_ouverture: "B" } });
+    const res = await POST(requete({ step: "start" }));
+    expect((await res.json()).session_id).toBe("s-hier");
+    expect(sessionsInsertMock).not.toHaveBeenCalled();
+  });
+
+  it("au-delà de 24 h : classe l'ancienne « passee » et propose une nouvelle séance", async () => {
+    sessionLueMock.mockResolvedValue({ data: { id: "s-vieille", started_at: ilYa(30), question_ouverture: "Q ?", section_ouverture: "B" } });
+    const res = await POST(requete({ step: "start" }));
+    expect(sessionsUpdateMock).toHaveBeenCalledWith(expect.objectContaining({ status: "passee" }));
+    expect((await res.json()).session_id).toBe("s-nouvelle");
+  });
+
+  it("« Recommencer » classe l'ancienne séance « passee », jamais « completed »", async () => {
+    sessionLueMock.mockResolvedValue({ data: { id: "s-abandon", started_at: ilYa(1), question_ouverture: "Q ?", section_ouverture: "B" } });
+    await POST(requete({ step: "start", fresh: true }));
+    expect(sessionsUpdateMock).toHaveBeenCalledWith(expect.objectContaining({ status: "passee" }));
+    expect(sessionsUpdateMock).not.toHaveBeenCalledWith(expect.objectContaining({ status: "completed" }));
+  });
+
+  it("doublon : garde la séance créée juste avant et classe la nouvelle « passee »", async () => {
+    sessionLueMock.mockResolvedValue({ data: null });
+    sessionsRecentesMock.mockReturnValue({ data: [{ id: "s-premiere", started_at: ilYa(0), question_ouverture: "Q1 ?" }, { id: "s-nouvelle" }] });
+    const res = await POST(requete({ step: "start" }));
+    const corps = await res.json();
+    expect(corps.session_id).toBe("s-premiere");
+    expect(corps.question).toBe("Q1 ?");
+    expect(sessionsUpdateMock).toHaveBeenCalledWith(expect.objectContaining({ status: "passee" }));
   });
 });

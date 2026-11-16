@@ -19,6 +19,7 @@ const {
   lirePersonnalisationLivreMock: vi.fn(),
 }));
 
+vi.mock("@/lib/rate-limit", () => ({ verifierQuota: vi.fn().mockResolvedValue(true), MESSAGE_LIMITE_APERCU: "limite" }));
 vi.mock("@/utils/supabase/server", () => ({
   createClient: vi.fn(() => ({
     auth: { getUser: getUserMock },
@@ -39,6 +40,7 @@ vi.mock("@/lib/manuscrit", () => ({ compilerInterieur: compilerInterieurMock }))
 vi.mock("@/lib/profil-narrateur", () => ({ lirePersonnalisationLivre: lirePersonnalisationLivreMock }));
 
 const { GET } = await import("./route");
+const { verifierQuota } = await import("@/lib/rate-limit");
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -83,5 +85,16 @@ describe("GET /api/manuscrit/apercu", () => {
     expect(JSON.stringify(bodyJson)).not.toContain("Typst");
     expect(consoleErrorSpy).toHaveBeenCalledWith("Assemblage manuscrit échoué:", expect.any(Error));
     consoleErrorSpy.mockRestore();
+  });
+});
+
+describe("GET /api/manuscrit/apercu — plafond quotidien (16/11/2026)", () => {
+  it("renvoie 429 avec un message lisible quand le plafond est atteint, sans compiler", async () => {
+    vi.mocked(verifierQuota).mockResolvedValueOnce(false);
+    compilerInterieurMock.mockClear();
+    const res = await GET();
+    expect(res.status).toBe(429);
+    expect(await res.text()).toBe("limite");
+    expect(compilerInterieurMock).not.toHaveBeenCalled();
   });
 });
