@@ -106,6 +106,24 @@ async function seanceOfferteEpuisee(supabase: Awaited<ReturnType<typeof createCl
   return abonnement?.status !== "active" && (count ?? 0) > 0;
 }
 
+// Séance laissée en plan (16/11/2026, décision de Régis) : reprise telle
+// quelle pendant 24 h ; au-delà, on la classe « passee » (pas de souvenir,
+// pas de progression) et une nouvelle question est proposée — revenir sur la
+// question d'il y a cinq jours surprenait plus qu'elle n'aidait. Le
+// transcript reste conservé dans la ligne.
+export const DELAI_REPRISE_MS = 24 * 60 * 60 * 1000;
+export function seancePerimee(startedAt: string | null | undefined, maintenant = Date.now()): boolean {
+  if (!startedAt) return false;
+  return maintenant - new Date(startedAt).getTime() > DELAI_REPRISE_MS;
+}
+
+async function classerPassee(supabase: Awaited<ReturnType<typeof createClient>>, sessionId: string) {
+  await supabase
+    .from("sessions")
+    .update({ status: "passee", ended_at: new Date().toISOString() })
+    .eq("id", sessionId);
+}
+
 // Partagé entre "start", "pour_qui", "prenom" et "passer" : choisit la
 // prochaine étape (une des deux pseudo-questions d'ouverture, ou une vraie
 // question) et ne crée une ligne sessions que pour une vraie question —
@@ -137,6 +155,30 @@ async function demarrerProchaineEtape(supabase: Awaited<ReturnType<typeof create
   if (error || !created) {
     return NextResponse.json({ error: "Impossible de démarrer la séance." }, { status: 500 });
   }
+
+  // Doublon (constat du 16/11/2026 : deux séances créées à 0,3 s d'écart le
+  // 11/11, double chargement) : si une autre séance en cours vient d'être
+  // créée pour ce narrateur, on garde la plus ancienne et on classe celle-ci
+  // « passee ».
+  const { data: recentes } = await supabase
+    .from("sessions")
+    .select("id, started_at, question_ouverture")
+    .eq("user_id", userId)
+    .eq("status", "in_progress")
+    .gte("started_at", new Date(Date.now() - 10_000).toISOString())
+    .order("started_at", { ascending: true });
+  const premiere = recentes?.[0];
+  if (premiere && premiere.id !== created.id) {
+    await classerPassee(supabase, created.id);
+    const progression = await calculerProgression(supabase, userId);
+    return NextResponse.json({
+      session_id: premiere.id,
+      question: premiere.question_ouverture ?? question,
+      titre_section: titreSectionOuverture,
+      progression,
+    });
+  }
+
   const progression = await calculerProgression(supabase, userId);
   return NextResponse.json({ session_id: created.id, question, titre_section: titreSectionOuverture, progression });
 }
@@ -180,6 +222,11 @@ export async function GET() {
     calculerProgression(supabase, user.id),
   ]);
 
+  if (data && seancePerimee(data.started_at)) {
+    await classerPassee(supabase, data.id);
+    return NextResponse.json({ session: null, titre_section: null, progression });
+  }
+
   const titre_section = data ? await titreSection(supabase, data.section_ouverture ?? "") ?? TITRE_SECTION_A : null;
 
   return NextResponse.json({ session: data ?? null, titre_section, progression });
@@ -219,7 +266,8 @@ export async function POST(req: NextRequest) {
       .limit(1)
       .maybeSingle();
 
-    if (existing && !body.fresh) {
+    const perimee = !!existing && seancePerimee(existing.started_at);
+    if (existing && !body.fresh && !perimee) {
       const titre_section = await titreSection(supabase, existing.section_ouverture ?? "") ?? TITRE_SECTION_A;
       const progression = await calculerProgression(supabase, user.id);
       return NextResponse.json({
@@ -230,13 +278,12 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (existing && body.fresh) {
+    if (existing && (body.fresh || perimee)) {
       // Séance précédente abandonnée sans fragment — on la clôture pour qu'elle
-      // n'apparaisse plus comme reprenable, sans lui attribuer de fragment.
-      await supabase
-        .from("sessions")
-        .update({ status: "completed", ended_at: new Date().toISOString() })
-        .eq("id", existing.id);
+      // n'apparaisse plus comme reprenable. « passee » et non plus
+      // « completed » (bug relevé le 16/11/2026) : sans souvenir, elle ne doit
+      // compter ni dans la progression ni dans les durées.
+      await classerPassee(supabase, existing.id);
     }
 
     return demarrerProchaineEtape(supabase, user.id);
