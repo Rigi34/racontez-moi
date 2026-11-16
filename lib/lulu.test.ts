@@ -56,3 +56,16 @@ describe("statutsProblemeLulu", () => {
     expect(lulu.statutsProblemeLulu({ status: { name: "CANCELED" } })).toEqual(["CANCELED"]);
   });
 });
+
+describe("titreCommandeLulu", () => {
+  it("assemble titre et prénom", () => {
+    expect(lulu.titreCommandeLulu("Mes Mémoires", "Daniel")).toBe("Mes Mémoires — Daniel");
+  });
+  it("garde le titre seul sans prénom, et « Racontez-moi » si le titre est vide", () => {
+    expect(lulu.titreCommandeLulu("Mes Mémoires", null)).toBe("Mes Mémoires");
+    expect(lulu.titreCommandeLulu("  ", " ")).toBe("Racontez-moi");
+  });
+  it("borne la longueur à 120 caractères", () => {
+    expect(lulu.titreCommandeLulu("a".repeat(200), "Daniel").length).toBe(120);
+  });
+});

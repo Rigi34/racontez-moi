@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import FondVivant from "@/app/components/FondVivant";
+import AdresseProtegee from "@/app/components/AdresseProtegee";
+import { DELAI_LIVRAISON } from "@/lib/promesses";
 
 export const metadata: Metadata = {
   title: "Mentions légales & CGV — Racontez-moi",
@@ -74,6 +76,11 @@ export default function MentionsLegales() {
               Activité : rédaction de contenus et conseil en communication
               <br />
               Ville : Montpellier (34)
+              <br />
+              Contact : <AdresseProtegee />, ou via la{" "}
+              <Link href="/contact" className="text-petrole hover:text-encre transition-colors">
+                page Contact
+              </Link>
             </p>
             <p>
               Le Site est édité conformément aux dispositions du Code civil et du Code de
@@ -84,7 +91,7 @@ export default function MentionsLegales() {
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
               Directeur de la publication
             </h2>
-            <p>CohérenceLab.</p>
+            <p>Régis Boudet (CohérenceLab).</p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
               Hébergement
@@ -288,7 +295,7 @@ export default function MentionsLegales() {
               Le livre imprimé est fabriqué et expédié par un prestataire d&apos;impression
               à la demande. Les délais de fabrication et d&apos;expédition dépendent de ce
               prestataire et sont communiqués au narrateur au moment de la commande
-              d&apos;impression, une fois son adresse de livraison renseignée.
+              d&apos;impression, une fois son adresse de livraison renseignée. {DELAI_LIVRAISON}
             </p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Source_Serif_4, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
+import { DUREE_SEANCE } from "@/lib/promesses";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://racontez-moi.com"),
   title: "Racontez-moi — Le livre de votre vie",
   description:
-    "Des conversations de trente à quarante-cinq minutes, à la voix. Un interlocuteur qui écoute, questionne, se souvient — et compose le livre de votre vie.",
+    `Des conversations à la voix, d'${DUREE_SEANCE} ou plus selon le souvenir. Un interlocuteur qui écoute, questionne, se souvient — et compose le livre de votre vie.`,
   openGraph: {
     title: "Racontez-moi — Le livre de votre vie",
     description: "Votre histoire n'attend pas l'inspiration. Elle attend un interlocuteur.",
