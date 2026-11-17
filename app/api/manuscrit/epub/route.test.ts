@@ -87,12 +87,18 @@ describe("GET /api/manuscrit/epub", () => {
   });
 });
 
-describe("GET /api/manuscrit/epub — question au-dessus du souvenir (17/11/2026)", () => {
-  it("place la question de la séance avant le texte du souvenir", async () => {
+describe("GET /api/manuscrit/epub — question de la séance en titre (17/11/2026)", () => {
+  it("titre chaque souvenir par sa question, sans la répéter dans le texte", async () => {
     await GET();
-    const chapitres = epubMock.mock.calls.at(-1)?.[1] as { content: string }[];
-    const contenu = chapitres[0].content;
-    expect(contenu.indexOf("Quelle maison ?")).toBeGreaterThan(-1);
-    expect(contenu.indexOf("Quelle maison ?")).toBeLessThan(contenu.indexOf("Un souvenir."));
+    const chapitres = epubMock.mock.calls.at(-1)?.[1] as { title: string; content: string }[];
+    expect(chapitres[0].title).toBe("Quelle maison ?");
+    expect(chapitres[0].content).not.toContain("Quelle maison ?");
+  });
+
+  it("repli « Souvenir N » si la séance est introuvable", async () => {
+    fragmentsMock.mockResolvedValue({ data: [{ texte: "Un souvenir.", session: null }] });
+    await GET();
+    const chapitres = epubMock.mock.calls.at(-1)?.[1] as { title: string }[];
+    expect(chapitres[0].title).toBe("Souvenir 1");
   });
 });
