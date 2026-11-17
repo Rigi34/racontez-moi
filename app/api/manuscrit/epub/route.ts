@@ -3,7 +3,7 @@ import epubGenMemory from "epub-gen-memory";
 import { createClient } from "@/utils/supabase/server";
 import { QUESTION_INITIALE } from "@/lib/prompts";
 import { verifierQuota, MESSAGE_LIMITE_APERCU } from "@/lib/rate-limit";
-import { lirePersonnalisationLivre } from "@/lib/profil-narrateur";
+import { lirePersonnalisationLivre, lirePrenom } from "@/lib/profil-narrateur";
 
 // Interop CJS/ESM du package vérifié explicitement en Node pur (pas
 // seulement via la coquille esModuleInterop de tsc) : le module exporte à
@@ -96,8 +96,16 @@ export async function GET() {
       content: mentionApercu + fragmentVersHtml(f.texte),
     }));
 
-    const { titre } = await lirePersonnalisationLivre(supabase, user.id);
-    const buffer = await epub({ title: titre, lang: "fr" }, chapitres);
+    const [{ titre }, prenom] = await Promise.all([
+      lirePersonnalisationLivre(supabase, user.id),
+      lirePrenom(supabase, user.id).catch(() => null),
+    ]);
+    // Sommaire en français et prénom du narrateur comme auteur (17/11/2026) :
+    // la bibliothèque affichait « Table of Contents » et « anonymous ».
+    const buffer = await epub(
+      { title: titre, lang: "fr", tocTitle: "Sommaire", author: prenom?.trim() || "Racontez-moi" },
+      chapitres
+    );
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
