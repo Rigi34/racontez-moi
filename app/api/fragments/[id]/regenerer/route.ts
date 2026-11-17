@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/utils/supabase/server";
+import { verifierQuota, MESSAGE_LIMITE_REECRITURE } from "@/lib/rate-limit";
 import { QUESTION_INITIALE } from "@/lib/prompts";
 import { composerFragment } from "@/lib/redaction";
 import { MatiereInsuffisante } from "@/lib/garde-fou";
@@ -20,6 +21,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+
+  // Plafond quotidien (16/11/2026) : chaque réécriture appelle le modèle le
+  // plus cher ; sans limite, des clics en boucle pouvaient vider le crédit.
+  if (!(await verifierQuota(supabase, user.id, "regenerer"))) {
+    return NextResponse.json({ error: MESSAGE_LIMITE_REECRITURE, limite: true }, { status: 429 });
+  }
 
   let body: { instruction?: string } = {};
   try {

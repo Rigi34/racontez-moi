@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import epubGenMemory from "epub-gen-memory";
 import { createClient } from "@/utils/supabase/server";
+import { verifierQuota, MESSAGE_LIMITE_APERCU } from "@/lib/rate-limit";
 import { lirePersonnalisationLivre } from "@/lib/profil-narrateur";
 
 // Interop CJS/ESM du package vérifié explicitement en Node pur (pas
@@ -34,6 +35,11 @@ export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+
+  // Plafond quotidien (16/11/2026) : chaque ouverture recompose le livre.
+  if (!(await verifierQuota(supabase, user.id, "apercu_livre"))) {
+    return new NextResponse(MESSAGE_LIMITE_APERCU, { status: 429, headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
+  }
 
   // Trou trouvé le 11/09/2026 : cette route ne vérifiait que
   // l'authentification, pas le paiement — n'importe quel compte pouvait
