@@ -29,11 +29,14 @@ function fragmentVersHtml(texte: string): string {
 }
 
 type FragmentEpub = { texte: string; session?: { question_ouverture: string | null } | { question_ouverture: string | null }[] | null };
-function blocQuestionHtml(f: FragmentEpub): string {
+// Titre de chaque souvenir = la question de la séance (17/11/2026, décision
+// de Régis) : la table des matières de la liseuse devient lisible, au lieu de
+// « Souvenir 1… 60 ». Première séance : question fixe ; repli numéroté si la
+// séance est introuvable.
+function titreSouvenir(f: FragmentEpub, i: number): string {
   const session = Array.isArray(f.session) ? f.session[0] : f.session;
-  if (!session) return "";
-  const question = session.question_ouverture?.trim() || QUESTION_INITIALE;
-  return `<p style="color:#555;font-size:0.9em;text-indent:0"><em>${echapperHtml(question)}</em></p>`;
+  if (!session) return `Souvenir ${i + 1}`;
+  return session.question_ouverture?.trim() || QUESTION_INITIALE;
 }
 
 function echapperHtml(texte: string): string {
@@ -89,10 +92,8 @@ export async function GET() {
 
   try {
     const chapitres = fragments.map((f, i) => ({
-      title: `Souvenir ${i + 1}`,
-      // Question de la séance au-dessus du souvenir, comme dans le livre
-      // imprimé (17/11/2026). Première séance : question fixe.
-      content: mentionApercu + blocQuestionHtml(f) + fragmentVersHtml(f.texte),
+      title: titreSouvenir(f, i),
+      content: mentionApercu + fragmentVersHtml(f.texte),
     }));
 
     const { titre } = await lirePersonnalisationLivre(supabase, user.id);
