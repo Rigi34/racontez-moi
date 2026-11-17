@@ -49,7 +49,7 @@ beforeEach(() => {
   getUserMock.mockResolvedValue({ data: { user: { id: "user-abc" } } });
   abonnementMock.mockResolvedValue({ data: { status: "active" } });
   commandeMock.mockResolvedValue({ data: null });
-  fragmentsMock.mockResolvedValue({ data: [{ texte: "Un souvenir." }] });
+  fragmentsMock.mockResolvedValue({ data: [{ texte: "Un souvenir.", session: { question_ouverture: "Quelle maison ?" } }] });
   epubMock.mockResolvedValue(Buffer.from("epub"));
   lirePersonnalisationLivreMock.mockResolvedValue({ titre: "Mes Mémoires" });
 });
@@ -84,5 +84,15 @@ describe("GET /api/manuscrit/epub", () => {
     expect(JSON.stringify(bodyJson)).not.toContain("erreur de test");
     expect(consoleErrorSpy).toHaveBeenCalledWith("Génération EPUB échouée:", expect.any(Error));
     consoleErrorSpy.mockRestore();
+  });
+});
+
+describe("GET /api/manuscrit/epub — question au-dessus du souvenir (17/11/2026)", () => {
+  it("place la question de la séance avant le texte du souvenir", async () => {
+    await GET();
+    const chapitres = epubMock.mock.calls.at(-1)?.[1] as { content: string }[];
+    const contenu = chapitres[0].content;
+    expect(contenu.indexOf("Quelle maison ?")).toBeGreaterThan(-1);
+    expect(contenu.indexOf("Quelle maison ?")).toBeLessThan(contenu.indexOf("Un souvenir."));
   });
 });
