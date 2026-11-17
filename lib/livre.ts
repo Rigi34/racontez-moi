@@ -49,12 +49,13 @@ export type FragmentPourLivre = {
   section?: string | null;
   photos: PhotoShadow[];
   qrVoix?: QrVoix | null;
+  question?: string | null;
 };
 
 export type Chapitre = {
   section: string;
   titre: string;
-  fragments: { texte: string; photos: PhotoShadow[]; qrVoix?: QrVoix | null }[];
+  fragments: { texte: string; photos: PhotoShadow[]; qrVoix?: QrVoix | null; question?: string | null }[];
   // Photo composée en pleine page sur la page paire qui fait face à
   // l'ouverture du chapitre — retirée du flux du texte. null : la page
   // paire reste blanche, l'ouverture se fait seule sur la page impaire.
@@ -116,11 +117,11 @@ function choisirPhotoOuverture(fragments: { photos: PhotoShadow[] }[]): PhotoSha
 // chapitres ; à l'intérieur d'un chapitre, l'ordre d'enregistrement est
 // conservé (les fragments arrivent déjà triés par date de création).
 export function organiserEnChapitres(fragments: FragmentPourLivre[]): Chapitre[] {
-  const parSection = new Map<string, { texte: string; photos: PhotoShadow[]; qrVoix?: QrVoix | null }[]>();
+  const parSection = new Map<string, { texte: string; photos: PhotoShadow[]; qrVoix?: QrVoix | null; question?: string | null }[]>();
   for (const fragment of fragments) {
     const section = sectionValide(fragment.section);
     const liste = parSection.get(section) ?? [];
-    liste.push({ texte: fragment.texte, photos: fragment.photos, qrVoix: fragment.qrVoix ?? null });
+    liste.push({ texte: fragment.texte, photos: fragment.photos, qrVoix: fragment.qrVoix ?? null, question: fragment.question ?? null });
     parSection.set(section, liste);
   }
 

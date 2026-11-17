@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import epubGenMemory from "epub-gen-memory";
 import { createClient } from "@/utils/supabase/server";
+import { QUESTION_INITIALE } from "@/lib/prompts";
 import { verifierQuota, MESSAGE_LIMITE_APERCU } from "@/lib/rate-limit";
 import { lirePersonnalisationLivre } from "@/lib/profil-narrateur";
 
@@ -25,6 +26,14 @@ function fragmentVersHtml(texte: string): string {
     .split("\n\n")
     .map((paragraphe) => `<p>${echapperHtml(paragraphe)}</p>`)
     .join("\n");
+}
+
+type FragmentEpub = { texte: string; session?: { question_ouverture: string | null } | { question_ouverture: string | null }[] | null };
+function blocQuestionHtml(f: FragmentEpub): string {
+  const session = Array.isArray(f.session) ? f.session[0] : f.session;
+  if (!session) return "";
+  const question = session.question_ouverture?.trim() || QUESTION_INITIALE;
+  return `<p style="color:#555;font-size:0.9em;text-indent:0"><em>${echapperHtml(question)}</em></p>`;
 }
 
 function echapperHtml(texte: string): string {
@@ -55,7 +64,7 @@ export async function GET() {
 
   const { data: fragments } = await supabase
     .from("fragments")
-    .select("texte")
+    .select("texte, session:sessions(question_ouverture)")
     .eq("user_id", user.id)
     .neq("statut", "a_revoir")
     .order("created_at", { ascending: true });
@@ -81,7 +90,9 @@ export async function GET() {
   try {
     const chapitres = fragments.map((f, i) => ({
       title: `Souvenir ${i + 1}`,
-      content: mentionApercu + fragmentVersHtml(f.texte),
+      // Question de la séance au-dessus du souvenir, comme dans le livre
+      // imprimé (17/11/2026). Première séance : question fixe.
+      content: mentionApercu + blocQuestionHtml(f) + fragmentVersHtml(f.texte),
     }));
 
     const { titre } = await lirePersonnalisationLivre(supabase, user.id);

@@ -36,6 +36,7 @@ export function typeReel(octets: Uint8Array): string | null {
 import type { SupabaseClient } from "@supabase/supabase-js";
 import * as Sentry from "@sentry/nextjs";
 import type { FragmentAvecPhotos } from "./manuscrit";
+import { QUESTION_INITIALE } from "./prompts";
 import { voixChoisieActive } from "./voix";
 
 export type FragmentsAvecPhotosResultat = {
@@ -72,9 +73,14 @@ export async function chargerFragmentsAvecPhotos(
   // première, question fixe) ou introuvable retombe sur le chapitre A.
   const { data: sessions } = await supabase
     .from("sessions")
-    .select("id, section_ouverture")
+    .select("id, section_ouverture, question_ouverture")
     .in("id", [...new Set(fragments.map((f) => f.session_id))]);
   const sectionParSession = new Map((sessions ?? []).map((s) => [s.id, s.section_ouverture as string | null]));
+  // Question d'ouverture (17/11/2026), imprimée au-dessus du souvenir. La
+  // toute première séance n'en stocke pas : c'est la question fixe.
+  const questionParSession = new Map(
+    (sessions ?? []).map((s) => [s.id, (s.question_ouverture as string | null) ?? QUESTION_INITIALE])
+  );
 
   // Extraits de voix actifs (chantier VOIX-CHOISIE) : seul le jeton est
   // utile au livre (QR code). Rien n'est lu tant que la fonction est coupée.
@@ -142,6 +148,7 @@ export async function chargerFragmentsAvecPhotos(
       return {
         texte: fragment.texte,
         section: sectionParSession.get(fragment.session_id) ?? null,
+        question: questionParSession.get(fragment.session_id) ?? null,
         voixJeton: jetonParFragment.get(fragment.id) ?? null,
         photos: photosTelechargees.filter((p): p is NonNullable<typeof p> => p !== null),
       };

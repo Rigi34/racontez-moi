@@ -368,3 +368,14 @@ describe("typographierFrancais (questions de la séance)", () => {
     );
   });
 });
+
+// Question de la séance au-dessus du souvenir (17/11/2026).
+describe("assemblerFragments — question au-dessus du souvenir", () => {
+  it("imprime la question avant le texte, échappée, et rien quand elle est absente", () => {
+    const avec = assemblerFragments([{ texte: "Le figuier.", photos: [], question: "Quelle maison ? #1" }]);
+    expect(avec.indexOf("Quelle maison ? \\#1")).toBeGreaterThan(-1);
+    expect(avec.indexOf("Quelle maison")).toBeLessThan(avec.indexOf("Le figuier."));
+    const sans = assemblerFragments([{ texte: "Le figuier.", photos: [] }]);
+    expect(sans).not.toContain("style: \"italic\"");
+  });
+});
