@@ -40,7 +40,7 @@ vi.mock("@/utils/supabase/server", () => ({
 }));
 
 vi.mock("epub-gen-memory", () => ({ default: epubMock }));
-vi.mock("@/lib/profil-narrateur", () => ({ lirePersonnalisationLivre: lirePersonnalisationLivreMock }));
+vi.mock("@/lib/profil-narrateur", () => ({ lirePersonnalisationLivre: lirePersonnalisationLivreMock, lirePrenom: vi.fn().mockResolvedValue("Jeanne") }));
 
 const { GET } = await import("./route");
 
@@ -49,7 +49,7 @@ beforeEach(() => {
   getUserMock.mockResolvedValue({ data: { user: { id: "user-abc" } } });
   abonnementMock.mockResolvedValue({ data: { status: "active" } });
   commandeMock.mockResolvedValue({ data: null });
-  fragmentsMock.mockResolvedValue({ data: [{ texte: "Un souvenir." }] });
+  fragmentsMock.mockResolvedValue({ data: [{ texte: "Un souvenir.", session: { question_ouverture: "Quelle maison ?" } }] });
   epubMock.mockResolvedValue(Buffer.from("epub"));
   lirePersonnalisationLivreMock.mockResolvedValue({ titre: "Mes Mémoires" });
 });
@@ -84,5 +84,30 @@ describe("GET /api/manuscrit/epub", () => {
     expect(JSON.stringify(bodyJson)).not.toContain("erreur de test");
     expect(consoleErrorSpy).toHaveBeenCalledWith("Génération EPUB échouée:", expect.any(Error));
     consoleErrorSpy.mockRestore();
+  });
+});
+
+describe("GET /api/manuscrit/epub — question de la séance en titre (17/11/2026)", () => {
+  it("titre chaque souvenir par sa question, sans la répéter dans le texte", async () => {
+    await GET();
+    const chapitres = epubMock.mock.calls.at(-1)?.[1] as { title: string; content: string }[];
+    expect(chapitres[0].title).toBe("Quelle maison ?");
+    expect(chapitres[0].content).not.toContain("Quelle maison ?");
+  });
+
+  it("repli « Souvenir N » si la séance est introuvable", async () => {
+    fragmentsMock.mockResolvedValue({ data: [{ texte: "Un souvenir.", session: null }] });
+    await GET();
+    const chapitres = epubMock.mock.calls.at(-1)?.[1] as { title: string }[];
+    expect(chapitres[0].title).toBe("Souvenir 1");
+  });
+});
+
+describe("GET /api/manuscrit/epub — sommaire et auteur (17/11/2026)", () => {
+  it("sommaire en français et prénom du narrateur comme auteur", async () => {
+    await GET();
+    const options = epubMock.mock.calls.at(-1)?.[0] as { tocTitle: string; author: string };
+    expect(options.tocTitle).toBe("Sommaire");
+    expect(options.author).toBe("Jeanne");
   });
 });

@@ -153,6 +153,8 @@ export type FragmentPourAssemblage = {
   // QR code d'écoute de la voix (chantier VOIX-CHOISIE) : chemin du SVG déjà
   // déposé dans le compilateur, et adresse imprimée en clair sous le code.
   qrVoix?: QrVoix | null;
+  // Question de la séance (17/11/2026), imprimée au-dessus du souvenir.
+  question?: string | null;
 };
 
 export type QrVoix = { chemin: string; url: string };
@@ -169,6 +171,13 @@ function blocQrVoix(qr: QrVoix): string {
 // espacées, la convention des livres imprimés français pour une rupture de
 // récit (remplace le tiret seul, 02/10/2026).
 const SEPARATEUR = `#text(size: 9pt, fill: luma(110), tracking: 0.6em)[\\*\\*\\*]`;
+
+// Question de la séance au-dessus du souvenir (17/11/2026, piste retenue
+// pour les transitions entre souvenirs) : petit italique gris, aligné à
+// gauche, « sticky » pour ne jamais rester seule en bas de page.
+function blocQuestion(question: string): string {
+  return `#block(above: 0em, below: 1.1em, sticky: true, width: 100%)[#set par(first-line-indent: 0em, justify: false)\n#text(size: 9.5pt, style: "italic", fill: luma(85))[${echapperMarkupTypst(question.trim())}]]`;
+}
 
 // Assemble plusieurs fragments avec un séparateur entre chacun.
 //
@@ -205,6 +214,7 @@ export function assemblerFragments(
         corps = [...paragraphes, ...blocs].join("\n\n");
       }
       if (fragment.qrVoix) corps += `\n\n${blocQrVoix(fragment.qrVoix)}`;
+      if (fragment.question?.trim()) corps = `${blocQuestion(fragment.question)}\n\n${corps}`;
       if (i === 0) return corps;
       return `#block(above: 2em, below: 1.8em, sticky: true, width: 100%)[#align(center)[${SEPARATEUR}]]\n\n${corps}`;
     })

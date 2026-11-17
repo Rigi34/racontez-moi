@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import epubGenMemory from "epub-gen-memory";
 import { createClient } from "@/utils/supabase/server";
+import { QUESTION_INITIALE } from "@/lib/prompts";
 import { verifierQuota, MESSAGE_LIMITE_APERCU } from "@/lib/rate-limit";
-import { lirePersonnalisationLivre } from "@/lib/profil-narrateur";
+import { lirePersonnalisationLivre, lirePrenom } from "@/lib/profil-narrateur";
 
 // Interop CJS/ESM du package vérifié explicitement en Node pur (pas
 // seulement via la coquille esModuleInterop de tsc) : le module exporte à
@@ -25,6 +26,17 @@ function fragmentVersHtml(texte: string): string {
     .split("\n\n")
     .map((paragraphe) => `<p>${echapperHtml(paragraphe)}</p>`)
     .join("\n");
+}
+
+type FragmentEpub = { texte: string; session?: { question_ouverture: string | null } | { question_ouverture: string | null }[] | null };
+// Titre de chaque souvenir = la question de la séance (17/11/2026, décision
+// de Régis) : la table des matières de la liseuse devient lisible, au lieu de
+// « Souvenir 1… 60 ». Première séance : question fixe ; repli numéroté si la
+// séance est introuvable.
+function titreSouvenir(f: FragmentEpub, i: number): string {
+  const session = Array.isArray(f.session) ? f.session[0] : f.session;
+  if (!session) return `Souvenir ${i + 1}`;
+  return session.question_ouverture?.trim() || QUESTION_INITIALE;
 }
 
 function echapperHtml(texte: string): string {
@@ -55,7 +67,7 @@ export async function GET() {
 
   const { data: fragments } = await supabase
     .from("fragments")
-    .select("texte")
+    .select("texte, session:sessions(question_ouverture)")
     .eq("user_id", user.id)
     .neq("statut", "a_revoir")
     .order("created_at", { ascending: true });
@@ -80,12 +92,20 @@ export async function GET() {
 
   try {
     const chapitres = fragments.map((f, i) => ({
-      title: `Souvenir ${i + 1}`,
+      title: titreSouvenir(f, i),
       content: mentionApercu + fragmentVersHtml(f.texte),
     }));
 
-    const { titre } = await lirePersonnalisationLivre(supabase, user.id);
-    const buffer = await epub({ title: titre, lang: "fr" }, chapitres);
+    const [{ titre }, prenom] = await Promise.all([
+      lirePersonnalisationLivre(supabase, user.id),
+      lirePrenom(supabase, user.id).catch(() => null),
+    ]);
+    // Sommaire en français et prénom du narrateur comme auteur (17/11/2026) :
+    // la bibliothèque affichait « Table of Contents » et « anonymous ».
+    const buffer = await epub(
+      { title: titre, lang: "fr", tocTitle: "Sommaire", author: prenom?.trim() || "Racontez-moi" },
+      chapitres
+    );
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,

@@ -22,6 +22,10 @@ export type FragmentAvecPhotos = {
   // Jeton d'écoute d'un extrait de voix gardé pour ce fragment (chantier
   // VOIX-CHOISIE) : un QR code est alors imprimé en fin de passage.
   voixJeton?: string | null;
+  // Question d'ouverture de la séance d'origine, imprimée en petit italique
+  // au-dessus du souvenir (17/11/2026) : situe le souvenir sans rien
+  // inventer — la seule phrase ajoutée est la question réellement posée.
+  question?: string | null;
   // Une photo par id + son contenu binaire déjà téléchargé depuis Supabase
   // Storage — le compilateur Typst ne peut pas aller chercher une URL lui-
   // même, il lui faut les octets en mémoire (cf. NodeCompiler.mapShadow).
@@ -82,6 +86,7 @@ export function compilerInterieur(
     fragments.map((f, i) => ({
       texte: f.texte,
       section: f.section,
+      question: f.question ?? null,
       qrVoix: qrParFragment.get(i) ?? null,
       photos: f.photos.map((p) => ({
         chemin: cheminTypstPhoto(p.id, p.extension),
