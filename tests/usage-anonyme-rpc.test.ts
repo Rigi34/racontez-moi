@@ -21,13 +21,8 @@ import path from "node:path";
 // Postgres pour INSERT ... ON CONFLICT DO UPDATE, non démontré par exécution
 // ici.
 
-const MIGRATION_PATH = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "supabase",
-  "migrations",
-  "0020_usage_anonyme.sql"
-);
+const DOSSIER_MIGRATIONS = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "supabase", "migrations");
+const MIGRATIONS = ["0020_usage_anonyme.sql", "0026_usage_anonyme_service_seul.sql"];
 
 let db: PGlite;
 
@@ -48,8 +43,9 @@ beforeAll(async () => {
   await db.exec(`
     create role authenticated;
     create role anon;
+    create role service_role;
   `);
-  await db.exec(readFileSync(MIGRATION_PATH, "utf8"));
+  for (const m of MIGRATIONS) await db.exec(readFileSync(path.join(DOSSIER_MIGRATIONS, m), "utf8"));
 });
 
 afterAll(async () => {
@@ -133,5 +129,21 @@ describe("incrementer_et_verifier_usage_anonyme — indépendance des compteurs"
     );
     const r = await appeler(ip, "contact", 5);
     expect(r).toEqual({ autorise: true, compteur: 1 });
+  });
+});
+
+describe("incrementer_et_verifier_usage_anonyme — durcissement 0026 (contre-audit 18/11)", () => {
+  it("refuse un nom de route inconnu", async () => {
+    await expect(appeler("192.0.2.50", "route_inventee", 5)).rejects.toThrow(/Route de quota inconnue/);
+  });
+
+  it("n'est plus exécutable par anon ni authenticated, seulement par service_role", async () => {
+    const r = await db.query<{ anon: boolean; auth: boolean; service: boolean }>(`
+      select
+        has_function_privilege('anon', 'public.incrementer_et_verifier_usage_anonyme(text, text, int)', 'execute') as anon,
+        has_function_privilege('authenticated', 'public.incrementer_et_verifier_usage_anonyme(text, text, int)', 'execute') as auth,
+        has_function_privilege('service_role', 'public.incrementer_et_verifier_usage_anonyme(text, text, int)', 'execute') as service
+    `);
+    expect(r.rows[0]).toEqual({ anon: false, auth: false, service: true });
   });
 });

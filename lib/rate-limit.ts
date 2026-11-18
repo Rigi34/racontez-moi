@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient as createServiceClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { NextRequest } from "next/server";
 
 // Plafonds quotidiens sur les routes qui déclenchent un appel API facturé
@@ -66,7 +66,7 @@ export async function verifierQuotaNarrateur(
 ): Promise<boolean> {
   if (!(await verifierQuota(supabase, user.id, route))) return false;
   if (!user.is_anonymous) return true;
-  return verifierQuotaAnonyme(supabase, extraireIp(req), `${route}_anonyme`);
+  return verifierQuotaAnonyme(extraireIp(req), `${route}_anonyme`);
 }
 
 // Plafonds quotidiens sur les routes anonymes qui déclenchent un coût réel
@@ -94,6 +94,10 @@ export const LIMITES_QUOTIDIENNES_ANONYME = {
   // Certificat cadeau par code, image et PDF (A-2026-09-12-03, 17/10/2026) :
   // compté avant la recherche du code, donc borne aussi les essais de codes.
   certificat_code: 30,
+  // Activation d'un code cadeau (contre-audit Grok du 18/11/2026) : la route
+  // n'avait aucun plafond, alors que ses réponses distinguent code inconnu,
+  // déjà utilisé ou remboursé. Même seuil que le certificat par code.
+  activation_code: 30,
 } as const;
 
 export type RouteLimiteeAnonyme = keyof typeof LIMITES_QUOTIDIENNES_ANONYME;
@@ -114,11 +118,27 @@ export function extraireIp(req: NextRequest): string {
 // auth.uid() possible côté RPC (cf. supabase/migrations/0020_usage_anonyme.sql),
 // et même choix fail-closed (une erreur de vérification bloque l'appel
 // coûteux plutôt que de le laisser passer sans plafond vérifié).
+//
+// Contre-audit Grok du 18/11/2026 : la RPC n'est plus exécutable que par le
+// service role (migration 0026), sinon n'importe qui pouvait l'appeler
+// depuis un navigateur avec l'IP de son choix. Le client service est donc
+// créé ici, jamais fourni par l'appelant ; le paramètre `client` ne sert
+// qu'aux tests.
+let clientServiceQuota: SupabaseClient | null = null;
+function serviceQuota(): SupabaseClient {
+  clientServiceQuota ??= createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  return clientServiceQuota;
+}
+
 export async function verifierQuotaAnonyme(
-  supabase: SupabaseClient,
   ip: string,
-  route: RouteLimiteeAnonyme
+  route: RouteLimiteeAnonyme,
+  client: SupabaseClient = serviceQuota()
 ): Promise<boolean> {
+  const supabase = client;
   const { data, error } = await supabase.rpc("incrementer_et_verifier_usage_anonyme", {
     p_ip: ip,
     p_route: route,

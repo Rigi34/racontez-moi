@@ -35,7 +35,7 @@ describe("GET /api/cadeau/certificat/[code]/pdf", () => {
     quotaMock.mockResolvedValue(false);
     const res = await appel("ABCD2345");
     expect(res.status).toBe(429);
-    expect(quotaMock).toHaveBeenCalledWith(expect.anything(), "1.2.3.4", "certificat_code");
+    expect(quotaMock).toHaveBeenCalledWith("1.2.3.4", "certificat_code");
     expect(maybeSingleMock).not.toHaveBeenCalled();
     expect(pdfMock).not.toHaveBeenCalled();
   });

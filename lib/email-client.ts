@@ -15,6 +15,8 @@ Merci pour votre confiance. Votre paiement est bien enregistré et votre accès 
 Vous pouvez reprendre vos séances quand vous le souhaitez, depuis votre tableau de bord :
 https://racontez-moi.com/tableau-de-bord
 
+Pour revenir plus tard, depuis n'importe quel appareil : https://racontez-moi.com/sign-in, avec cette adresse e-mail et votre mot de passe. Mot de passe oublié ? Le lien « Mot de passe oublié » vous permet d'en choisir un nouveau.
+
 Quelques repères pour la suite :
 - Racontez à votre rythme : une séance de temps en temps suffit.
 - Chaque passage peut être relu, modifié ou recomposé avant l'impression.
