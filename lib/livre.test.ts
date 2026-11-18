@@ -1,3 +1,4 @@
+import { compilerInterieur } from "./manuscrit";
 import { describe, it, expect } from "vitest";
 import { deflateSync } from "node:zlib";
 import { NodeCompiler } from "@myriaddreamin/typst-ts-node-compiler";
@@ -171,5 +172,22 @@ describe("genererLivreTypst (compilation réelle)", () => {
       sousTitre: "Sous-titre <test> *",
     });
     expect(c.compile({ mainFileContent: source }).hasError()).toBe(false);
+  });
+});
+
+// Bug du 17/11/2026 : quand le dernier chapitre finissait sur une page paire,
+// le livre gagnait deux pages vides (la première avec en-tête et folio).
+describe("fin du livre (compilation réelle)", () => {
+  const para = "Il y avait dans la cour un figuier immense, et ma grand-mère étendait un drap dessous pour ramasser les figues tombées pendant les longues journées d'été. ".repeat(4);
+  const livre = (n: number) => {
+    const f = (section: string) => ({ section, question: "Q ?", texte: Array(n).fill(para).join("\n\n"), photos: [], voixJeton: null });
+    return compilerInterieur([f("A"), f("B")], { titre: "Essai" }).nombrePages;
+  };
+
+  it("finit toujours sur une page paire, sans page vide superflue", () => {
+    // n = 2 : le 2e chapitre finit page 8 (paire) → 8 pages, plus 10.
+    expect(livre(2)).toBe(8);
+    // n = 1 : le 2e chapitre finit page 7 (impaire) → une page blanche → 8.
+    expect(livre(1)).toBe(8);
   });
 });

@@ -450,9 +450,18 @@ ${chapitre.corps}
   // Le livre se termine sur une page paire (verso) : une feuille complète,
   // et le dernier recto n'est jamais suivi d'une page imprimée au dos du
   // carton sans raison.
+  //
+  // Bug relevé le 17/11/2026 (aperçu de Régis) : `pagebreak(to: "even")`
+  // saute toujours de page, même quand le texte finit déjà sur une page
+  // paire — deux pages vides en plus, la première avec en-tête et folio.
+  // On n'ajoute donc une page blanche (muette) que si le dernier chapitre
+  // finit sur une page impaire.
   return `${preambule(opts, enTeteEtPiedLivre(opts.titre))}${liminaires}
 ${corpsChapitres}
-#pagebreak(to: "even", weak: true)
-#box()
+#context {
+  let fins = query(<fin-chapitre>)
+  let pf = if fins.len() > 0 { fins.last().location().page() } else { 0 }
+  if calc.odd(pf) { pagebreak(); box() }
+}
 `;
 }
