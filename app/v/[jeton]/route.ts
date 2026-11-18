@@ -30,7 +30,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ jeto
 
   let autorise: boolean;
   try {
-    autorise = await verifierQuotaAnonyme(service, extraireIp(req), "ecoute_voix");
+    autorise = await verifierQuotaAnonyme(extraireIp(req), "ecoute_voix");
   } catch (e) {
     console.error("Quota écoute voix indisponible:", e);
     return new NextResponse("Service momentanément indisponible.", { status: 503 });

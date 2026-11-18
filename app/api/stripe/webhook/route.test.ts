@@ -16,6 +16,10 @@ const { emailBienvenueMock, abonnementAvantMock, constructEventMock, creerCodeCa
   updateMock: vi.fn(),
   updateEqMock: vi.fn(),
 }));
+const { getUserByIdMock, updateUserByIdMock } = vi.hoisted(() => ({
+  getUserByIdMock: vi.fn(),
+  updateUserByIdMock: vi.fn(),
+}));
 
 vi.mock("@/lib/stripe", () => ({
   stripe: {
@@ -35,6 +39,7 @@ vi.mock("@/lib/codes-cadeau", () => ({
 
 vi.mock("@supabase/supabase-js", () => ({
   createClient: vi.fn(() => ({
+    auth: { admin: { getUserById: getUserByIdMock, updateUserById: updateUserByIdMock } },
     from: vi.fn((table: string) => {
       if (table === "codes_cadeau") {
         return { select: () => ({ eq: () => ({ maybeSingle: maybeSingleMock }) }) };
@@ -94,9 +99,59 @@ beforeEach(() => {
   revoquerCodeCadeauMock.mockResolvedValue(null);
   abonnementAvantMock.mockResolvedValue({ data: null });
   emailBienvenueMock.mockResolvedValue(true);
+  getUserByIdMock.mockResolvedValue({ data: { user: { id: "user-1", email: "client@example.com" } }, error: null });
+  updateUserByIdMock.mockResolvedValue({ error: null });
 });
 
 describe("POST /api/stripe/webhook", () => {
+  // Contre-audit Grok du 18/11/2026, décision A : un compte d'essai payé ne
+  // doit jamais rester sans moyen de se reconnecter.
+  describe("e-mail du compte d'essai au paiement", () => {
+    const session = {
+      id: "cs_test_essai",
+      client_reference_id: "user-1",
+      customer: "cus_1",
+      customer_details: { email: "Client@Example.com" } as Stripe.Checkout.Session.CustomerDetails,
+    };
+
+    it("confirme l'adresse en attente quand c'est celle donnée à Stripe", async () => {
+      getUserByIdMock.mockResolvedValue({ data: { user: { id: "user-1", email: "", new_email: "client@example.com" } }, error: null });
+      constructEventMock.mockReturnValue(sessionCompletedEvent(session));
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(200);
+      expect(updateUserByIdMock).toHaveBeenCalledWith("user-1", { email: "Client@Example.com", email_confirm: true });
+    });
+
+    it("ne touche à rien si l'adresse en attente est différente", async () => {
+      getUserByIdMock.mockResolvedValue({ data: { user: { id: "user-1", email: "", new_email: "autre@example.com" } }, error: null });
+      constructEventMock.mockReturnValue(sessionCompletedEvent(session));
+
+      await POST(requete("{}"));
+
+      expect(updateUserByIdMock).not.toHaveBeenCalled();
+    });
+
+    it("ne touche à rien pour un compte déjà confirmé", async () => {
+      constructEventMock.mockReturnValue(sessionCompletedEvent(session));
+
+      await POST(requete("{}"));
+
+      expect(updateUserByIdMock).not.toHaveBeenCalled();
+    });
+
+    it("un échec ne bloque pas l'activation", async () => {
+      getUserByIdMock.mockRejectedValue(new Error("réseau"));
+      constructEventMock.mockReturnValue(sessionCompletedEvent(session));
+
+      const res = await POST(requete("{}"));
+
+      expect(res.status).toBe(200);
+      expect(upsertMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it("rejette avec 400 si la signature est invalide, sans effet de bord", async () => {
     constructEventMock.mockImplementation(() => {
       throw new Error("signature invalide");

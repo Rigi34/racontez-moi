@@ -195,6 +195,10 @@ export function resumerProfilPourPrompt(profil: ProfilNarrateur): string {
   return `\n\nCe que tu sais déjà de ce narrateur :\n${lignes.map((l) => `— ${l}`).join("\n")}`;
 }
 
+const PERIODES_PROFIL = ["enfance", "adolescence", "vie_adulte", "age_mur"];
+const ANCRAGES_PROFIL = ["odeur", "lumiere", "son", "texture", "gout"];
+const PROFONDEURS_PROFIL = ["superficiel", "moyen", "profond"];
+
 const SYSTEM_EXTRACTION = `Tu analyses un échange d'entretien mémoriel pour mettre à jour un profil de suivi.
 Réponds UNIQUEMENT en JSON strict, rien d'autre :
 {"periode": "...", "ancrages_sensoriels": ["..."], "profondeur": "..."}
@@ -223,17 +227,27 @@ export async function mettreAJourProfil(
     return;
   }
 
+  // Contre-audit Grok du 18/11/2026 : le profil est réinjecté dans la
+  // consigne des séances suivantes. On n'enregistre donc que les valeurs
+  // prévues ci-dessus, jamais un texte libre que la réponse du narrateur
+  // aurait pu faire produire au modèle.
+  const periode = PERIODES_PROFIL.includes(extraction.periode) ? extraction.periode : null;
+  const ancragesExtraits = Array.isArray(extraction.ancrages_sensoriels)
+    ? extraction.ancrages_sensoriels.filter((a) => ANCRAGES_PROFIL.includes(a))
+    : [];
+  const profondeur = PROFONDEURS_PROFIL.includes(extraction.profondeur) ? extraction.profondeur : "moyen";
+
   const profil = await lireProfil(supabase, userId);
 
   const periodes = new Set(profil.periodes_couvertes);
-  if (extraction.periode && extraction.periode !== "non_precise") periodes.add(extraction.periode);
+  if (periode) periodes.add(periode);
 
   const ancrages = new Set(profil.ancrages_sensoriels_utilises);
-  for (const a of extraction.ancrages_sensoriels ?? []) ancrages.add(a);
+  for (const a of ancragesExtraits) ancrages.add(a);
 
   const profondeurParPeriode = { ...profil.profondeur_par_periode };
-  if (extraction.periode && extraction.periode !== "non_precise") {
-    profondeurParPeriode[extraction.periode] = extraction.profondeur;
+  if (periode) {
+    profondeurParPeriode[periode] = profondeur;
   }
 
   const { error } = await supabase.from("profil_narrateur").upsert(

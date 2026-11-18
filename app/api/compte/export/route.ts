@@ -19,8 +19,10 @@ export async function GET() {
   ]);
 
   // Extraits de voix (chantier VOIX-CHOISIE) : métadonnées + lien de
-  // téléchargement signé valable 7 jours, pour que l'export reste utile
-  // une fois téléchargé. Absent tant que la fonction est coupée.
+  // téléchargement signé valable 24 heures (7 jours avant le contre-audit
+  // Grok du 18/11/2026 : trop long pour un enregistrement de voix si le
+  // fichier d'export est transféré ; 24 h laisse le temps à une personne
+  // âgée ou à un proche de télécharger). Absent tant que la fonction est coupée.
   let extraitsVoix: unknown[] | undefined;
   if (voixChoisieActive()) {
     const { data } = await supabase
@@ -29,7 +31,7 @@ export async function GET() {
       .eq("user_id", user.id);
     extraitsVoix = await Promise.all(
       (data ?? []).map(async ({ chemin_stockage, ...e }) => {
-        const { data: signe } = await supabase.storage.from("voix").createSignedUrl(chemin_stockage, 7 * 24 * 3600);
+        const { data: signe } = await supabase.storage.from("voix").createSignedUrl(chemin_stockage, 24 * 3600);
         return { ...e, telechargement: signe?.signedUrl ?? null };
       })
     );

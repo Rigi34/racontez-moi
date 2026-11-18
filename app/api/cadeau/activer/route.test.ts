@@ -11,6 +11,8 @@ const { getUserMock, abonnementLuMock, activationMock, ligneExistanteMock, upser
   upsertMock: vi.fn(),
   remiseEnPayeMock: vi.fn(),
 }));
+const quotaMock = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/rate-limit", () => ({ extraireIp: () => "1.2.3.4", verifierQuotaAnonyme: quotaMock }));
 
 vi.mock("@/utils/supabase/server", () => ({
   createClient: vi.fn(() => ({ auth: { getUser: getUserMock } })),
@@ -57,9 +59,22 @@ beforeEach(() => {
   activationMock.mockResolvedValue({ data: { id: "code-1" }, error: null });
   upsertMock.mockResolvedValue({ error: null });
   remiseEnPayeMock.mockResolvedValue({ error: null });
+  quotaMock.mockResolvedValue(true);
 });
 
 describe("POST /api/cadeau/activer", () => {
+  // Contre-audit Grok du 18/11/2026 : plafond d'essais par IP.
+  it("refuse au-delà du plafond d'essais, sans chercher le code", async () => {
+    quotaMock.mockResolvedValue(false);
+
+    const res = await POST(requete());
+
+    expect(res.status).toBe(429);
+    expect(quotaMock).toHaveBeenCalledWith("1.2.3.4", "activation_code");
+    expect(abonnementLuMock).not.toHaveBeenCalled();
+    expect(activationMock).not.toHaveBeenCalled();
+  });
+
   it("active le code et ouvre l'accès", async () => {
     const res = await POST(requete());
 

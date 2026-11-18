@@ -12,6 +12,43 @@ const supabase = createServiceClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Contre-audit Grok du 18/11/2026, décision A de Régis : une personne qui
+// paie depuis l'essai gratuit a choisi un e-mail et un mot de passe juste
+// avant le paiement, mais tant qu'elle n'a pas cliqué le lien de
+// confirmation, cet e-mail reste « en attente » et le mot de passe ne
+// permet pas de se reconnecter : en perdant son navigateur, elle perdait
+// l'accès à ce qu'elle a payé. On confirme donc l'adresse au paiement, à une
+// condition : que ce soit la même que celle saisie dans le formulaire
+// (déclarée deux fois, au site puis à Stripe). Sinon on ne touche à rien et
+// on le journalise. Jamais bloquant : l'accès est déjà ouvert.
+async function rattacherEmailCompteEssai(userId: string, emailClient: string): Promise<void> {
+  try {
+    const { data, error } = await supabase.auth.admin.getUserById(userId);
+    if (error || !data.user) return;
+    const utilisateur = data.user;
+    if (utilisateur.email) return; // compte déjà rattaché à une adresse confirmée
+    const enAttente = utilisateur.new_email?.trim().toLowerCase();
+    if (!enAttente || enAttente !== emailClient.trim().toLowerCase()) {
+      console.warn("Webhook Stripe: e-mail du compte d'essai non confirmé et différent de celui donné à Stripe.", {
+        user_id: userId,
+      });
+      return;
+    }
+    const { error: erreurMaj } = await supabase.auth.admin.updateUserById(userId, {
+      email: emailClient,
+      email_confirm: true,
+    });
+    if (erreurMaj) {
+      console.error("Webhook Stripe: confirmation de l'e-mail du compte d'essai échouée.", {
+        user_id: userId,
+        error_message: erreurMaj.message,
+      });
+    }
+  } catch (e) {
+    console.error("Webhook Stripe: rattachement de l'e-mail du compte d'essai échoué.", e);
+  }
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("stripe-signature");
@@ -120,6 +157,7 @@ export async function POST(req: NextRequest) {
       }
 
       const emailClient = session.customer_details?.email ?? session.customer_email;
+      if (emailClient) await rattacherEmailCompteEssai(userId, emailClient);
       if (abonnementAvant?.status !== "active" && emailClient) {
         await envoyerEmailBienvenuePaiement(emailClient);
       }
