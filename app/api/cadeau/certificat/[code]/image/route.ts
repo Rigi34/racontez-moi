@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ code
   // Quota quotidien par IP avant la recherche du code et toute compilation
   // (A-2026-09-12-03, 17/10/2026) — même modèle que la route sœur apercu.
   try {
-    if (!(await verifierQuotaAnonyme(supabase, extraireIp(req), "certificat_code"))) {
+    if (!(await verifierQuotaAnonyme(extraireIp(req), "certificat_code"))) {
       return NextResponse.json({ error: "Trop de demandes. Réessayez plus tard." }, { status: 429 });
     }
   } catch (e) {

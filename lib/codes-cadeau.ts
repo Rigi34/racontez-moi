@@ -1,16 +1,20 @@
+import { randomInt } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 // Alphabet volontairement sans caractères ambigus (0/O, 1/I/L) — le code
 // est destiné à être recopié à la main depuis un certificat imprimé.
 const ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
+// Tirage cryptographique (crypto.randomInt, contre-audit Grok du 18/11/2026 :
+// Math.random() n'est pas fait pour un secret). Espace : 31^8 ≈ 8,5 × 10^11
+// codes (~40 bits), suffisant avec le plafond d'essais de /api/cadeau/activer.
 function genererCodeCadeau(): string {
   const bloc = () =>
-    Array.from({ length: 4 }, () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)]).join("");
+    Array.from({ length: 4 }, () => ALPHABET[randomInt(ALPHABET.length)]).join("");
   return `${bloc()}-${bloc()}`;
 }
 
-// Quelques tentatives suffisent : l'espace de codes (32^8) rend une
+// Quelques tentatives suffisent : l'espace de codes (31^8) rend une
 // collision quasi impossible, mais l'unicité reste garantie par la
 // contrainte unique en base plutôt que supposée ici — même logique que
 // commandes_livre (verrou applicatif + contrainte unique comme vrai

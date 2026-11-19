@@ -10,6 +10,14 @@ import {
   LIMITES_QUOTIDIENNES_ANONYME,
 } from "./rate-limit";
 
+// Le quota anonyme passe par un client service créé dans lib/rate-limit.ts
+// (migration 0026) : ce client est remplacé ici par un relais vers le mock
+// du test en cours, pour garder un seul compteur d'appels par test.
+const rpcService = vi.hoisted(() => ({ courant: null as null | ((...a: never[]) => unknown) }));
+vi.mock("@supabase/supabase-js", () => ({
+  createClient: () => ({ rpc: (...a: never[]) => rpcService.courant!(...a) }),
+}));
+
 // Tests du wrapper TypeScript uniquement (client Supabase mocké) — la
 // logique de la RPC elle-même (incrément atomique, seuil) est testée
 // séparément contre du vrai SQL dans tests/usage-api-rpc.test.ts.
@@ -81,17 +89,17 @@ describe("extraireIp", () => {
 describe("verifierQuotaAnonyme", () => {
   it("retourne true quand la RPC autorise", async () => {
     const supabase = mockSupabase([{ autorise: true, compteur: 1 }]);
-    await expect(verifierQuotaAnonyme(supabase, "203.0.113.4", "contact")).resolves.toBe(true);
+    await expect(verifierQuotaAnonyme("203.0.113.4", "contact", supabase)).resolves.toBe(true);
   });
 
   it("retourne false quand la RPC refuse (quota dépassé)", async () => {
     const supabase = mockSupabase([{ autorise: false, compteur: 6 }]);
-    await expect(verifierQuotaAnonyme(supabase, "203.0.113.4", "contact")).resolves.toBe(false);
+    await expect(verifierQuotaAnonyme("203.0.113.4", "contact", supabase)).resolves.toBe(false);
   });
 
   it("appelle la RPC avec l'IP, la route et le seuil correspondant", async () => {
     const supabase = mockSupabase([{ autorise: true, compteur: 1 }]);
-    await verifierQuotaAnonyme(supabase, "203.0.113.4", "certificat_apercu");
+    await verifierQuotaAnonyme("203.0.113.4", "certificat_apercu", supabase);
     expect(supabase.rpc).toHaveBeenCalledWith("incrementer_et_verifier_usage_anonyme", {
       p_ip: "203.0.113.4",
       p_route: "certificat_apercu",
@@ -101,12 +109,12 @@ describe("verifierQuotaAnonyme", () => {
 
   it("fail-closed : lève une exception si la RPC échoue (réseau/base)", async () => {
     const supabase = mockSupabase(null, { message: "connexion refusée" });
-    await expect(verifierQuotaAnonyme(supabase, "203.0.113.4", "contact")).rejects.toThrow(/connexion refusée/);
+    await expect(verifierQuotaAnonyme("203.0.113.4", "contact", supabase)).rejects.toThrow(/connexion refusée/);
   });
 
   it("fail-closed : retourne false si la réponse est vide ou inattendue", async () => {
     const supabase = mockSupabase([]);
-    await expect(verifierQuotaAnonyme(supabase, "203.0.113.4", "contact")).resolves.toBe(false);
+    await expect(verifierQuotaAnonyme("203.0.113.4", "contact", supabase)).resolves.toBe(false);
   });
 });
 
@@ -120,6 +128,7 @@ describe("verifierQuotaNarrateur", () => {
         error: null,
       })
     );
+    rpcService.courant = rpc;
     return { rpc } as unknown as SupabaseClient;
   }
 

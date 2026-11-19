@@ -31,6 +31,21 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
 
+  // Contre-audit Grok du 18/11/2026 : l'envoi de photos ne vérifiait pas le
+  // paiement — un compte d'essai pouvait stocker des photos sans limite de
+  // durée. Les photos font partie du Parcours, comme l'aperçu du livre.
+  const { data: abonnement } = await supabase
+    .from("abonnements")
+    .select("status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (abonnement?.status !== "active") {
+    return NextResponse.json(
+      { error: "Les photos s'ajoutent avec le Parcours. Votre souvenir, lui, est bien gardé." },
+      { status: 403 }
+    );
+  }
+
   const form = await req.formData();
   const fichier = form.get("fichier");
   const fragmentId = form.get("fragment_id");

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const ip = extraireIp(req);
   try {
-    if (!(await verifierQuotaAnonyme(supabase, ip, "contact"))) {
+    if (!(await verifierQuotaAnonyme(ip, "contact"))) {
       return NextResponse.json({ error: "Trop de tentatives. Réessayez plus tard." }, { status: 429 });
     }
   } catch (e) {

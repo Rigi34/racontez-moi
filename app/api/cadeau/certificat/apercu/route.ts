@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   const supabase = await createClient();
   const ip = extraireIp(req);
   try {
-    if (!(await verifierQuotaAnonyme(supabase, ip, "certificat_apercu"))) {
+    if (!(await verifierQuotaAnonyme(ip, "certificat_apercu"))) {
       return NextResponse.json({ error: "Trop de tentatives. Réessayez plus tard." }, { status: 429 });
     }
   } catch (e) {

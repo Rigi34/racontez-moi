@@ -64,6 +64,14 @@ export default function Confidentialite() {
               (fournisseur du modèle qui vous relance et compose vos fragments).
               Ces échanges sont nécessaires au fonctionnement de la conversation.
             </p>
+            {/* Contre-audit Grok du 18/11/2026 : prestataire utilisé
+                (lib/embeddings.ts) mais absent de cette page. */}
+            <p>
+              Pour que la conversation puisse s&apos;appuyer sur les souvenirs que
+              vous avez déjà racontés, le texte de chaque souvenir est aussi envoyé
+              à Hugging Face, qui le transforme en repères permettant de le
+              retrouver.
+            </p>
             {/* Chantier VOIX-CHOISIE : la promesse ne change qu'au moment où la
                 fonction est réellement activée (interrupteur), jamais avant. */}
             {voixChoisieActive() ? (

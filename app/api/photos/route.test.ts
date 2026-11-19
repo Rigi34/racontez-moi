@@ -13,7 +13,9 @@ const {
   removeMock,
   createSignedUrlMock,
   imageSizeMock,
+  abonnementMock,
 } = vi.hoisted(() => ({
+  abonnementMock: vi.fn(),
   getUserMock: vi.fn(),
   fragmentMaybeSingleMock: vi.fn(),
   countTotalMock: vi.fn(),
@@ -31,6 +33,9 @@ vi.mock("@/utils/supabase/server", () => ({
   createClient: vi.fn(() => ({
     auth: { getUser: getUserMock },
     from: vi.fn((table: string) => {
+      if (table === "abonnements") {
+        return { select: () => ({ eq: () => ({ maybeSingle: abonnementMock }) }) };
+      }
       if (table === "fragments") {
         return { select: () => ({ eq: () => ({ eq: () => ({ maybeSingle: fragmentMaybeSingleMock }) }) }) };
       }
@@ -71,6 +76,7 @@ beforeEach(() => {
   removeMock.mockResolvedValue({ data: [], error: null });
   createSignedUrlMock.mockResolvedValue({ data: { signedUrl: "https://signed.example/x" } });
   imageSizeMock.mockReturnValue({ width: 2000, height: 1500 });
+  abonnementMock.mockResolvedValue({ data: { status: "active" } });
 });
 
 const DEBUT_JPEG = [0xff, 0xd8, 0xff, 0xe0, 0, 0x10];
@@ -83,6 +89,17 @@ function requeteAvecFichier(type: string, nom = "photo.jpg", octets: number[] = 
 }
 
 describe("POST /api/photos", () => {
+  // Contre-audit Grok du 18/11/2026 : pas de photos sans Parcours payé.
+  it("refuse l'envoi tant que le Parcours n'est pas actif (403), sans rien stocker", async () => {
+    abonnementMock.mockResolvedValue({ data: null });
+
+    // @ts-expect-error NextRequest surcouche Request, suffisant ici
+    const res = await POST(requeteAvecFichier("image/jpeg"));
+
+    expect(res.status).toBe(403);
+    expect(uploadMock).not.toHaveBeenCalled();
+  });
+
   it("accepte une photo valide (200)", async () => {
     // @ts-expect-error NextRequest surcouche Request, suffisant ici
     const res = await POST(requeteAvecFichier("image/jpeg"));

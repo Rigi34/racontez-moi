@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/server";
+import { extraireIp, verifierQuotaAnonyme } from "@/lib/rate-limit";
 
 // L'activation écrit dans codes_cadeau (aucune policy d'update pour un
 // utilisateur authentifié — seule une lecture de sa propre ligne une fois
@@ -21,6 +22,22 @@ export async function POST(req: NextRequest) {
 
   const { code } = await req.json();
   if (!code?.trim()) return NextResponse.json({ error: "Code manquant." }, { status: 400 });
+
+  // Contre-audit Grok du 18/11/2026 : sans plafond, les réponses distinctes
+  // (inconnu, déjà activé, remboursé) permettaient de deviner des codes en
+  // masse. Compté avant toute recherche du code, comme le certificat ;
+  // fail-closed comme les autres quotas.
+  try {
+    if (!(await verifierQuotaAnonyme(extraireIp(req), "activation_code"))) {
+      return NextResponse.json(
+        { error: "Trop d'essais aujourd'hui. Vérifiez le code sur le certificat et réessayez demain." },
+        { status: 429 }
+      );
+    }
+  } catch (e) {
+    console.error("Quota activation de code cadeau:", e);
+    return NextResponse.json({ error: "Une erreur est survenue. Réessayez." }, { status: 500 });
+  }
 
   const codeNormalise = code.trim().toUpperCase();
 
