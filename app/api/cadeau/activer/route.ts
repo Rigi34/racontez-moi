@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/server";
 import { extraireIp, verifierQuotaAnonyme } from "@/lib/rate-limit";
+import { envoyerEmailBienvenueCadeau } from "@/lib/email-client";
 
 // L'activation écrit dans codes_cadeau (aucune policy d'update pour un
 // utilisateur authentifié — seule une lecture de sa propre ligne une fois
@@ -19,6 +20,14 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+  // Jamais sur un compte anonyme (passe de bout en bout du 20/11/2026) :
+  // sans e-mail ni mot de passe, l'accès offert serait perdu avec les cookies.
+  if (user.is_anonymous) {
+    return NextResponse.json(
+      { error: "Créez d'abord votre espace (adresse e-mail et mot de passe), puis activez votre cadeau." },
+      { status: 403 }
+    );
+  }
 
   const { code } = await req.json();
   if (!code?.trim()) return NextResponse.json({ error: "Code manquant." }, { status: 400 });
@@ -108,6 +117,10 @@ export async function POST(req: NextRequest) {
       .eq("id", ligneActivee.id);
     return NextResponse.json({ error: "Une erreur est survenue. Réessayez." }, { status: 500 });
   }
+
+  // E-mail de bienvenue (passe de bout en bout du 20/11/2026), comme après
+  // un paiement ; jamais bloquant.
+  if (user.email) await envoyerEmailBienvenueCadeau(user.email);
 
   return NextResponse.json({ ok: true });
 }

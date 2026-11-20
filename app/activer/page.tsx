@@ -18,9 +18,12 @@ function ActiverInner() {
   useEffect(() => {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      // Compte anonyme (ouvert en silence par l'essai de l'accueil) : un
+      // cadeau ne s'y attache jamais, il serait perdu avec les cookies
+      // (passe de bout en bout du 20/11/2026). La personne crée son espace.
+      if (!session || session.user.is_anonymous) {
         const next = `/activer${code ? `?code=${encodeURIComponent(code)}` : ""}`;
-        router.replace(`/sign-in?redirect_url=${encodeURIComponent(next)}`);
+        router.replace(`/sign-in?mode=signup&redirect_url=${encodeURIComponent(next)}`);
         return;
       }
       setVerifieAuth(true);

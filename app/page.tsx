@@ -26,7 +26,7 @@ const FAQ_ACCUEIL = [
   },
   {
     question: "Quelle fréquence ?",
-    reponse: "Une à deux séances par semaine, à votre rythme — jamais imposée comme une obligation.",
+    reponse: `${majuscule(RYTHME_SEANCES)}, à votre rythme — jamais imposé comme une obligation.`,
   },
   {
     question: "Suis-je vraiment écouté ?",
@@ -35,7 +35,7 @@ const FAQ_ACCUEIL = [
   },
   {
     question: "Puis-je m'arrêter et reprendre plus tard sans tout perdre ?",
-    reponse: "Oui. Chaque réponse est enregistrée dès qu'elle est validée ; vous reprenez exactement là où vous vous étiez arrêté.",
+    reponse: "Oui. Chaque souvenir terminé est gardé. Une séance interrompue se reprend là où vous l'aviez laissée pendant 24 heures ; au-delà, une nouvelle question vous attend.",
   },
   {
     question: "Dois-je savoir écrire ou avoir un ordinateur ?",

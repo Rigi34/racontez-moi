@@ -3,7 +3,7 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { creerCodeCadeau, revoquerCodeCadeau } from "@/lib/codes-cadeau";
-import { envoyerEmailBienvenuePaiement } from "@/lib/email-client";
+import { envoyerEmailBienvenuePaiement, envoyerEmailCodeCadeau } from "@/lib/email-client";
 
 // Client service role : le webhook n'a pas de session utilisateur, il doit
 // contourner RLS pour écrire dans `abonnements`.
@@ -94,12 +94,19 @@ export async function POST(req: NextRequest) {
           .eq("stripe_session_id", session.id)
           .maybeSingle();
         if (!codeExistant) {
-          await creerCodeCadeau(supabase, {
+          const code = await creerCodeCadeau(supabase, {
             stripe_session_id: session.id,
             destinataire_prenom: session.metadata.destinataire_prenom ?? "",
             offrant_nom: session.metadata.offrant_nom ?? "",
             message: session.metadata.message || null,
           });
+          // Le code par e-mail à l'acheteur (passe de bout en bout du
+          // 20/11/2026) : seulement à la création, jamais au rejeu de
+          // l'événement ; un e-mail manqué ne bloque rien.
+          const emailAcheteur = session.customer_details?.email ?? session.customer_email;
+          if (code && emailAcheteur) {
+            await envoyerEmailCodeCadeau(emailAcheteur, code, session.metadata.destinataire_prenom ?? "");
+          }
         }
         break;
       }

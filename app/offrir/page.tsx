@@ -129,8 +129,8 @@ export default function OffrirPage() {
               </h3>
               <p className="font-sans text-base text-papier/80 leading-relaxed">
                 Chez eux, à la voix, {DUREE_SEANCE} par séance, {RYTHME_SEANCES}. La
-                première séance se fait ensemble&nbsp;: c&apos;est vous qui poserez
-                la première question.
+                première séance peut se faire ensemble&nbsp;: vous à leurs côtés quand
+                arrive la première question.
               </p>
             </div>
             <div className="text-center">

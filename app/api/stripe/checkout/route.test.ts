@@ -1,13 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { getUserMock, sessionsCreateMock } = vi.hoisted(() => ({
+const { getUserMock, sessionsCreateMock, abonnementMock } = vi.hoisted(() => ({
   getUserMock: vi.fn(),
   sessionsCreateMock: vi.fn(),
+  abonnementMock: vi.fn(),
 }));
 
 vi.mock("@/utils/supabase/server", () => ({
   createClient: vi.fn(() => ({
     auth: { getUser: getUserMock },
+    from: () => ({ select: () => ({ eq: () => ({ maybeSingle: abonnementMock }) }) }),
   })),
 }));
 
@@ -27,9 +29,30 @@ function requete() {
 beforeEach(() => {
   vi.clearAllMocks();
   sessionsCreateMock.mockResolvedValue({ url: "https://checkout.stripe.com/c/pay/cs_test_xyz" });
+  abonnementMock.mockResolvedValue({ data: null, error: null });
 });
 
 describe("POST /api/stripe/checkout", () => {
+  it("refuse un second paiement quand l'accès est déjà actif (409, sans Stripe)", async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: "user-123", email: "narrateur@example.com" } } });
+    abonnementMock.mockResolvedValue({ data: { status: "active" }, error: null });
+
+    const res = await POST(requete());
+
+    expect(res.status).toBe(409);
+    expect(sessionsCreateMock).not.toHaveBeenCalled();
+  });
+
+  it("laisse payer un compte dont l'accès a été remboursé", async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: "user-123", email: "narrateur@example.com" } } });
+    abonnementMock.mockResolvedValue({ data: { status: "rembourse" }, error: null });
+
+    const res = await POST(requete());
+
+    expect(res.status).toBe(200);
+    expect(sessionsCreateMock).toHaveBeenCalledTimes(1);
+  });
+
   it("refuse sans authentification, sans appeler Stripe", async () => {
     getUserMock.mockResolvedValue({ data: { user: null } });
 

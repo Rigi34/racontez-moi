@@ -95,6 +95,15 @@ export default async function MonLivrePage() {
                 >
                   Voir le PDF
                 </LienFichierLivre>
+                {/* Passe de bout en bout du 20/11/2026 : la couverture existait,
+                    sans aucun lien pour la voir avant l'impression. */}
+                <LienFichierLivre
+                  href="/api/manuscrit/couverture"
+                  nouvelOnglet
+                  className="font-sans text-sm border border-grege bg-blanc text-encre px-4 py-2 hover:border-encre transition-colors"
+                >
+                  Voir la couverture
+                </LienFichierLivre>
                 <LienFichierLivre
                   href="/api/manuscrit/epub"
                   className="font-sans text-sm border border-grege bg-blanc text-encre px-4 py-2 hover:border-encre transition-colors"
