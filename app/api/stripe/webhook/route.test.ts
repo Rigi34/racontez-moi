@@ -28,8 +28,10 @@ vi.mock("@/lib/stripe", () => ({
   },
 }));
 
+const emailCodeCadeauMock = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/email-client", () => ({
   envoyerEmailBienvenuePaiement: emailBienvenueMock,
+  envoyerEmailCodeCadeau: emailCodeCadeauMock,
 }));
 
 vi.mock("@/lib/codes-cadeau", () => ({
@@ -193,6 +195,31 @@ describe("POST /api/stripe/webhook", () => {
       );
     });
 
+    // Passe de bout en bout du 20/11/2026 : le code part aussi par e-mail.
+    it("envoie le code par e-mail à l'acheteur", async () => {
+      constructEventMock.mockReturnValue(
+        sessionCompletedEvent({ ...session, customer_details: { email: "bob@example.com" } as Stripe.Checkout.Session.CustomerDetails })
+      );
+      maybeSingleMock.mockResolvedValue({ data: null });
+      creerCodeCadeauMock.mockResolvedValue("ABCD2345");
+
+      await POST(requete("{}"));
+
+      expect(emailCodeCadeauMock).toHaveBeenCalledWith("bob@example.com", "ABCD2345", "Alice");
+    });
+
+    it("n'envoie rien si le code n'a pas été créé (course entre deux événements)", async () => {
+      constructEventMock.mockReturnValue(
+        sessionCompletedEvent({ ...session, customer_details: { email: "bob@example.com" } as Stripe.Checkout.Session.CustomerDetails })
+      );
+      maybeSingleMock.mockResolvedValue({ data: null });
+      creerCodeCadeauMock.mockResolvedValue(null);
+
+      await POST(requete("{}"));
+
+      expect(emailCodeCadeauMock).not.toHaveBeenCalled();
+    });
+
     it("ne recrée pas de code si l'événement est rejoué (idempotence)", async () => {
       constructEventMock.mockReturnValue(sessionCompletedEvent(session));
       // Un code existe déjà pour cette session — cas d'un webhook Stripe
@@ -203,6 +230,7 @@ describe("POST /api/stripe/webhook", () => {
 
       expect(res.status).toBe(200);
       expect(creerCodeCadeauMock).not.toHaveBeenCalled();
+      expect(emailCodeCadeauMock).not.toHaveBeenCalled();
     });
   });
 

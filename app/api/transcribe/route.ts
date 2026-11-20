@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { verifierQuotaNarrateur } from "@/lib/rate-limit";
+import { nomFichierAudio } from "@/lib/nom-fichier-audio";
 
 type SegmentGroq = {
   start: number;
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
   }
 
   const groqForm = new FormData();
-  groqForm.append("file", audio, "recording.webm");
+  groqForm.append("file", audio, nomFichierAudio(audio.type));
   groqForm.append("model", "whisper-large-v3");
   groqForm.append("language", "fr");
   groqForm.append("response_format", "verbose_json");

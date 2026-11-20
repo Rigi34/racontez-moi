@@ -8,6 +8,21 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
 
+  // Jamais deux paiements pour le même compte (passe de bout en bout du
+  // 20/11/2026) : un compte payé qui refait la séance d'essai de l'accueil
+  // arrivait sur un second Checkout.
+  const { data: abonnement, error: erreurAbonnement } = await supabase
+    .from("abonnements")
+    .select("status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (erreurAbonnement) {
+    return NextResponse.json({ error: "Une erreur est survenue. Réessayez." }, { status: 500 });
+  }
+  if (abonnement?.status === "active") {
+    return NextResponse.json({ error: "Votre accès est déjà actif.", deja: true }, { status: 409 });
+  }
+
   const origin = origineRetourStripe(req.headers.get("origin"));
 
   const session = await stripe.checkout.sessions.create({

@@ -98,7 +98,7 @@ export default function SujetsSensibles() {
             </p>
             <p>
               Ce consentement est <strong>libre</strong>. Il vous est demandé à la création de votre compte,
-              avant votre première séance, par une case à cocher distincte, non pré-cochée, qui nomme les trois
+              par une case à cocher distincte, non pré-cochée, qui nomme les trois
               catégories ci-dessus et renvoie à la présente page.
             </p>
             <p>
@@ -173,6 +173,11 @@ export default function SujetsSensibles() {
                   <tr className="border-b border-grege/40">
                     <td className="py-2 pr-4">Composition du récit (relances et mise en texte)</td>
                     <td className="py-2 pr-4">Anthropic PBC</td>
+                    <td className="py-2">États-Unis</td>
+                  </tr>
+                  <tr className="border-b border-grege/40">
+                    <td className="py-2 pr-4">Repères pour retrouver vos souvenirs déjà racontés</td>
+                    <td className="py-2 pr-4">Hugging Face, Inc.</td>
                     <td className="py-2">États-Unis</td>
                   </tr>
                   <tr className="border-b border-grege/40">

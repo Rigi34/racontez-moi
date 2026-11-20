@@ -37,6 +37,19 @@ export async function GET() {
     );
   }
 
+  // Photos (passe de bout en bout du 20/11/2026) : l'export « toutes vos
+  // données » les oubliait. Même principe que la voix : lien signé 24 h.
+  const { data: lignesPhotos } = await supabase
+    .from("photos")
+    .select("id, fragment_id, chemin_stockage, largeur_px, hauteur_px, created_at")
+    .eq("user_id", user.id);
+  const photos = await Promise.all(
+    (lignesPhotos ?? []).map(async ({ chemin_stockage, ...p }) => {
+      const { data: signe } = await supabase.storage.from("photos").createSignedUrl(chemin_stockage, 24 * 3600);
+      return { ...p, telechargement: signe?.signedUrl ?? null };
+    })
+  );
+
   const export_ = {
     exporte_le: new Date().toISOString(),
     compte: { email: user.email, cree_le: user.created_at },
@@ -50,6 +63,7 @@ export async function GET() {
     profil_narrateur: profilNarrateur.data,
     adresse_livraison: adresseLivraison.data,
     commandes_livre: commandesLivre.data,
+    photos,
     ...(extraitsVoix ? { extraits_voix: extraitsVoix } : {}),
   };
 

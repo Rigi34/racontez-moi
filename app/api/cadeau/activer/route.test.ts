@@ -13,6 +13,8 @@ const { getUserMock, abonnementLuMock, activationMock, ligneExistanteMock, upser
 }));
 const quotaMock = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/rate-limit", () => ({ extraireIp: () => "1.2.3.4", verifierQuotaAnonyme: quotaMock }));
+const bienvenueCadeauMock = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/email-client", () => ({ envoyerEmailBienvenueCadeau: bienvenueCadeauMock }));
 
 vi.mock("@/utils/supabase/server", () => ({
   createClient: vi.fn(() => ({ auth: { getUser: getUserMock } })),
@@ -54,7 +56,8 @@ function requete(code = "abcd-efgh") {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  getUserMock.mockResolvedValue({ data: { user: { id: "user-1" } } });
+  getUserMock.mockResolvedValue({ data: { user: { id: "user-1", email: "recoit@example.com", is_anonymous: false } } });
+  bienvenueCadeauMock.mockResolvedValue(true);
   abonnementLuMock.mockResolvedValue({ data: null, error: null });
   activationMock.mockResolvedValue({ data: { id: "code-1" }, error: null });
   upsertMock.mockResolvedValue({ error: null });
@@ -63,6 +66,17 @@ beforeEach(() => {
 });
 
 describe("POST /api/cadeau/activer", () => {
+  // Passe de bout en bout du 20/11/2026 : jamais sur un compte anonyme.
+  it("refuse un compte anonyme, sans toucher au code", async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: "anon-1", is_anonymous: true } } });
+
+    const res = await POST(requete());
+
+    expect(res.status).toBe(403);
+    expect(activationMock).not.toHaveBeenCalled();
+    expect(quotaMock).not.toHaveBeenCalled();
+  });
+
   // Contre-audit Grok du 18/11/2026 : plafond d'essais par IP.
   it("refuse au-delà du plafond d'essais, sans chercher le code", async () => {
     quotaMock.mockResolvedValue(false);
@@ -83,6 +97,7 @@ describe("POST /api/cadeau/activer", () => {
       expect.objectContaining({ user_id: "user-1", stripe_customer_id: "cadeau:ABCD-EFGH", status: "active" }),
       { onConflict: "user_id" }
     );
+    expect(bienvenueCadeauMock).toHaveBeenCalledWith("recoit@example.com");
   });
 
   it("refuse un compte qui a déjà le Parcours, sans consommer le code", async () => {

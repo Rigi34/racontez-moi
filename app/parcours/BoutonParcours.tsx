@@ -11,6 +11,10 @@ export default function BoutonParcours() {
     setError("");
     try {
       const res = await fetch("/api/stripe/checkout", { method: "POST" });
+      if (res.status === 409) {
+        window.location.href = "/tableau-de-bord";
+        return;
+      }
       if (!res.ok) throw new Error();
       const data = await res.json();
       window.location.href = data.url;
