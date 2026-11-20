@@ -1,3 +1,15 @@
 {
-  "crons": [{ "path": "/api/cron/purge-essais", "schedule": "30 3 * * *" }]
+  "crons": [
+    {
+      "path": "/api/cron/purge-essais",
+      "schedule": "30 3 * * *"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "main": true,
+      "test": true
+    }
+  }
 }

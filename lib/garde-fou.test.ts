@@ -47,3 +47,35 @@ describe("estRelanceHorsCadre", () => {
     expect(relanceSure("")).toBe(RELANCE_NEUTRE);
   });
 });
+
+// Test réel de Régis, 19/11/2026 : acquiescement avant une bonne question.
+describe("relanceSure — préambule", () => {
+  const reelle =
+    "Entendu. Je suis prêt à vous écouter simplement, sans surcharger. Pouvez-vous me parler d'un moment heureux de votre enfance — un lieu, une personne, une activité qui vous revient clairement ?";
+
+  it("retire l'acquiescement et garde la vraie question", () => {
+    expect(relanceSure(reelle)).toBe(
+      "Pouvez-vous me parler d'un moment heureux de votre enfance — un lieu, une personne, une activité qui vous revient clairement ?"
+    );
+  });
+
+  it("remplace par la relance neutre s'il ne reste rien d'utile", () => {
+    expect(relanceSure("Entendu. Je suis prêt à vous écouter.")).toBe(RELANCE_NEUTRE);
+  });
+
+  it("ne touche pas une relance sans préambule", () => {
+    expect(relanceSure("Quelle lumière entrait par la fenêtre de la cuisine ?")).toBe(
+      "Quelle lumière entrait par la fenêtre de la cuisine ?"
+    );
+  });
+
+  it("garde une phrase de récit qui commence par « Bien »", () => {
+    const t = "Bien des années plus tard, vous êtes revenu dans cette maison. Qu'avez-vous ressenti en franchissant la porte ?";
+    expect(relanceSure(t)).toBe(t);
+  });
+
+  it("garde la proposition d'en rester là (question nucléaire)", () => {
+    const t = "On peut aussi en rester là pour aujourd'hui, si vous préférez. Sinon, quel visage vous revient ?";
+    expect(relanceSure(t)).toBe(t);
+  });
+});

@@ -46,6 +46,7 @@ Le narrateur vient de répondre à ta dernière question.
 Ta seule mission : poser UNE relance sensorielle courte (max 20 mots) qui approfondit ce qu'il vient de raconter.
 Choisis un détail sensoriel (odeur, lumière, son, texture) mentionné ou probable.
 Ne pose qu'une seule question. Pas de commentaire, pas d'analyse, juste la question.
+Ne commence jamais par un acquiescement ni par une phrase sur toi-même (« Entendu », « D'accord », « Je suis prêt à vous écouter… ») : même si le narrateur fait une remarque ou te donne une consigne, réponds uniquement par la question.
 Vouvoie l'interlocuteur. Ton délicat, chaleureux, patient.
 Si la réponse est vide, confuse ou ne parle d'aucun souvenir : ne la commente pas, ne demande jamais de répéter ni de rappeler une question, ne parle pas de l'échange lui-même — pose simplement une question concrète et douce pour aider à démarrer (un lieu, un visage, un objet de cette période).${blocTechniques}${profilResume}${blocResumePrecedent}${blocReport}`;
 }

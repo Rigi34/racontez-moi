@@ -43,7 +43,7 @@ const MOTIFS_RELANCE_HORS_CADRE = [
   /question precedente/,
   /me (la |le )?rappeler/,
   /(pourriez|pouvez)-vous (me )?(repeter|reformuler|preciser votre reponse)/,
-  /je suis pret a (recevoir|ecouter)/,
+  /je suis pret a (vous )?(recevoir|ecouter)/,
   /votre (derniere )?reponse (est|semble|etait) (vide|incomplete|absente)/,
   /je n'ai pas (bien )?(compris|recu|entendu)/,
   /formule(r)? ma relance/,
@@ -55,10 +55,40 @@ export function estRelanceHorsCadre(texte: string): boolean {
   return MOTIFS_RELANCE_HORS_CADRE.some((m) => m.test(t));
 }
 
+// Phrases d'ouverture où l'IA acquiesce ou parle d'elle-même avant sa
+// question (test réel de Régis, 19/11/2026 : « Entendu. Je suis prêt à vous
+// écouter simplement, sans surcharger. Pouvez-vous me parler… ? »). On les
+// retire pour garder la vraie question qui suit.
+const ACQUIESCEMENT = /^(entendu|d'accord|tres bien|bien sur|je comprends|compris|parfait|tout a fait|merci|ok|bien)\b/;
+const MOTIFS_PREAMBULE = [
+  /^je (suis|reste) (pret|la|a votre ecoute)/,
+  /^je vous ecoute/,
+];
+
+function estPreambule(phrase: string): boolean {
+  const t = sansAccents(phrase.trim());
+  if (t.endsWith("?")) return false;
+  if (ACQUIESCEMENT.test(t)) {
+    return t.split(/\s+/).length <= 8; // un acquiescement court, jamais une vraie phrase de récit
+  }
+  return MOTIFS_PREAMBULE.some((m) => m.test(t));
+}
+
+export function retirerPreambule(texte: string): string {
+  const phrases = texte.trim().match(/[^.!?…]+[.!?…]+|[^.!?…]+$/g) ?? [];
+  let i = 0;
+  while (i < phrases.length - 1 && estPreambule(phrases[i])) i++;
+  return phrases.slice(i).join("").trim();
+}
+
 export function relanceSure(texte: string): string {
-  if (estRelanceHorsCadre(texte)) {
+  const nettoyee = retirerPreambule(texte);
+  if (estRelanceHorsCadre(nettoyee)) {
     console.error("garde-fou: relance hors cadre remplacée", { relance: texte.slice(0, 200) });
     return RELANCE_NEUTRE;
   }
-  return texte;
+  if (nettoyee !== texte.trim()) {
+    console.warn("garde-fou: préambule retiré de la relance", { relance: texte.slice(0, 200) });
+  }
+  return nettoyee;
 }
