@@ -117,8 +117,8 @@ export function SectionVotreLivre() {
           </h2>
           <p className="font-serif text-lg leading-[1.8] text-encre/85">
             Un livre à couverture rigide, vos souvenirs en chapitres, vos photos au fil des pages. Voici
-            quelques pages d&apos;un livre d&apos;exemple composé par Racontez-moi. Les vôtres
-            raconteront votre histoire.
+            quelques pages du livre de Daniel, qui a grandi entre Lyon et le Vaucluse, composé par
+            Racontez-moi à partir de son vrai témoignage. Les vôtres raconteront votre histoire.
           </p>
         </div>
 
