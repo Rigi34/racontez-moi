@@ -5,6 +5,9 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { messageErreurAuth } from "@/lib/auth-erreurs";
 import { voixChoisieActive } from "@/lib/voix";
+import { metadonneesConsentement } from "@/lib/consentement";
+import CaseConsentement from "./CaseConsentement";
+import { nomFichierAudio } from "@/lib/nom-fichier-audio";
 import { typographierFrancais } from "@/lib/typst";
 import ChoixVoix, { type Enregistrement } from "./ChoixVoix";
 import { choixEnAttente, lierAuPassage, rangerEnregistrement } from "@/lib/voix-locale";
@@ -587,7 +590,10 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
         if (chronoRef.current) clearInterval(chronoRef.current);
-        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        // Type réel du navigateur (passe de bout en bout du 20/11/2026) :
+        // Safari enregistre en mp4, l'étiqueter « webm » risquait un refus
+        // de la transcription sur iPhone.
+        const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" });
         const etape = phaseRef.current;
         if (
           garderVoixPossible &&
@@ -606,7 +612,7 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
         setTranscribing(true);
         try {
           const form = new FormData();
-          form.append("audio", blob, "recording.webm");
+          form.append("audio", blob, nomFichierAudio(blob.type));
           const res = await fetch("/api/transcribe", { method: "POST", body: form });
           if (!res.ok) throw new Error();
           const data = await res.json();
@@ -879,6 +885,12 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
     setError("");
     try {
       const res = await fetch("/api/stripe/checkout", { method: "POST" });
+      // Déjà payé (passe de bout en bout du 20/11/2026) : jamais un second
+      // paiement, retour au tableau de bord.
+      if (res.status === 409) {
+        window.location.href = "/tableau-de-bord";
+        return;
+      }
       if (!res.ok) throw new Error();
       const data = await res.json();
       window.location.href = data.url;
@@ -910,6 +922,10 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
   const [convError, setConvError] = useState("");
   const [convLoading, setConvLoading] = useState(false);
   const [convEnvoyee, setConvEnvoyee] = useState(false);
+  // Consentement art. 9 (passe de bout en bout du 20/11/2026) : la page
+  // sujets-sensibles le promet à la création du compte ; la plupart des
+  // comptes se créent ici, pas sur /sign-in.
+  const [convConsentement, setConvConsentement] = useState(false);
   const [verificationCompte, setVerificationCompte] = useState(false);
 
   // Un compte déjà permanent (narrateur connecté qui rouvre l'essai gratuit
@@ -937,11 +953,15 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
       setConvError("Mot de passe trop court (8 caractères minimum).");
       return;
     }
+    if (!convConsentement) {
+      setConvError("Cochez la case pour continuer.");
+      return;
+    }
     setConvLoading(true);
     setConvError("");
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser(
-      { email: convEmail, password: convPassword },
+      { email: convEmail, password: convPassword, data: metadonneesConsentement() },
       { emailRedirectTo: `${window.location.origin}/auth/callback` }
     );
     setConvLoading(false);
@@ -1277,10 +1297,11 @@ export default function Seance({ modeInvite = false }: { modeInvite?: boolean } 
                       className="w-full border border-grege bg-white text-encre px-4 py-3 font-sans text-base focus:outline-none focus:border-petrole transition-colors"
                     />
                   </div>
+                  <CaseConsentement coche={convConsentement} onChange={setConvConsentement} />
                   {convError && <p className="font-sans text-sm text-red-600">{convError}</p>}
                   <button
                     type="submit"
-                    disabled={convLoading || !convEmail || convPassword.length < 8}
+                    disabled={convLoading || !convEmail || convPassword.length < 8 || !convConsentement}
                     className="w-full bg-encre text-blanc rounded-full font-sans font-medium text-base py-3.5 hover:bg-[#3A3632] transition-colors disabled:opacity-40"
                   >
                     {convLoading ? "Un instant…" : "Continuer →"}

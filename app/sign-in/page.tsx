@@ -5,14 +5,12 @@ import { createClient } from "@/utils/supabase/client"
 import { messageErreurAuth } from "@/lib/auth-erreurs"
 import { destinationInterne } from "@/lib/redirection"
 import FondVivant from "@/app/components/FondVivant"
+import CaseConsentement from "@/app/components/CaseConsentement"
+import { metadonneesConsentement } from "@/lib/consentement"
 
 // Lu au build (NEXT_PUBLIC_*) : "1" seulement quand Google est configuré dans Supabase.
 const AUTH_GOOGLE_ACTIVE = process.env.NEXT_PUBLIC_AUTH_GOOGLE === "1"
 
-// Identifiant de version du texte de consentement (annexe du document
-// juridique du 30/07/2026) — à incrémenter si le texte de la case à cocher
-// change, pour pouvoir prouver quelle version exacte a été acceptée.
-const VERSION_CONSENTEMENT = "v1.0 — 30/07/2026"
 
 function SignInInner() {
   const params = useSearchParams()
@@ -24,7 +22,9 @@ function SignInInner() {
 
   // "oubli" : mot de passe oublié (constat du 05/11/2026 : aucun moyen de
   // le récupérer jusqu'ici, hors connexion Google).
-  const [mode, setMode] = useState<"login" | "signup" | "oubli">("login")
+  // ?mode=signup : arrivée depuis /activer (passe de bout en bout du
+  // 20/11/2026) — la personne qui reçoit un cadeau n'a pas encore d'espace.
+  const [mode, setMode] = useState<"login" | "signup" | "oubli">(params.get("mode") === "signup" ? "signup" : "login")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   // Consentement explicite (RGPD art. 9) : les entretiens abordent
@@ -66,11 +66,7 @@ function SignInInner() {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-          data: {
-            consentement_donnees_sensibles: true,
-            consentement_donnees_sensibles_le: new Date().toISOString(),
-            consentement_donnees_sensibles_version: VERSION_CONSENTEMENT,
-          },
+          data: metadonneesConsentement(),
         },
       })
       setLoading(false)
@@ -212,26 +208,7 @@ function SignInInner() {
           )}
 
           {mode === "signup" && (
-            <label className="flex items-start gap-2.5 font-sans text-xs text-grege leading-relaxed">
-              <input
-                type="checkbox"
-                checked={consentDonneesSensibles}
-                onChange={(e) => setConsentDonneesSensibles(e.target.checked)}
-                className="mt-0.5"
-                required
-              />
-              <span>
-                Je consens expressément à ce que mon récit, y compris les informations sensibles que je choisis
-                d&apos;aborder — ma santé, mes convictions religieuses ou philosophiques, ma vie affective et
-                intime — soit traité pour composer mon livre, y compris par des prestataires situés hors de
-                l&apos;Union européenne. Je peux refuser toute question et retirer ce consentement à tout
-                moment.{" "}
-                <a href="/confidentialite/sujets-sensibles" target="_blank" className="text-petrole underline hover:text-encre">
-                  Sujets sensibles et données de santé
-                </a>
-                .
-              </span>
-            </label>
+            <CaseConsentement coche={consentDonneesSensibles} onChange={setConsentDonneesSensibles} />
           )}
 
           {error && (
