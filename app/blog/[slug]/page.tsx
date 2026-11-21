@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
   getAllSlugs,
   getPostBySlug,
   extractToc,
   splitSources,
+  splitIntro,
   slugify,
+  dureeLisible,
+  donneesStructurees,
 } from "@/lib/blog";
 import FondVivant from "@/app/components/FondVivant";
+import VideoYoutube from "@/app/components/blog/VideoYoutube";
 
 export function generateStaticParams() {
   return getAllSlugs().map((slug) => ({ slug }));
@@ -37,6 +41,59 @@ function headingText(children: React.ReactNode): string {
   return "";
 }
 
+const composants: Components = {
+                h1: ({ children }) => (
+                  <h1 className="font-display font-normal text-4xl md:text-5xl text-encre mb-10 leading-[1.2]">
+                    {children}
+                  </h1>
+                ),
+                h2: ({ children }) => {
+                  const id = slugify(headingText(children));
+                  return (
+                    <h2
+                      id={id}
+                      className="font-display font-normal text-2xl md:text-3xl text-encre mt-16 mb-6 leading-[1.3] scroll-mt-10"
+                    >
+                      {children}
+                    </h2>
+                  );
+                },
+                h3: ({ children }) => {
+                  const id = slugify(headingText(children));
+                  return (
+                    <h3
+                      id={id}
+                      className="font-display font-normal text-xl md:text-2xl text-encre mt-10 mb-4 leading-[1.3] scroll-mt-10"
+                    >
+                      {children}
+                    </h3>
+                  );
+                },
+                p: ({ children }) => (
+                  <p className="font-serif text-lg leading-[1.85] text-encre mb-7">
+                    {children}
+                  </p>
+                ),
+                strong: ({ children }) => (
+                  <strong className="font-semibold">{children}</strong>
+                ),
+                em: ({ children }) => <em className="italic">{children}</em>,
+                a: ({ href, children }) => (
+                  <Link
+                    href={href ?? "#"}
+                    className="text-petrole underline decoration-petrole/40 hover:decoration-petrole transition-colors"
+                  >
+                    {children}
+                  </Link>
+                ),
+                ul: ({ children }) => (
+                  <ul className="font-serif text-lg leading-[1.85] text-encre list-disc pl-6 mb-7 space-y-2">
+                    {children}
+                  </ul>
+                ),
+                li: ({ children }) => <li>{children}</li>,
+              };
+
 export default async function BlogPostPage({
   params,
 }: {
@@ -48,9 +105,13 @@ export default async function BlogPostPage({
 
   const { main, sources } = splitSources(post.body);
   const toc = extractToc(main);
+  // Avec une vidéo, l'introduction s'affiche d'abord, puis la vidéo, puis la suite.
+  const { intro, suite } = post.video ? splitIntro(main) : { intro: main, suite: "" };
+  const jsonLd = JSON.stringify(donneesStructurees(post)).replace(/</g, "\\u003c");
 
   return (
     <main className="relative isolate min-h-screen bg-blanc">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       {/* ─── EN-TÊTE ───────────────────────────────────────────────── */}
       <FondVivant entete />
       <header className="relative px-6 py-8">
@@ -110,61 +171,23 @@ export default async function BlogPostPage({
           <div className="fr-typography">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              components={{
-                h1: ({ children }) => (
-                  <h1 className="font-display font-normal text-4xl md:text-5xl text-encre mb-10 leading-[1.2]">
-                    {children}
-                  </h1>
-                ),
-                h2: ({ children }) => {
-                  const id = slugify(headingText(children));
-                  return (
-                    <h2
-                      id={id}
-                      className="font-display font-normal text-2xl md:text-3xl text-encre mt-16 mb-6 leading-[1.3] scroll-mt-10"
-                    >
-                      {children}
-                    </h2>
-                  );
-                },
-                h3: ({ children }) => {
-                  const id = slugify(headingText(children));
-                  return (
-                    <h3
-                      id={id}
-                      className="font-display font-normal text-xl md:text-2xl text-encre mt-10 mb-4 leading-[1.3] scroll-mt-10"
-                    >
-                      {children}
-                    </h3>
-                  );
-                },
-                p: ({ children }) => (
-                  <p className="font-serif text-lg leading-[1.85] text-encre mb-7">
-                    {children}
-                  </p>
-                ),
-                strong: ({ children }) => (
-                  <strong className="font-semibold">{children}</strong>
-                ),
-                em: ({ children }) => <em className="italic">{children}</em>,
-                a: ({ href, children }) => (
-                  <Link
-                    href={href ?? "#"}
-                    className="text-petrole underline decoration-petrole/40 hover:decoration-petrole transition-colors"
-                  >
-                    {children}
-                  </Link>
-                ),
-                ul: ({ children }) => (
-                  <ul className="font-serif text-lg leading-[1.85] text-encre list-disc pl-6 mb-7 space-y-2">
-                    {children}
-                  </ul>
-                ),
-                li: ({ children }) => <li>{children}</li>,
-              }}
+              components={composants}
             >
-              {main}
+              {intro}
             </ReactMarkdown>
+            {post.video && (
+              <VideoYoutube
+                youtube={post.video.youtube}
+                titre={post.title}
+                vignette={post.video.vignette}
+                duree={dureeLisible(post.video.duree)}
+              />
+            )}
+            {suite && (
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={composants}>
+                {suite}
+              </ReactMarkdown>
+            )}
           </div>
 
           {/* Bloc sources — discret */}
