@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import FondVivant from "@/app/components/FondVivant";
 import AdresseProtegee from "@/app/components/AdresseProtegee";
 import { DELAI_LIVRAISON } from "@/lib/promesses";
@@ -77,20 +78,31 @@ export default function MentionsLegales() {
               <br />
               Adresse : 23 rue Xavier Dezeuse, 34000 Montpellier
               <br />
-              Profil professionnel :{" "}
-              <a
-                href="https://www.malt.fr/profile/regisboudet1"
-                className="text-petrole hover:text-encre transition-colors"
-                rel="noopener"
-              >
-                Malt
-              </a>
-              <br />
               Contact : <AdresseProtegee />, ou via la{" "}
               <Link href="/contact" className="text-petrole hover:text-encre transition-colors">
                 page Contact
               </Link>
             </p>
+            {/* 23/11/2026 : carte vers le profil professionnel (demande de Régis),
+                plutôt qu'une capture d'écran qui se périmerait. */}
+            <a
+              href="https://www.malt.fr/profile/regisboudet1"
+              rel="noopener"
+              className="not-prose my-6 flex max-w-md items-center gap-4 rounded-2xl border border-grege/20 bg-blanc p-4 no-underline transition-colors hover:border-ambre"
+            >
+              <Image
+                src="/brand/regis-boudet.jpg"
+                alt=""
+                width={56}
+                height={56}
+                className="h-14 w-14 shrink-0 rounded-full object-cover"
+              />
+              <span className="flex flex-col font-sans">
+                <span className="text-base font-medium text-encre">Régis Boudet</span>
+                <span className="text-sm text-grege">Écriture de mémoires · CohérenceLab</span>
+                <span className="mt-1 text-sm text-petrole">Voir mon profil professionnel sur Malt →</span>
+              </span>
+            </a>
             <p>
               Le Site est édité conformément aux dispositions du Code civil et du Code de
               la propriété intellectuelle, ainsi qu&apos;à la loi n° 78-17 du 6 janvier 1978
