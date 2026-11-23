@@ -75,7 +75,16 @@ export default function MentionsLegales() {
               <br />
               Activité : rédaction de contenus et conseil en communication
               <br />
-              Ville : Montpellier (34)
+              Adresse : 23 rue Xavier Dezeuse, 34000 Montpellier
+              <br />
+              Profil professionnel :{" "}
+              <a
+                href="https://www.malt.fr/profile/regisboudet1"
+                className="text-petrole hover:text-encre transition-colors"
+                rel="noopener"
+              >
+                Malt
+              </a>
               <br />
               Contact : <AdresseProtegee />, ou via la{" "}
               <Link href="/contact" className="text-petrole hover:text-encre transition-colors">
