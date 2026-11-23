@@ -69,7 +69,7 @@ export default function MentionsLegales() {
             <p>
               CohérenceLab — Racontez-moi est un service de CohérenceLab
               <br />
-              Entreprise individuelle
+              Entreprise individuelle de Régis Boudet
               <br />
               SIRET : 995 356 656 00018
               <br />
@@ -100,7 +100,7 @@ export default function MentionsLegales() {
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
               Directeur de la publication
             </h2>
-            <p>Régis (CohérenceLab).</p>
+            <p>Régis Boudet (CohérenceLab).</p>
 
             <h2 className="font-display font-normal text-2xl text-encre mt-12 mb-4">
               Hébergement
