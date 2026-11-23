@@ -92,6 +92,33 @@ const composants: Components = {
                   </ul>
                 ),
                 li: ({ children }) => <li>{children}</li>,
+                // 23/11/2026 : listes numérotées, tableaux et encadré de fin
+                // (article « questions des fêtes »).
+                ol: ({ children }) => (
+                  <ol className="font-serif text-lg leading-[1.85] text-encre list-decimal pl-7 mb-7 space-y-2">
+                    {children}
+                  </ol>
+                ),
+                blockquote: ({ children }) => (
+                  <blockquote className="my-10 rounded-2xl bg-ambre-clair px-6 pt-6 pb-1 [&_p]:mb-5">
+                    {children}
+                  </blockquote>
+                ),
+                table: ({ children }) => (
+                  <div className="mb-8 overflow-x-auto">
+                    <table className="w-full border-collapse font-serif text-base md:text-lg text-encre">
+                      {children}
+                    </table>
+                  </div>
+                ),
+                th: ({ children }) => (
+                  <th className="border-b-2 border-sauge py-3 pr-4 text-left font-sans text-sm font-medium uppercase tracking-wide text-grege">
+                    {children}
+                  </th>
+                ),
+                td: ({ children }) => (
+                  <td className="border-b border-sauge/60 py-3 pr-4 align-top leading-[1.6]">{children}</td>
+                ),
               };
 
 export default async function BlogPostPage({
