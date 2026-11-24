@@ -20,7 +20,7 @@ Ce n'est pas de la réticence. C'est la question qui est trop grande.
 
 Un souvenir revient rarement tout seul : il revient par un détail. Un lieu, une odeur, un objet, un visage. Sans ce détail, des souvenirs bien présents restent hors d'atteinte. Une question précise (« Quelle odeur y avait-il dans la cuisine de ta grand-mère ? ») le fournit. Une question vague n'en fournit aucun.
 
-Les personnes qui ont raconté leur vie le disent elles-mêmes. Dans les avis que nous avons étudiés, ceux qui disent d'où leur est revenu un souvenir désignent tous la même chose : la question. Comme l'écrit l'une d'elles : chaque question ramène un souvenir, auquel on répond par une histoire.
+Les personnes qui ont raconté leur vie le disent elles-mêmes. Dans les avis que nous avons étudiés, plusieurs racontent que les questions ont fait revenir des souvenirs oubliés depuis des années. Comme l'écrit l'une d'elles : chaque question ramène un souvenir, auquel on répond par une histoire.
 
 Le passage d'une question vague à une question qui donne prise tient souvent à peu de chose :
 
@@ -48,7 +48,7 @@ Et ne comptez pas sur votre seule voix : préparez deux ou trois objets ou phot
 
 **Laissez les silences.** Quand quelqu'un cherche un souvenir, le silence n'est pas un blanc. Ne relancez pas trop vite.
 
-**Confiez la question aux petits-enfants.** Une question posée par un petit-enfant n'a pas le même poids. Dans un des avis étudiés, une famille raconte qu'une mère hésitante s'est lancée quand on lui a proposé de parler à son petit-enfant comme à l'adulte qu'il deviendra.
+**Confiez la question aux petits-enfants.** Une question posée par un petit-enfant n'a pas le même poids. S'ils sont encore trop jeunes, on peut inverser l'idée. Dans un des avis étudiés, un proche raconte avoir proposé à sa mère de parler comme si elle rencontrait son petit-enfant devenu adulte.
 
 **Respectez ce qui ne se raconte pas.** Certaines périodes, certaines personnes, on préfère les laisser de côté. C'est un droit. On peut toujours passer à une autre question.
 
@@ -165,4 +165,4 @@ Et si vous cherchez un cadeau pour vos parents, le livre de leur vie se [glisse 
 
 ---
 
-*Sources : Daniel L. Schacter,* The Seven Sins of Memory *(Mariner Books / Houghton Mifflin Harcourt, éd. mise à jour 2021), pour la notion d'indice de rappel ; étude interne de 150 avis de personnes ayant raconté leur vie (biographes, plateformes à questions, applications), novembre 2026.*
+*Sources : Daniel L. Schacter,* The Seven Sins of Memory *(Mariner Books / Houghton Mifflin Harcourt, éd. mise à jour 2021), pour la notion d'indice de rappel ; étude interne de 150 avis de personnes ayant raconté leur vie et de leurs proches (biographes, plateformes à questions, applications), octobre 2026.*
