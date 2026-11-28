@@ -16,8 +16,21 @@ const corps = JSON.stringify({ topic: "PRINT_JOB_STATUS_CHANGED", data: { id: 42
 const hmac = () => createHmac("sha256", SECRET).update(corps, "utf8").digest();
 
 describe("POD_PACKAGE_ID_PARCOURS", () => {
-  it("utilise le nouveau format à points, couverture mate", () => {
-    expect(lulu.POD_PACKAGE_ID_PARCOURS).toBe("0600X0900.FC.STD.CW.080CW444.MXX");
+  it("utilise le format à points, toile avec jaquette (28/11/2026)", () => {
+    expect(lulu.POD_PACKAGE_ID_PARCOURS).toBe("0600X0900.FC.STD.LW.080CW444.MFG");
+  });
+});
+
+describe("podPackageId", () => {
+  it("fixe la toile et le titre frappé d'après la couleur choisie", () => {
+    expect(lulu.podPackageId("petrole")).toBe("0600X0900.FC.STD.LW.080CW444.MFG");
+    expect(lulu.podPackageId("petrole_fonce")).toBe("0600X0900.FC.STD.LW.080CW444.MNG");
+    expect(lulu.podPackageId("encre")).toBe("0600X0900.FC.STD.LW.080CW444.MBG");
+    expect(lulu.podPackageId("grege")).toBe("0600X0900.FC.STD.LW.080CW444.MTW");
+  });
+  it("revient à la couleur par défaut pour une clé inconnue", () => {
+    expect(lulu.podPackageId("inconnue")).toBe(lulu.POD_PACKAGE_ID_PARCOURS);
+    expect(lulu.podPackageId(null)).toBe(lulu.POD_PACKAGE_ID_PARCOURS);
   });
 });
 

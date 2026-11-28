@@ -90,6 +90,7 @@ vi.mock("@/lib/lulu", () => ({
   creerCommandeImpression: creerCommandeImpressionMock,
   impressionBloqueeEnLigne: impressionBloqueeMock,
   titreCommandeLulu: (t: string, p: string | null) => (p ? `${t} — ${p}` : t),
+  podPackageId: () => "0600X0900.FC.STD.LW.080CW444.MFG",
   PAGES_MINIMUM_RELIE: 24,
 }));
 
@@ -141,7 +142,8 @@ describe("POST /api/commande/livre", () => {
     await POST();
     expect(creerCommandeImpressionMock).toHaveBeenCalledWith(
       expect.anything(), expect.any(String), expect.any(String), expect.any(String),
-      "Mes Mémoires — Daniel"
+      "Mes Mémoires — Daniel",
+      { podPackageId: expect.stringMatching(/^0600X0900\.FC\.STD\.LW\.080CW444\.M[A-Z]{2}$/), dorure: { titre: "MES MÉMOIRES", auteur: "DANIEL" } }
     );
     for (const appel of createSignedUrlMock.mock.calls) expect(appel[1]).toBe(24 * 60 * 60);
   });

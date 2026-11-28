@@ -1,20 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { PALETTE_COUVERTURE, texteDorure } from "@/lib/couverture";
 
 type Personnalisation = { titre: string; sousTitre: string; couleurCle: string };
 
 const PERSONNALISATION_VIDE: Personnalisation = { titre: "", sousTitre: "", couleurCle: "petrole" };
 
-// Doit rester synchronisé avec lib/couverture.ts (PALETTE_COUVERTURE) — pas
-// d'appel serveur nécessaire pour un tableau de 4 couleurs fixes, mais toute
-// couleur ajoutée côté serveur doit être répercutée ici.
-const PALETTE = [
-  { cle: "petrole", label: "Pétrole", hex: "#1F4B4C" },
-  { cle: "petrole_fonce", label: "Pétrole foncé", hex: "#17393A" },
-  { cle: "encre", label: "Encre", hex: "#242220" },
-  { cle: "grege", label: "Grège", hex: "#6B6660" },
-];
+// 28/11/2026 : palette lue directement dans lib/couverture.ts (fichier sans
+// dépendance serveur) plutôt que recopiée ; chaque couleur fixe aussi la
+// toile et le titre frappé sur le dos.
+const PALETTE = PALETTE_COUVERTURE;
 
 export default function FormulaireCouverture() {
   const [valeurs, setValeurs] = useState<Personnalisation>(PERSONNALISATION_VIDE);
@@ -93,6 +89,17 @@ export default function FormulaireCouverture() {
           />
         ))}
       </div>
+
+      {(() => {
+        const c = PALETTE.find((p) => p.cle === valeurs.couleurCle) ?? PALETTE[0];
+        const dos = texteDorure(valeurs.titre || "Mes Mémoires", null).titre;
+        return (
+          <p className="font-sans text-xs text-grege leading-relaxed">
+            {c.label}&nbsp;: jaquette {c.label.toLowerCase()}, toile {c.toile.label}, titre {c.dorure.label} sur le dos.
+            {dos && <> Frappé sur le dos, en capitales&nbsp;: <span className="text-encre">{dos}</span></>}
+          </p>
+        );
+      })()}
 
       <div className="flex items-center gap-3">
         <button

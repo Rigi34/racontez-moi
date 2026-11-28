@@ -8,7 +8,7 @@ import { genererLivreTypst, assemblerFragments, largeurTexteMm } from "./typst";
 import { organiserEnChapitres } from "./livre";
 import { qrSvg } from "./qr";
 import { urlEcoute } from "./voix";
-import { genererSourceCouverture, PALETTE_COUVERTURE, COULEUR_COUVERTURE_DEFAUT } from "./couverture";
+import { genererSourceCouverture, couleurCouverture } from "./couverture";
 import { dimensionsCouverture } from "./lulu";
 
 export type ManuscritCompile = { buffer: Buffer; nombrePages: number };
@@ -138,9 +138,7 @@ export async function compilerCouverture(
   const compiler = NodeCompiler.create();
   // Repli défensif sur la couleur par défaut si la clé stockée ne correspond
   // plus à la palette (ex. valeur historique avant l'ajout d'une couleur).
-  const couleurHex =
-    PALETTE_COUVERTURE.find((c) => c.cle === opts.couleurCle)?.hex ??
-    PALETTE_COUVERTURE.find((c) => c.cle === COULEUR_COUVERTURE_DEFAUT)!.hex;
+  const couleurHex = couleurCouverture(opts.couleurCle).hex;
   const source = genererSourceCouverture(opts.titre, opts.sousTitre, dims, couleurHex);
   const resultat = compiler.compile({ mainFileContent: source });
   if (resultat.hasError()) {

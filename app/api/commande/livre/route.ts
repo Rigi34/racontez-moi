@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { compilerInterieur, compilerCouverture } from "@/lib/manuscrit";
 import { chargerFragmentsAvecPhotos } from "@/lib/photos";
-import { creerCommandeImpression, impressionBloqueeEnLigne, PAGES_MINIMUM_RELIE, titreCommandeLulu, type AdresseLivraison } from "@/lib/lulu";
+import { creerCommandeImpression, impressionBloqueeEnLigne, PAGES_MINIMUM_RELIE, podPackageId, titreCommandeLulu, type AdresseLivraison } from "@/lib/lulu";
+import { texteDorure } from "@/lib/couverture";
 import { envoyerAlerteRegis, echapperHtml } from "@/lib/alerte";
 import { lirePersonnalisationLivre, lirePrenom } from "@/lib/profil-narrateur";
 
@@ -157,7 +158,10 @@ export async function POST() {
       user.email!,
       urlInterieur.signedUrl,
       urlCouverture.signedUrl,
-      titreCommandeLulu(titre, prenom)
+      titreCommandeLulu(titre, prenom),
+      // Toile et titre frappé de la couleur choisie (28/11/2026) : le titre
+      // du livre sur le dos, avec le prénom s'il tient dans les 42 signes.
+      { podPackageId: podPackageId(couleurCle), dorure: texteDorure(titre, prenom) }
     );
 
     await supabase
