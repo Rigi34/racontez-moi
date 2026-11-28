@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { couleurCouverture } from "./couverture";
 
 // Intégration Lulu Print API — impression et expédition à la demande du
 // livre final. Sandbox par défaut (jamais facturé, jamais imprimé pour de
@@ -22,9 +23,22 @@ const LULU_CLIENT_SECRET = EN_PRODUCTION ? process.env.LULU_CLIENT_SECRET : proc
 // livré en France pour 120 pages, mat comme brillant) — et code écrit au
 // nouveau format à points : l'ancien format sans points est abandonné par
 // Lulu le 1er février 2027 (le format à points est accepté en sandbox).
-// Évolution envisagée plus tard, non décidée : toile + jaquette imprimée
-// (0600X0900.FC.STD.LW.080CW444.MNG), après un exemplaire test.
-export const POD_PACKAGE_ID_PARCOURS = "0600X0900.FC.STD.CW.080CW444.MXX";
+//
+// 28/11/2026 (décision de Régis) : toile + jaquette imprimée (LW) au lieu
+// de la couverture rigide imprimée (CW). Les deux dernières lettres du code
+// sont la couleur de la toile et celle du titre frappé, fixées par la
+// couleur choisie (cf. PALETTE_COUVERTURE dans lib/couverture.ts). Vérifié
+// sur l'environnement d'essai le 28/11/2026 : mêmes dimensions de fichier et
+// même prix pour les quatre couleurs, 30,70 € livré en France pour 120 pages
+// (26,51 € en casewrap), 26,23 € pour 24 pages, 27,90 € pour 60 pages.
+// Le code ci-dessous (toile vert forêt, titre or) sert aux dimensions et au
+// calcul de coût, identiques pour toutes les couleurs.
+export const POD_PACKAGE_ID_PARCOURS = "0600X0900.FC.STD.LW.080CW444.MFG";
+
+export function podPackageId(couleurCle: string | null | undefined): string {
+  const c = couleurCouverture(couleurCle);
+  return `0600X0900.FC.STD.LW.080CW444.M${c.toile.code}${c.dorure.code}`;
+}
 
 // Garde-fou (07/11/2026, accord de Régis) : sur le site en ligne, tant que
 // le compte Lulu de production n'est pas branché, une commande partirait vers
@@ -148,12 +162,18 @@ export function titreCommandeLulu(titreLivre: string, prenom: string | null): st
   return complet.length > 120 ? `${complet.slice(0, 119)}…` : complet;
 }
 
+// Le titre frappé sur le dos de la toile (déjà nettoyé par texteDorure) et
+// le code produit de la couleur choisie. Un champ vide n'est pas envoyé
+// (Lulu accepte une commande sans titre frappé, vérifié le 28/11/2026).
+export type OptionsImpression = { podPackageId: string; dorure: { titre: string; auteur: string | null } };
+
 export async function creerCommandeImpression(
   adresse: AdresseLivraison,
   email: string,
   interieurUrl: string,
   couvertureUrl: string,
-  titreCommande = "Racontez-moi"
+  titreCommande = "Racontez-moi",
+  options: OptionsImpression = { podPackageId: POD_PACKAGE_ID_PARCOURS, dorure: { titre: "", auteur: null } }
 ) {
   const token = await obtenirToken();
   const res = await fetch(`${LULU_BASE_URL}/print-jobs/`, {
@@ -168,9 +188,11 @@ export async function creerCommandeImpression(
           quantity: 1,
           title: titreCommande,
           printable_normalization: {
-            pod_package_id: POD_PACKAGE_ID_PARCOURS,
+            pod_package_id: options.podPackageId,
             interior: { source_url: interieurUrl },
             cover: { source_url: couvertureUrl },
+            ...(options.dorure.titre ? { foil_stamp_title_text: options.dorure.titre } : {}),
+            ...(options.dorure.auteur ? { foil_stamp_author_text: options.dorure.auteur } : {}),
           },
         },
       ],

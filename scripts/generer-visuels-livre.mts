@@ -16,7 +16,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import sharp, { type Sharp } from "sharp";
 import { compilerInterieur, type FragmentAvecPhotos } from "../lib/manuscrit";
-import { genererSourceCouverture, geometrieCouverture, PALETTE_COUVERTURE } from "../lib/couverture";
+import { genererSourceCouverture, geometrieJaquette, PALETTE_COUVERTURE } from "../lib/couverture";
 import { dimensionsCouverture } from "../lib/lulu";
 import { NodeCompiler } from "@myriaddreamin/typst-ts-node-compiler";
 
@@ -103,10 +103,10 @@ for (let n = 1; n <= nombrePages; n++) {
   await (await pageRognee(n)).resize({ width: 300 }).png().toFile(join(travail, `vignette-${String(n).padStart(2, "0")}.png`));
 }
 
-// Couvertures : vraies dimensions Lulu pour CE nombre de pages, première de
-// couverture extraite (plat avant + débord du carton, sans la marge repliée).
+// Couvertures : vraies dimensions Lulu pour CE nombre de pages, plat avant
+// de la jaquette extrait (sans le rabat, cf. geometrieJaquette).
 const dims = await dimensionsCouverture(nombrePages);
-const g = geometrieCouverture(dims);
+const g = geometrieJaquette(dims);
 for (const couleur of PALETTE_COUVERTURE) {
   const compilateur = NodeCompiler.create();
   const resultat = compilateur.compile({
@@ -119,7 +119,7 @@ for (const couleur of PALETTE_COUVERTURE) {
   const px = (pt: number) => Math.round((pt / 72) * DPI);
   manifeste.couvertures[couleur.cle] = await ecrireVersionne(
     sharp(join(travail, `couverture-${couleur.cle}.png`))
-      .extract({ left: px(g.platAvantX), top: px(g.hautPlatY - 0.125 * 72), width: px(6.125 * 72), height: px(g.hauteurPlat + 0.25 * 72) })
+      .extract({ left: px(g.platAvantX), top: px(g.hautPlatY), width: px(6.125 * 72), height: px(g.hauteurPlat) })
       .webp({ quality: 88 }),
     `couverture-${couleur.cle}`
   );

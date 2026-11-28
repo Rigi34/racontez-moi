@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { COULEURS_COUVERTURE, COUVERTURE } from "./donnees";
+import { detailCouleur } from "./LivreToile";
 
 // Les quatre couleurs de couverture réellement proposées dans /mon-livre,
 // montrées avec les vrais rendus du moteur. Pas de saisie de titre ici : le
@@ -50,6 +51,7 @@ export default function CouleursCouverture() {
       </div>
       <p className="font-sans text-sm text-grege" aria-live="polite">
         {couleur.label}
+        <span className="block text-xs">{detailCouleur(couleur)}</span>
       </p>
     </div>
   );

@@ -3,11 +3,10 @@ import { qrSvg } from "@/lib/qr";
 import { urlEcoute, voixChoisieActive } from "@/lib/voix";
 import EmplacementPreuve, { AFFICHER_EMPLACEMENTS } from "../EmplacementPreuve";
 import CouleursCouverture from "./CouleursCouverture";
+import VignetteLivreToile from "./LivreToile";
 import { BlocPassage, PastillePassage } from "./EcouterPassage";
 import {
   AUDIO_SEANCE,
-  COULEURS_COUVERTURE,
-  COUVERTURE,
   JETON_VOIX_DEMO,
   MENTION_EXEMPLE,
   PAGE,
@@ -27,45 +26,23 @@ const etiquette = "font-sans text-xs tracking-widest uppercase";
 // posées à plat. Remplace une image générée qui montrait un autre livre.
 // 23/10/2026 « plus vivant » : les mêmes rendus réels, posés sur un fond
 // pétrole clair avec un signet ambré et deux étiquettes qui flottent.
+// 28/11/2026 : le livre relié en toile, animé, à la place de la couverture
+// et de la page posées à plat ; un toucher ouvre la présentation complète.
 export function VisuelLivre() {
   return (
     <figure>
-      <div className="relative mx-auto w-full max-w-[420px] rounded-[26px] bg-petrole-clair px-5 pt-10 pb-8">
+      <div className="relative mx-auto w-full max-w-[420px]">
         <span
           aria-hidden="true"
-          className="absolute -top-1.5 right-10 h-[70px] w-[22px] bg-ambre [clip-path:polygon(0_0,100%_0,100%_100%,50%_80%,0_100%)]"
+          className="absolute -top-1.5 right-10 z-10 h-[70px] w-[22px] bg-ambre [clip-path:polygon(0_0,100%_0,100%_100%,50%_80%,0_100%)]"
         />
         <span className="etiquette-flottante absolute -left-2 top-2 z-10 whitespace-nowrap rounded-full bg-blanc px-3.5 py-1.5 font-sans text-xs font-medium text-encre shadow-[0_10px_24px_-14px_rgba(0,0,0,0.35)]">
           <span className="text-ambre-texte">✦</span> Première séance offerte
         </span>
         <span className="etiquette-flottante etiquette-flottante--lente absolute -right-2 bottom-3 z-10 whitespace-nowrap rounded-full bg-blanc px-3.5 py-1.5 font-sans text-xs font-medium text-encre shadow-[0_10px_24px_-14px_rgba(0,0,0,0.35)]">
-          Un vrai livre, relié
+          Un vrai livre, relié en toile
         </span>
-        <div className="relative w-full aspect-[4/3.4]">
-          <div className="absolute right-0 top-[6%] w-[52%] shadow-[6px_6px_0px_#DAD4C5] ring-1 ring-grege/20">
-            <Image
-              src={SEANCE_REELLE.page}
-              alt="Ouverture du chapitre « Racines et petite enfance » du livre d'exemple"
-              width={PAGE.largeur}
-              height={PAGE.hauteur}
-              sizes="(max-width: 1024px) 50vw, 220px"
-              className="w-full h-auto"
-              loading="eager"
-            />
-          </div>
-          <div className="absolute left-[4%] top-0 w-[50%] shadow-[6px_6px_0px_#DAD4C5]">
-            <Image
-              src={COULEURS_COUVERTURE.find((c) => c.cle === "petrole")!.src}
-              alt="Couverture du livre d'exemple « Le figuier au fond du jardin », couleur pétrole"
-              width={COUVERTURE.largeur}
-              height={COUVERTURE.hauteur}
-              sizes="(max-width: 1024px) 50vw, 210px"
-              className="w-full h-auto"
-              loading="eager"
-              fetchPriority="high"
-            />
-          </div>
-        </div>
+        <VignetteLivreToile />
       </div>
       <figcaption className="mt-4 font-sans text-[11px] text-grege tracking-wide text-center lg:text-right">
         {MENTION_EXEMPLE}
@@ -77,8 +54,8 @@ export function VisuelLivre() {
 
 function FicheLivre() {
   const lignes: [string, string][] = [
-    ["Le livre", "Relié, couverture rigide, format 15\u00a0×\u00a023\u00a0cm."],
-    ["La couverture", "Quatre couleurs au choix, avec le titre et le sous-titre de votre livre."],
+    ["Le livre", "Relié en toile, titre frappé sur le dos, jaquette imprimée. Format 15\u00a0×\u00a023\u00a0cm."],
+    ["La couverture", "Quatre couleurs au choix\u00a0: chacune assortit la jaquette, la toile et le titre du dos. Sur la jaquette, le titre et le sous-titre de votre livre."],
     ["L'intérieur", "Imprimé en couleur sur papier blanc\u00a0: vos souvenirs en chapitres, vos photos dans le récit."],
     ["Les pages", "Autant que votre histoire en demande, à partir de 24 pages. Le prix ne change pas."],
     ...(voixChoisieActive()
@@ -116,7 +93,7 @@ export function SectionVotreLivre() {
             Votre histoire, <em className="italic text-ambre-texte">reliée.</em>
           </h2>
           <p className="font-serif text-lg leading-[1.8] text-encre/85">
-            Un livre à couverture rigide, vos souvenirs en chapitres, vos photos au fil des pages. Voici
+            Un livre relié en toile, vos souvenirs en chapitres, vos photos au fil des pages. Voici
             quelques pages du livre de Daniel, qui a grandi entre Lyon et le Vaucluse, composé par
             Racontez-moi à partir de son vrai témoignage. Les vôtres raconteront votre histoire.
           </p>
